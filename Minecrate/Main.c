@@ -9,6 +9,8 @@
 
 #include <stdlib.h>
 #include <raylib.h>
+#include <raymath.h>
+
 #include "PerlinNoise.h" // a mimir
 
 
@@ -24,7 +26,7 @@ static float clamp(float d, float min, float max) {
 }
 
 // Prototypes
-void PlaceCube(int x, int y, int z);
+void PlaceCube(int x, int y, int z, int t);
 
 
 int main()
@@ -53,8 +55,8 @@ int main()
 
 
     // PLAYER
-    Vector3 Position = { 16.0f, 32.0f, 16.0f }; // player position
-    Vector2 Look = { 0.0f, 1.55f }; // camera rotation in radians
+    Vector3 position = { 16.0f, 32.0f, 16.0f }; // player position
+    Vector2 look = { 0.0f, 1.55f }; // camera rotation in radians
 
     float PlayerHeight = 1.83f; // y offset of camera relative to player pos
     float Speed = 3.8f; // unit / second
@@ -62,11 +64,11 @@ int main()
 
 
     // TERRAIN (Chunk size: 16 x 64 x 16)
-    int Terrain[32][32];
+    int* terrain = malloc(64 * 64 * sizeof(int));
 
-    for (int X = 0; X < 32; X++) {
-        for (int Y = 0; Y < 32; Y++) {
-            Terrain[X][Y] = 0;//noise2d((double)X, (double)Y) * 4;
+    for (int x = 0; x < 64; x++) {
+        for (int y = 0; y < 64; y++) {
+            terrain[x + (y * 64)] = (int)(SamplePerlin((float)x / 16.0f, (float)y / 16.0f) * 255.0f);
         }
     }
 
@@ -76,7 +78,7 @@ int main()
     {
         // Deltatime
         srand(100); // keep random numbers across frames
-        float DT = GetFrameTime();
+        float dt = GetFrameTime();
 
         // My beloved FPS string
         int FPS = GetFPS();
@@ -85,48 +87,48 @@ int main()
 
 
         // MOVEMENT
-        float XM = cos(Look.x), YM = sin(Look.x);
+        float xm = cos(look.x), ym = sin(look.x);
 
-        float CS = Speed;
+        float cs = Speed;
 
-        bool W, A, S, D;
-        W = IsKeyDown(KEY_W); A = IsKeyDown(KEY_A); S = IsKeyDown(KEY_S); D = IsKeyDown(KEY_D);
+        bool w, a, s, d;
+        w = IsKeyDown(KEY_W); a = IsKeyDown(KEY_A); s = IsKeyDown(KEY_S); d = IsKeyDown(KEY_D);
 
-        if ((W && A) || (W && D) || (S && A) || (S && D)) { CS *= 0.707f; }
-        if (IsKeyDown(KEY_LEFT_SHIFT)) { CS *= SprintMult; }
+        if ((w && a) || (w && d) || (s && a) || (s && d)) { cs *= 0.707f; }
+        if (IsKeyDown(KEY_LEFT_SHIFT)) { cs *= SprintMult; }
 
 
-        if (W) { Position.x += CS * DT * XM; Position.z += CS * DT * YM; }
-        if (S) { Position.x += CS * DT * -XM; Position.z += CS * DT * -YM; }
-        if (A) { Position.x += CS * DT * YM; Position.z += CS * DT * -XM; }
-        if (D) { Position.x += CS * DT * -YM; Position.z += CS * DT * XM; }
+        if (w) { position.x += cs * dt * xm; position.z += cs * dt * ym; }
+        if (s) { position.x += cs * dt * -xm; position.z += cs * dt * -ym; }
+        if (a) { position.x += cs * dt * ym; position.z += cs * dt * -xm; }
+        if (d) { position.x += cs * dt * -ym; position.z += cs * dt * xm; }
 
-        int ix = (int)Position.x;
-        int iy = (int)Position.y;
+        int ix = (int)position.x;
+        int iy = (int)position.y;
 
         if (IsKeyPressed(KEY_SPACE)) {
-            Position.y++;
+            position.y++;
         }
 
         if (IsKeyPressed(KEY_M)) {
-            Position.y--;
+            position.y--;
         }
 
-        char PositionString[64];
-        snprintf(PositionString, 63, "Position: %d, %d, %d", (int)Position.x, (int)Position.y, (int)Position.z);
+        char position_string[64];
+        snprintf(position_string, 63, "position: %d, %d, %d", (int)position.x, (int)position.y, (int)position.z);
 
         // CAMERA
-        camera.position = (Vector3){ Position.x, Position.y + PlayerHeight, Position.z };
+        camera.position = (Vector3){ position.x, position.y + PlayerHeight, position.z };
 
-        Vector2 MD = GetMouseDelta();
-        Look.x += MD.x / Sensitivity;
-        Look.y += MD.y / Sensitivity;
+        Vector2 md = GetMouseDelta();
+        look.x += md.x / Sensitivity;
+        look.y += md.y / Sensitivity;
 
-        Look.x = fmodf(Look.x, PI * 2);
-        Look.y = clamp(Look.y, -1.55f, 1.55f); // ca. 89 degrees in radians
+        look.x = fmodf(look.x, PI * 2);
+        look.y = clamp(look.y, -1.55f, 1.55f); // ca. 89 degrees in radians
 
         Vector3 CP = camera.position;
-        camera.target = (Vector3){ CP.x + cos(Look.x), CP.y - tan(Look.y), CP.z + sin(Look.x) };
+        camera.target = (Vector3){ CP.x + cos(look.x), CP.y - tan(look.y), CP.z + sin(look.x) };
 
 
         // DRAW
@@ -138,16 +140,17 @@ int main()
         BeginMode3D(camera);
 
         // Chunk (put in function later)
-        for (int X = 0; X < 32; X++) {
-            for (int Y = 0; Y < 32; Y++) {
-                PlaceCube(X, Terrain[X][Y], Y);
+        for (int x = 0; x < 64; x++) {
+            for (int y = 0; y < 64; y++) {
+                PlaceCube(x, terrain[x + (y * 64)] / 32, y, terrain[x + (64 * y)]); //terrain[x + (y * 64)], y); 
             }
         }
 
-        DrawPlane((Vector3) { 0.0f, 0.8f, 0.0f }, (Vector2) { 1024.0f, 1024.0f }, (Color) {
-            102, 191, 255, 179
-        });
-        //DrawGrid(8, 16.0f);
+        //DrawPlane((Vector3) { 0.0f, 0.8f, 0.0f }, (Vector2) { 1024.0f, 1024.0f }, (Color) {
+        //    102, 191, 255, 179
+        //});
+
+        DrawGrid(8, 16.0f);
 
         EndMode3D();
 
@@ -155,24 +158,28 @@ int main()
         // UI
         DrawText("Minecrap BETA", 10, 10, 30, RAYWHITE);
         DrawText(FPSString, 10, 50, 20, InfoCol);
-        DrawText(PositionString, 10, 70, 20, InfoCol);
+        DrawText(position_string, 10, 70, 20, InfoCol);
 
         EndDrawing();
     }
 
+    free(terrain);
     CloseWindow();
 
     return 0;
 }
 
-void PlaceCube(int x, int y, int z) {
+void PlaceCube(int x, int y, int z, int t) {
     Color col = GRASS_COL;
 
     if (y < 3) {
         col = SAND_COL;
     }
 
-    float a = SamplePerlin(x, y);
-
-    DrawCube((Vector3) { x + 0.5f, y + 0.5f, z + 0.5f }, 1.0f, 1.0f, 1.0f, (Color) { a * 255, a * 255, 0, 255 });
+    DrawCube((Vector3) { x + 0.5f, y + 0.5f, z + 0.5f }, 1.0f, 1.0f, 1.0f, (Color) {
+        t,
+        0,
+        0,
+        255
+    });
 }
