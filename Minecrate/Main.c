@@ -70,7 +70,7 @@ int main()
 
     for (int x = 0; x < 32; x++) {
         for (int y = 0; y < 32; y++) {
-            terrain[x + (y * 32)] = 10 + sample_perlin((float)x / 4.0f, (float)y / 4.0f) * 4.0f;
+            terrain[x + (y * 32)] = 10 + sample_perlin((float)x / 4.0f, (float)y / 4.0f) * 8.0f;
         }
     }
 
@@ -108,7 +108,7 @@ int main()
         if (d) { position.x += cs * dt * -ym; position.z += cs * dt * xm; }
 
         if (IsKeyPressed(KEY_SPACE)) {
-            vertical_velo += 10.0f;
+            vertical_velo += 5.0f;
         }
 
         // Gravity
@@ -155,7 +155,7 @@ int main()
         // Chunk (put in function later)
         for (int x = 0; x < 32; x++) {
             for (int y = 0; y < 32; y++) {
-                PlaceCube(x, terrain[x + (y * 64)], y);
+                PlaceCube(x, terrain[x + (y * 32)], y);
             }
         }
 
