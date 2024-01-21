@@ -15,7 +15,8 @@
 
 
 // COLORS
-
+#define INFO_TITLE_COL (Color){ 255, 255, 255, 215 }
+#define INFO_COL (Color){ 255, 255, 255, 175 }
 
 // Static
 static float clamp(float d, float min, float max) {
@@ -29,19 +30,17 @@ void PlaceCube(int x, int y, int z);
 
 int main()
 {
-    // COLORS
-    Color InfoCol = (Color){ 255, 255, 255, 175 };
-
     // WINDOW
-    const int screenWidth = 2000;
-    const int screenHeight = 1200;
+    const int window_width = 2000;
+    const int window_height = 1000;
+    bool last_fullscreen = false;
+    bool is_fullscreen = false;
 
-    InitWindow(screenWidth, screenHeight, "Minecrap");
+    InitWindow(window_width, window_height, "Minecrate v0.1");
 
     DisableCursor();
     SetTargetFPS(60);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
-
 
     // CAMERA
     Camera camera = { 0 };
@@ -70,7 +69,7 @@ int main()
 
     for (int x = 0; x < 32; x++) {
         for (int y = 0; y < 32; y++) {
-            terrain[x + (y * 32)] = 10 + sample_perlin((float)x / 4.0f, (float)y / 4.0f) * 8.0f;
+            terrain[x + (y * 32)] = sample_perlin((float)x / 8.0f, (float)y / 8.0f) * 4.0f;
         }
     }
 
@@ -82,6 +81,23 @@ int main()
     // Main game loop
     while (!WindowShouldClose())
     {
+        // WINDOW
+        if (IsKeyPressed(KEY_F11)) { is_fullscreen = !is_fullscreen; }
+
+        if (is_fullscreen != last_fullscreen) {
+            if (is_fullscreen) {
+                const int monitor = GetCurrentMonitor();
+                SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
+                ToggleBorderlessWindowed();
+            } else {
+                ToggleBorderlessWindowed();
+                SetWindowSize(window_width, window_height);
+            }
+
+            last_fullscreen = is_fullscreen;
+        }
+
+
         // Deltatime
         srand(start_time);
         float dt = GetFrameTime();
@@ -89,7 +105,7 @@ int main()
         // My beloved FPS string
         int fps = GetFPS();
         char fps_string[12];
-        snprintf(fps_string, 11, "_fps: %d", fps);
+        snprintf(fps_string, 11, "fps: %d", fps);
 
 
         // MOVEMENT
@@ -126,10 +142,16 @@ int main()
                 vertical_velo = 0.0f;
             }
         }
+        else {
+            if (0.0f >= position.y) {
+                position.y = 0.0f;
+                vertical_velo = 0.0f;
+            }
+        }
 
         // Info
         char position_string[64];
-        snprintf(position_string, 63, "_position: %d, %d, %d", (int)position.x, (int)position.y, (int)position.z);
+        snprintf(position_string, 63, "position: %d, %d, %d", (int)floor(position.x), (int)floor(position.y), (int)floor(position.z));
 
         // CAMERA
         camera.position = (Vector3){ position.x, position.y + PlayerHeight, position.z };
@@ -139,7 +161,7 @@ int main()
         look.y += md.y / Sensitivity;
 
         look.x = fmodf(look.x, PI * 2);
-        look.y = clamp(look.y, -1.55f, 1.55f); // ca. 89 degrees in radians
+        look.y = clamp(look.y, -1.57f, 1.57f); // ca. 89 degrees in radians
 
         Vector3 CP = camera.position;
         camera.target = (Vector3){ CP.x + cos(look.x), CP.y - tan(look.y), CP.z + sin(look.x) };
@@ -147,7 +169,7 @@ int main()
 
         // DRAW
         BeginDrawing();
-        ClearBackground(SKYBLUE);
+        ClearBackground(BLACK);//SKYBLUE);
 
         // 3D
         BeginMode3D(camera);
@@ -159,16 +181,26 @@ int main()
             }
         }
 
-        DrawPlane((Vector3) { 0.0f, 0.8f, 0.0f }, (Vector2) { 128.0f, 128.0f }, (Color) {
-            0, 121, 241, 180
+        // WATER
+        DrawPlane((Vector3) { 0.0f, -0.001f, 0.0f }, (Vector2) { 128.0f, 128.0f }, (Color) {
+            0, 121, 241, 20
         });
+        
+        // Draw gizmos
+        DrawGrid(16, 1.0f);
+        DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 8.0f, 0.0f, 0.0f }, RED);
+        DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 0.0f, 0.0f, 8.0f }, BLUE);
 
         EndMode3D();
 
         // UI
-        DrawText("Minecrate v0.1", 10, 10, 30, RAYWHITE);
-        DrawText(fps_string, 10, 50, 20, InfoCol);
-        DrawText(position_string, 10, 70, 20, InfoCol);
+        DrawText("Minecrate v0.1", 10, 10, 30, WHITE);
+
+        DrawText("-- performance --", 10, 50, 20, INFO_TITLE_COL);
+        DrawText(fps_string, 10, 70, 20, INFO_COL);
+
+        DrawText("-- player --", 10, 110, 20, INFO_TITLE_COL);
+        DrawText(position_string, 10, 130, 20, INFO_COL);
 
         EndDrawing();
     }

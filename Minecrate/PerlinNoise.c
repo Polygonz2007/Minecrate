@@ -17,24 +17,24 @@ static float dot(Vector2 a, Vector2 b) {
 }
 
 static float randdir(int x, int y) {
-	srand(x);
-	srand(rand() - y);
+	x += y * 1000;
 
-	//const double r = (double)rand() / 5215.0f; // random number range 0 -> 2*PI
-	//const double rx = cos(r);
-	//const double ry = sin(r);
+    x = ((x >> 16) ^ x) * 0x45d9f3b;
+    x = ((x >> 16) ^ x) * 0x45d9f3b;
+    x = (x >> 16) ^ x;
 
-	const double m = 2.0f;
-	return -1.0f + modf((float)rand() / 256.0f, &m);
+    double r = (float)x / 2147483648.0f; // to float, 0 - 1
+
+	return fabs(r * r * (3.0f - 2.0f * r));
 }
 
 float sample_perlin(float x, float y) {
 
-	const double ix = 1.0f, iy = 1.0f;
-	const double remx = modf(x, &ix), remy = modf(y, &iy);
+	const double remx = fmodf(x, 1.0f);
+	const double remy = fmodf(y, 1.0f);
 
 	// Corners
-	const int xx = (int)x, yy = (int)y;
+	const int xx = (int)floor(x), yy = (int)floor(y);
 	const float A = randdir(xx, yy);
 	const float B = randdir(xx, yy + 1);
 	const float C = randdir(xx + 1, yy);
