@@ -27,4 +27,8 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\Downloads\base.vs" />
+    <None Include="..\..\..\..\..\Downloads\base.fs" />
+  </ItemGroup>
 </Project>

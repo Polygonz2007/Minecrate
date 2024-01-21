@@ -15,8 +15,6 @@
 
 
 // COLORS
-#define GRASS_COL (Color){ 40, 200, 50, 255 };
-#define SAND_COL (Color){ 240, 220, 150, 255 };
 
 
 // Static
@@ -26,7 +24,7 @@ static float clamp(float d, float min, float max) {
 }
 
 // Prototypes
-void PlaceCube(int x, int y, int z, int t);
+void PlaceCube(int x, int y, int z);
 
 
 int main()
@@ -41,7 +39,7 @@ int main()
     InitWindow(screenWidth, screenHeight, "Minecrap");
 
     DisableCursor();
-    SetTargetFPS(60);
+    SetTargetFPS(144);
 
 
     // CAMERA
@@ -55,8 +53,8 @@ int main()
 
 
     // PLAYER
-    Vector3 position = { 16.0f, 32.0f, 16.0f }; // player position
-    Vector2 look = { 0.0f, 1.55f }; // camera rotation in radians
+    Vector3 position = { 0.5f, 0.0f, 0.5f }; // player position
+    Vector2 look = { 0.707f, 0.0f }; // camera rotation in radians
 
     float PlayerHeight = 1.83f; // y offset of camera relative to player pos
     float Speed = 3.8f; // unit / second
@@ -64,26 +62,30 @@ int main()
 
 
     // TERRAIN (Chunk size: 16 x 64 x 16)
-    int* terrain = malloc(64 * 64 * sizeof(int));
+    int *terrain = malloc(64 * 64 * sizeof(int));
 
     for (int x = 0; x < 64; x++) {
         for (int y = 0; y < 64; y++) {
-            terrain[x + (y * 64)] = (int)(SamplePerlin((float)x / 16.0f, (float)y / 16.0f) * 255.0f);
+            terrain[x + (y * 64)] = 10 + sample_perlin((float)x / 4.0f, (float)y / 4.0f) * 4.0f;
         }
     }
+
+    position.y = (float)terrain[0] + 1.0f;
+
+    const int start_time = time(NULL);
 
 
     // Main game loop
     while (!WindowShouldClose())
     {
         // Deltatime
-        srand(100); // keep random numbers across frames
+        srand(start_time);
         float dt = GetFrameTime();
 
         // My beloved FPS string
         int FPS = GetFPS();
         char FPSString[12];
-        snprintf(FPSString, 11, "FPS: %d", FPS);
+        snprintf(FPSString, 11, "_fps: %d", FPS);
 
 
         // MOVEMENT
@@ -115,7 +117,7 @@ int main()
         }
 
         char position_string[64];
-        snprintf(position_string, 63, "position: %d, %d, %d", (int)position.x, (int)position.y, (int)position.z);
+        snprintf(position_string, 63, "_position: %d, %d, %d", (int)position.x, (int)position.y, (int)position.z);
 
         // CAMERA
         camera.position = (Vector3){ position.x, position.y + PlayerHeight, position.z };
@@ -133,7 +135,7 @@ int main()
 
         // DRAW
         BeginDrawing();
-        ClearBackground(DARKBLUE);
+        ClearBackground(SKYBLUE);
 
 
         // 3D
@@ -142,21 +144,19 @@ int main()
         // Chunk (put in function later)
         for (int x = 0; x < 64; x++) {
             for (int y = 0; y < 64; y++) {
-                PlaceCube(x, terrain[x + (y * 64)] / 32, y, terrain[x + (64 * y)]); //terrain[x + (y * 64)], y); 
+                PlaceCube(x, terrain[x + (y * 64)], y);
             }
         }
 
-        //DrawPlane((Vector3) { 0.0f, 0.8f, 0.0f }, (Vector2) { 1024.0f, 1024.0f }, (Color) {
-        //    102, 191, 255, 179
-        //});
-
-        DrawGrid(8, 16.0f);
+        DrawPlane((Vector3) { 0.0f, 0.8f, 0.0f }, (Vector2) { 1024.0f, 1024.0f }, (Color) {
+            0, 121, 241, 180
+        });
 
         EndMode3D();
 
 
         // UI
-        DrawText("Minecrap BETA", 10, 10, 30, RAYWHITE);
+        DrawText("Minecrate v0.1", 10, 10, 30, RAYWHITE);
         DrawText(FPSString, 10, 50, 20, InfoCol);
         DrawText(position_string, 10, 70, 20, InfoCol);
 
@@ -169,17 +169,17 @@ int main()
     return 0;
 }
 
-void PlaceCube(int x, int y, int z, int t) {
-    Color col = GRASS_COL;
+void PlaceCube(int x, int y, int z) {
+    Color col = LIME;
 
     if (y < 3) {
-        col = SAND_COL;
+        col = GOLD;
     }
 
     DrawCube((Vector3) { x + 0.5f, y + 0.5f, z + 0.5f }, 1.0f, 1.0f, 1.0f, (Color) {
-        t,
-        0,
-        0,
+        col.r + rand() / 128 / 16,
+        col.g + rand() / 128 / 16,
+        col.b + rand() / 128 / 16,
         255
     });
 }

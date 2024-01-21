@@ -133,6 +133,10 @@
   <ItemGroup>
     <ClInclude Include="PerlinNoise.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\Downloads\base.fs" />
+    <None Include="..\..\..\..\..\Downloads\base.vs" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
