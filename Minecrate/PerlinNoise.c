@@ -25,7 +25,7 @@ static float randdir(int x, int y) {
 
     double r = (float)x / 2147483648.0f; // to float, 0 - 1
 
-	return fabs(r * r * (3.0f - 2.0f * r));
+	return r * r * (3.0f - 2.0f * r);
 }
 
 float sample_perlin(float x, float y) {
@@ -50,4 +50,22 @@ float sample_perlin(float x, float y) {
 	//if (Result > 1.0f)  { Result = 1.0f; }
 
 	return Result;
+}
+
+float sample_perlin_octaves(float x, float y, int octaves, float lacunarity, float persistance) {
+	float scale = 1.0f;
+	float strength = 1.0f;
+
+	float tot = 0.0f;
+	float result = 0.0f;
+
+	for (int i = 0; i < octaves; ++i) {
+		result += sample_perlin(x * scale, y * scale) * strength;
+		tot += strength;
+
+		scale *= lacunarity;
+		strength *= persistance;
+	}
+
+	return result / tot;
 }

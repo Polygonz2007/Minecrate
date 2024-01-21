@@ -24,6 +24,11 @@ static float clamp(float d, float min, float max) {
     return t > max ? max : t;
 }
 
+static int clampint(int d, int min, int max) {
+    const int t = d < min ? min : d;
+    return t > max ? max : t;
+}
+
 // Prototypes
 void PlaceCube(int x, int y, int z);
 
@@ -46,7 +51,7 @@ int main()
     Camera camera = { 0 };
     camera.position = (Vector3){ 2.0f, 1.83f, 2.0f };
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-    camera.fovy = 60.0f;
+    camera.fovy = 80.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 
     float Sensitivity = 300.0f; // Higher sensitivity --> Less rotation per px moved
@@ -64,12 +69,18 @@ int main()
     float SprintMult = 2.0f;
 
 
-    // TERRAIN (Chunk size: 16 x 64 x 16)
-    int *terrain = malloc(32 * 32 * sizeof(int));
+    // TERRAIN (Chunk size: 16 x 64 x 16)int 
+    int chunk_size = 96; // size of x and z in chunk
+    int *terrain = malloc(chunk_size * chunk_size * sizeof(int));
 
-    for (int x = 0; x < 32; x++) {
-        for (int y = 0; y < 32; y++) {
-            terrain[x + (y * 32)] = sample_perlin((float)x / 8.0f, (float)y / 8.0f) * 4.0f;
+    for (int x = 0; x < chunk_size; x++) {
+        for (int y = 0; y < chunk_size; y++) {
+            terrain[x + (y * chunk_size)] = -6 + 16.0f * sample_perlin_octaves(
+                                                            100.0f + (float)x / 24.0f,      // X
+                                                            (float)y / 24.0f,               // Y
+                                                            3,                              // OCTAVES
+                                                            1.8f,                           // LACUNARITY
+                                                            0.4f);                          // PERSISTANCE
         }
     }
 
@@ -124,7 +135,7 @@ int main()
         if (d) { position.x += cs * dt * -ym; position.z += cs * dt * xm; }
 
         if (IsKeyPressed(KEY_SPACE)) {
-            vertical_velo += 5.0f;
+            vertical_velo += 4.0f;
         }
 
         // Gravity
@@ -132,10 +143,10 @@ int main()
         const int iy = (int)(position.z);
 
         vertical_velo += gravity * dt;
-        position.y += vertical_velo * dt;
+        position.y += vertical_velo * dt * 2;
 
-        if (ix >= 0 && ix < 32 && iy >= 0 && iy < 32) {
-            const int h = terrain[ix + (iy * 32)] + 1;
+        if (ix >= 0 && ix < chunk_size && iy >= 0 && iy < chunk_size) {
+            const int h = terrain[ix + (iy * chunk_size)] + 1;
 
             if ((float)h >= position.y) {
                 position.y = (float)h;
@@ -161,7 +172,7 @@ int main()
         look.y += md.y / Sensitivity;
 
         look.x = fmodf(look.x, PI * 2);
-        look.y = clamp(look.y, -1.57f, 1.57f); // ca. 89 degrees in radians
+        look.y = clamp(look.y, -1.57f, 1.57f);
 
         Vector3 CP = camera.position;
         camera.target = (Vector3){ CP.x + cos(look.x), CP.y - tan(look.y), CP.z + sin(look.x) };
@@ -169,27 +180,27 @@ int main()
 
         // DRAW
         BeginDrawing();
-        ClearBackground(BLACK);//SKYBLUE);
+        ClearBackground(SKYBLUE);
 
         // 3D
         BeginMode3D(camera);
 
         // Chunk (put in function later)
-        for (int x = 0; x < 32; x++) {
-            for (int y = 0; y < 32; y++) {
-                PlaceCube(x, terrain[x + (y * 32)], y);
+        for (int x = 0; x < chunk_size; x++) {
+            for (int y = 0; y < chunk_size; y++) {
+                PlaceCube(x, terrain[x + (y * chunk_size)], y);
             }
         }
 
         // WATER
-        DrawPlane((Vector3) { 0.0f, -0.001f, 0.0f }, (Vector2) { 128.0f, 128.0f }, (Color) {
-            0, 121, 241, 20
+        DrawPlane((Vector3) { 0.0f, -0.2f, 0.0f }, (Vector2) { 256.0f, 256.0f }, (Color) {
+            0, 121, 241, 200
         });
         
-        // Draw gizmos
-        DrawGrid(16, 1.0f);
-        DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 8.0f, 0.0f, 0.0f }, RED);
-        DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 0.0f, 0.0f, 8.0f }, BLUE);
+        // Draw gizmos (TESTING ONLY)
+        //DrawGrid(16, 1.0f);
+        //DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 8.0f, 0.0f, 0.0f }, RED);
+        //DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 0.0f, 0.0f, 8.0f }, BLUE);
 
         EndMode3D();
 
@@ -214,14 +225,14 @@ int main()
 void PlaceCube(int x, int y, int z) {
     Color col = LIME;
 
-    if (y < 3) {
+    if (y < sample_perlin((float)x / 10.0f + 1000.0f, (float)y / 10.0f) * 2.0f) {
         col = GOLD;
     }
 
     DrawCube((Vector3) { x + 0.5f, y + 0.5f, z + 0.5f }, 1.0f, 1.0f, 1.0f, (Color) {
-        col.r + rand() / 128 / 16,
-        col.g + rand() / 128 / 16,
-        col.b + rand() / 128 / 16,
+        clampint(col.r + rand() / 128 / 32, 0, 255),
+        clampint(col.g + rand() / 128 / 32, 0, 255),
+        clampint(col.b + rand() / 128 / 32, 0, 255),
         255
     });
 }
