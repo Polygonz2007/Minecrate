@@ -39,7 +39,8 @@ int main()
     InitWindow(screenWidth, screenHeight, "Minecrap");
 
     DisableCursor();
-    SetTargetFPS(144);
+    SetTargetFPS(60);
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
 
 
     // CAMERA
@@ -51,10 +52,13 @@ int main()
 
     float Sensitivity = 300.0f; // Higher sensitivity --> Less rotation per px moved
 
+    // PHYSICS
+    const float gravity = -9.81f;
 
     // PLAYER
     Vector3 position = { 0.5f, 0.0f, 0.5f }; // player position
     Vector2 look = { 0.707f, 0.0f }; // camera rotation in radians
+    float vertical_velo = 0.0f;
 
     float PlayerHeight = 1.83f; // y offset of camera relative to player pos
     float Speed = 3.8f; // unit / second
@@ -62,11 +66,11 @@ int main()
 
 
     // TERRAIN (Chunk size: 16 x 64 x 16)
-    int *terrain = malloc(64 * 64 * sizeof(int));
+    int *terrain = malloc(32 * 32 * sizeof(int));
 
-    for (int x = 0; x < 64; x++) {
-        for (int y = 0; y < 64; y++) {
-            terrain[x + (y * 64)] = 10 + sample_perlin((float)x / 4.0f, (float)y / 4.0f) * 4.0f;
+    for (int x = 0; x < 32; x++) {
+        for (int y = 0; y < 32; y++) {
+            terrain[x + (y * 32)] = 10 + sample_perlin((float)x / 4.0f, (float)y / 4.0f) * 4.0f;
         }
     }
 
@@ -83,14 +87,13 @@ int main()
         float dt = GetFrameTime();
 
         // My beloved FPS string
-        int FPS = GetFPS();
-        char FPSString[12];
-        snprintf(FPSString, 11, "_fps: %d", FPS);
+        int fps = GetFPS();
+        char fps_string[12];
+        snprintf(fps_string, 11, "_fps: %d", fps);
 
 
         // MOVEMENT
         float xm = cos(look.x), ym = sin(look.x);
-
         float cs = Speed;
 
         bool w, a, s, d;
@@ -99,23 +102,32 @@ int main()
         if ((w && a) || (w && d) || (s && a) || (s && d)) { cs *= 0.707f; }
         if (IsKeyDown(KEY_LEFT_SHIFT)) { cs *= SprintMult; }
 
-
         if (w) { position.x += cs * dt * xm; position.z += cs * dt * ym; }
         if (s) { position.x += cs * dt * -xm; position.z += cs * dt * -ym; }
         if (a) { position.x += cs * dt * ym; position.z += cs * dt * -xm; }
         if (d) { position.x += cs * dt * -ym; position.z += cs * dt * xm; }
 
-        int ix = (int)position.x;
-        int iy = (int)position.y;
-
         if (IsKeyPressed(KEY_SPACE)) {
-            position.y++;
+            vertical_velo += 10.0f;
         }
 
-        if (IsKeyPressed(KEY_M)) {
-            position.y--;
+        // Gravity
+        const int ix = (int)(position.x);
+        const int iy = (int)(position.z);
+
+        vertical_velo += gravity * dt;
+        position.y += vertical_velo * dt;
+
+        if (ix >= 0 && ix < 32 && iy >= 0 && iy < 32) {
+            const int h = terrain[ix + (iy * 32)] + 1;
+
+            if ((float)h >= position.y) {
+                position.y = (float)h;
+                vertical_velo = 0.0f;
+            }
         }
 
+        // Info
         char position_string[64];
         snprintf(position_string, 63, "_position: %d, %d, %d", (int)position.x, (int)position.y, (int)position.z);
 
@@ -137,27 +149,25 @@ int main()
         BeginDrawing();
         ClearBackground(SKYBLUE);
 
-
         // 3D
         BeginMode3D(camera);
 
         // Chunk (put in function later)
-        for (int x = 0; x < 64; x++) {
-            for (int y = 0; y < 64; y++) {
+        for (int x = 0; x < 32; x++) {
+            for (int y = 0; y < 32; y++) {
                 PlaceCube(x, terrain[x + (y * 64)], y);
             }
         }
 
-        DrawPlane((Vector3) { 0.0f, 0.8f, 0.0f }, (Vector2) { 1024.0f, 1024.0f }, (Color) {
+        DrawPlane((Vector3) { 0.0f, 0.8f, 0.0f }, (Vector2) { 128.0f, 128.0f }, (Color) {
             0, 121, 241, 180
         });
 
         EndMode3D();
 
-
         // UI
         DrawText("Minecrate v0.1", 10, 10, 30, RAYWHITE);
-        DrawText(FPSString, 10, 50, 20, InfoCol);
+        DrawText(fps_string, 10, 50, 20, InfoCol);
         DrawText(position_string, 10, 70, 20, InfoCol);
 
         EndDrawing();
