@@ -15,15 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.c">
+    <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PerlinNoise.c">
+    <ClCompile Include="perlinNoise.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="meshes.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PerlinNoise.h">
+    <ClInclude Include="perlinNoise.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="meshes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

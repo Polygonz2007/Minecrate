@@ -11,7 +11,8 @@
 #include <raylib.h>
 #include <raymath.h>
 
-#include "PerlinNoise.h" // a mimir
+#include "perlinNoise.h" // a mimir
+#include "meshes.h" // dos mimires
 
 
 // COLORS
@@ -44,7 +45,7 @@ int main()
     InitWindow(window_width, window_height, "Minecrate v0.1");
 
     DisableCursor();
-    SetTargetFPS(60);
+    SetTargetFPS(144);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
     // CAMERA
@@ -75,12 +76,12 @@ int main()
 
     for (int x = 0; x < chunk_size; x++) {
         for (int y = 0; y < chunk_size; y++) {
-            terrain[x + (y * chunk_size)] = -6 + 16.0f * sample_perlin_octaves(
-                                                            100.0f + (float)x / 24.0f,      // X
-                                                            (float)y / 24.0f,               // Y
-                                                            3,                              // OCTAVES
-                                                            1.8f,                           // LACUNARITY
-                                                            0.4f);                          // PERSISTANCE
+            terrain[x + (y * chunk_size)] = -1;//-6 + 16.0f * sample_perlin_octaves(
+                                            //                100.0f + (float)x / 24.0f,      // X
+                                            //                (float)y / 24.0f,               // Y
+                                            //                3,                              // OCTAVES
+                                            //                1.8f,                           // LACUNARITY
+                                            //                0.4f);                          // PERSISTANCE
         }
     }
 
@@ -88,6 +89,12 @@ int main()
 
     const int start_time = time(NULL);
 
+    Mesh mush = GenPlate();
+    Model model = LoadModelFromMesh(mush);
+
+    Image img = GenImageWhiteNoise(64, 64, 0.5f);
+    Texture texture = LoadTextureFromImage(img);
+    model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
 
     // Main game loop
     while (!WindowShouldClose())
@@ -180,7 +187,7 @@ int main()
 
         // DRAW
         BeginDrawing();
-        ClearBackground(SKYBLUE);
+        ClearBackground(BLACK);
 
         // 3D
         BeginMode3D(camera);
@@ -188,19 +195,22 @@ int main()
         // Chunk (put in function later)
         for (int x = 0; x < chunk_size; x++) {
             for (int y = 0; y < chunk_size; y++) {
-                PlaceCube(x, terrain[x + (y * chunk_size)], y);
+                continue;
+                //PlaceCube(x, terrain[x + (y * chunk_size)], y);
             }
         }
 
         // WATER
-        DrawPlane((Vector3) { 0.0f, -0.2f, 0.0f }, (Vector2) { 256.0f, 256.0f }, (Color) {
-            0, 121, 241, 200
-        });
-        
+        //DrawPlane((Vector3) { 0.0f, -0.2f, 0.0f }, (Vector2) { 256.0f, 256.0f }, (Color) {
+        //    0, 121, 241, 200
+        //});
+
         // Draw gizmos (TESTING ONLY)
-        //DrawGrid(16, 1.0f);
-        //DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 8.0f, 0.0f, 0.0f }, RED);
-        //DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 0.0f, 0.0f, 8.0f }, BLUE);
+        DrawGrid(16, 1.0f);
+        DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 8.0f, 0.0f, 0.0f }, RED);
+        DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 0.0f, 0.0f, 8.0f }, BLUE);
+
+        DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
 
         EndMode3D();
 

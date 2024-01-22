@@ -127,11 +127,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Main.c" />
-    <ClCompile Include="PerlinNoise.c" />
+    <ClCompile Include="main.c" />
+    <ClCompile Include="meshes.c" />
+    <ClCompile Include="perlinNoise.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PerlinNoise.h" />
+    <ClInclude Include="meshes.h" />
+    <ClInclude Include="perlinNoise.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\..\Downloads\base.fs" />
