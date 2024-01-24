@@ -9,6 +9,7 @@ Mesh GenPlate() {
     mesh.texcoords = (float*)MemAlloc(mesh.vertexCount * 2 * sizeof(float));
     mesh.normals = (float*)MemAlloc(mesh.vertexCount * 3 * sizeof(float));
 
+
     // Vertex 0 0
     mesh.vertices[0] = 0;
     mesh.vertices[1] = 0;
@@ -68,6 +69,7 @@ Mesh GenPlate() {
     mesh.normals[17] = 0;
     mesh.texcoords[10] = 1;
     mesh.texcoords[11] = 1;
+
 
     UploadMesh(&mesh, false);
 

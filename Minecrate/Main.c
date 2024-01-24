@@ -37,12 +37,14 @@ void PlaceCube(int x, int y, int z);
 int main()
 {
     // WINDOW
-    const int window_width = 2000;
-    const int window_height = 1000;
+    const int default_window_width = 2000;
+    const int default_window_height = 1000;
+    int window_width = default_window_width;
+    int window_height = default_window_height;
     bool last_fullscreen = false;
     bool is_fullscreen = false;
 
-    InitWindow(window_width, window_height, "Minecrate v0.1");
+    InitWindow(default_window_width, default_window_height, "Minecrate v0.1");
 
     DisableCursor();
     SetTargetFPS(144);
@@ -68,6 +70,11 @@ int main()
     float PlayerHeight = 1.83f; // y offset of camera relative to player pos
     float Speed = 3.8f; // unit / second
     float SprintMult = 2.0f;
+
+
+    // GAMEPLAY
+    int hotbar_item_size = 80; // px
+    int hotbar_selected = 0; // 0 - 8
 
 
     // TERRAIN (Chunk size: 16 x 64 x 16)int 
@@ -105,10 +112,17 @@ int main()
         if (is_fullscreen != last_fullscreen) {
             if (is_fullscreen) {
                 const int monitor = GetCurrentMonitor();
-                SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
+                window_width = GetMonitorWidth(monitor);
+                window_height = GetMonitorHeight(monitor);
+
+                SetWindowSize(window_width, window_height);
                 ToggleBorderlessWindowed();
             } else {
                 ToggleBorderlessWindowed();
+
+                window_width = default_window_width;
+                window_height = default_window_height;
+
                 SetWindowSize(window_width, window_height);
             }
 
@@ -144,6 +158,17 @@ int main()
         if (IsKeyPressed(KEY_SPACE)) {
             vertical_velo += 4.0f;
         }
+
+        const float scroll = floor(GetMouseWheelMove());
+        
+        if (scroll < 0.0f) {
+            --hotbar_selected;
+            if (hotbar_selected < 0) { hotbar_selected = 8; }
+        } else if (scroll > 0.0f) {
+            ++hotbar_selected;
+            if (hotbar_selected > 8) { hotbar_selected = 0; }
+        }
+        
 
         // Gravity
         const int ix = (int)(position.x);
@@ -214,7 +239,18 @@ int main()
 
         EndMode3D();
 
-        // UI
+        // --  UI  --
+        // HOTBAR
+        int center_horizontal = window_width / 2;
+        int border = 4; // px
+
+        for (int i = 0; i < 9; ++i) {
+            int x = center_horizontal + (-4.5f + (float)i) * hotbar_item_size;
+            DrawRectangle(x, window_height - hotbar_item_size, hotbar_item_size, hotbar_item_size, WHITE); // OUTLINE
+            DrawRectangle(x + border, window_height - hotbar_item_size + border, hotbar_item_size - 2 * border, hotbar_item_size - 2 * border, hotbar_selected == i ? BLACK : GRAY); // OUTLINE
+        }
+
+        // INFO
         DrawText("Minecrate v0.1", 10, 10, 30, WHITE);
 
         DrawText("-- performance --", 10, 50, 20, INFO_TITLE_COL);
