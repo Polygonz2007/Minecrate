@@ -19,6 +19,9 @@
 #define INFO_TITLE_COL (Color){ 255, 255, 255, 215 }
 #define INFO_COL (Color){ 255, 255, 255, 175 }
 
+#define GRASS (Color){ 50, 180, 60, 255 }
+#define SAND (Color){ 240, 230, 170, 255 }
+
 // Static
 static float clamp(float d, float min, float max) {
     const float t = d < min ? min : d;
@@ -47,7 +50,7 @@ int main()
     InitWindow(default_window_width, default_window_height, "Minecrate v0.1");
 
     DisableCursor();
-    SetTargetFPS(144);
+    SetTargetFPS(60);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
     // CAMERA
@@ -78,17 +81,18 @@ int main()
 
 
     // TERRAIN (Chunk size: 16 x 64 x 16)int 
-    int chunk_size = 96; // size of x and z in chunk
+    int chunk_size = 196; // size of x and z in chunk
     int *terrain = malloc(chunk_size * chunk_size * sizeof(int));
 
     for (int x = 0; x < chunk_size; x++) {
         for (int y = 0; y < chunk_size; y++) {
-            terrain[x + (y * chunk_size)] = -1;//-6 + 16.0f * sample_perlin_octaves(
-                                            //                100.0f + (float)x / 24.0f,      // X
-                                            //                (float)y / 24.0f,               // Y
-                                            //                3,                              // OCTAVES
-                                            //                1.8f,                           // LACUNARITY
-                                            //                0.4f);                          // PERSISTANCE
+            terrain[x + (y * chunk_size)] = -2 + 24.0f * sample_perlin_octaves(
+                        100.0f + (float)x / 32.0f,      // X
+                        (float)y / 32.0f,               // Y
+                        3,                              // OCTAVES
+                        1.8f,                           // LACUNARITY
+                        0.4f)                          // PERSISTANCE
+                - sample_perlin((float)x / 154.0f, (float)y / 154.0f) * 60.0f;
         }
     }
 
@@ -212,7 +216,7 @@ int main()
 
         // DRAW
         BeginDrawing();
-        ClearBackground(BLACK);
+        ClearBackground(SKYBLUE);
 
         // 3D
         BeginMode3D(camera);
@@ -220,22 +224,21 @@ int main()
         // Chunk (put in function later)
         for (int x = 0; x < chunk_size; x++) {
             for (int y = 0; y < chunk_size; y++) {
-                continue;
-                //PlaceCube(x, terrain[x + (y * chunk_size)], y);
+                PlaceCube(x, terrain[x + (y * chunk_size)], y);
             }
         }
 
         // WATER
-        //DrawPlane((Vector3) { 0.0f, -0.2f, 0.0f }, (Vector2) { 256.0f, 256.0f }, (Color) {
-        //    0, 121, 241, 200
-        //});
+        DrawPlane((Vector3) { 0.0f, -0.2f, 0.0f }, (Vector2) { 512.0f, 512.0f }, (Color) {
+            0, 121, 241, 200
+        });
 
         // Draw gizmos (TESTING ONLY)
         DrawGrid(16, 1.0f);
         DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 8.0f, 0.0f, 0.0f }, RED);
         DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 0.0f, 0.0f, 8.0f }, BLUE);
 
-        DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
+        //DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
 
         EndMode3D();
 
@@ -269,10 +272,10 @@ int main()
 }
 
 void PlaceCube(int x, int y, int z) {
-    Color col = LIME;
+    Color col = GRASS;
 
     if (y < sample_perlin((float)x / 10.0f + 1000.0f, (float)y / 10.0f) * 2.0f) {
-        col = GOLD;
+        col = SAND;
     }
 
     DrawCube((Vector3) { x + 0.5f, y + 0.5f, z + 0.5f }, 1.0f, 1.0f, 1.0f, (Color) {
