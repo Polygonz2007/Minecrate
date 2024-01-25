@@ -81,18 +81,22 @@ int main()
 
 
     // TERRAIN (Chunk size: 16 x 64 x 16)int 
-    int chunk_size = 196; // size of x and z in chunk
+    Vector2 c_chunk = { 6, 0 }; // Current chunk pos
+    int chunk_size = 64; // size of x and z in chunk
     int *terrain = malloc(chunk_size * chunk_size * sizeof(int));
 
     for (int x = 0; x < chunk_size; x++) {
         for (int y = 0; y < chunk_size; y++) {
-            terrain[x + (y * chunk_size)] = -2 + 24.0f * sample_perlin_octaves(
-                        100.0f + (float)x / 32.0f,      // X
-                        (float)y / 32.0f,               // Y
-                        3,                              // OCTAVES
-                        1.8f,                           // LACUNARITY
-                        0.4f)                          // PERSISTANCE
-                - sample_perlin((float)x / 154.0f, (float)y / 154.0f) * 60.0f;
+            float cx = (float)x + c_chunk.x * 16;
+            float cy = (float)y + c_chunk.y * 16;
+
+            terrain[x + (y * chunk_size)] = -2 + 32.0f * sample_perlin_octaves(
+                        cx / 48.0f,                     // X
+                        cy / 48.0f,                     // Y
+                        5,                              // OCTAVES
+                        2.0f,                           // LACUNARITY
+                        0.47f)                          // PERSISTANCE
+                - sample_perlin(cx / 154.0f, cy / 154.0f) * 60.0f;
         }
     }
 
