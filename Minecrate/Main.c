@@ -170,10 +170,10 @@ int main()
         const float scroll = floor(GetMouseWheelMove());
         
         if (scroll < 0.0f) {
-            --hotbar_selected;
+            ++hotbar_selected;
             if (hotbar_selected < 0) { hotbar_selected = 8; }
         } else if (scroll > 0.0f) {
-            ++hotbar_selected;
+            --hotbar_selected;
             if (hotbar_selected > 8) { hotbar_selected = 0; }
         }
         
