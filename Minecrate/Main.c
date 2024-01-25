@@ -240,7 +240,7 @@ int main()
 
         // WATER
         DrawPlane((Vector3) { 0.0f, -0.2f, 0.0f }, (Vector2) { 512.0f, 512.0f }, (Color) {
-            0, 121, 241, 200
+            0, 121, 241, 178
         });
 
         // Draw gizmos (TESTING ONLY)
