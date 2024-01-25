@@ -156,7 +156,7 @@ int main()
         w = IsKeyDown(KEY_W); a = IsKeyDown(KEY_A); s = IsKeyDown(KEY_S); d = IsKeyDown(KEY_D);
 
         if ((w && a) || (w && d) || (s && a) || (s && d)) { cs *= 0.707f; }
-        if (IsKeyDown(KEY_LEFT_SHIFT)) { cs *= SprintMult; }
+        if (IsKeyDown(KEY_LEFT_CONTROL)) { cs *= SprintMult; }
 
         if (w) { position.x += cs * dt * xm; position.z += cs * dt * ym; }
         if (s) { position.x += cs * dt * -xm; position.z += cs * dt * -ym; }
@@ -167,13 +167,19 @@ int main()
             vertical_velo += 4.0f;
         }
 
+        if (IsKeyDown(KEY_LEFT_SHIFT)) {
+            if (vertical_velo > 0.0f) {
+                vertical_velo *= 0.9f;
+            }
+        }
+
         const float scroll = floor(GetMouseWheelMove());
         
-        if (scroll < 0.0f) {
-            ++hotbar_selected;
+        if (scroll > 0.0f) {
+            --hotbar_selected;
             if (hotbar_selected < 0) { hotbar_selected = 8; }
         } else if (scroll > 0.0f) {
-            --hotbar_selected;
+            ++hotbar_selected;
             if (hotbar_selected > 8) { hotbar_selected = 0; }
         }
         
