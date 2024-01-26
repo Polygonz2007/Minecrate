@@ -132,6 +132,7 @@
     <ClCompile Include="perlinNoise.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="block.h" />
     <ClInclude Include="meshes.h" />
     <ClInclude Include="perlinNoise.h" />
   </ItemGroup>

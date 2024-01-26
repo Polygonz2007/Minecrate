@@ -90,13 +90,14 @@ int main()
             float cx = (float)x + c_chunk.x * 16;
             float cy = (float)y + c_chunk.y * 16;
 
-            terrain[x + (y * chunk_size)] = -2 + 32.0f * sample_perlin_octaves(
-                        cx / 48.0f,                     // X
-                        cy / 48.0f,                     // Y
-                        5,                              // OCTAVES
-                        2.0f,                           // LACUNARITY
-                        0.47f)                          // PERSISTANCE
-                - sample_perlin(cx / 154.0f, cy / 154.0f) * 60.0f;
+            //terrain[x + (y * chunk_size)] = -2 + 32.0f * sample_perlin_octaves(
+            //            cx / 48.0f,                     // X
+            //            cy / 48.0f,                     // Y
+            //            5,                              // OCTAVES
+            //            2.0f,                           // LACUNARITY
+            //            0.47f)                          // PERSISTANCE
+            //    - sample_perlin(cx / 154.0f, cy / 154.0f) * 60.0f;
+            terrain[x + (y * chunk_size)] = -1;
         }
     }
 
@@ -107,7 +108,9 @@ int main()
     Mesh mush = GenPlate();
     Model model = LoadModelFromMesh(mush);
 
-    Image img = GenImageWhiteNoise(64, 64, 0.5f);
+    Image img = GenImagePerlinNoise(64, 64, 0, 0, 1.0f);
+    ImageColorTint(&img, SAND);
+
     Texture texture = LoadTextureFromImage(img);
     model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
 
@@ -226,17 +229,17 @@ int main()
 
         // DRAW
         BeginDrawing();
-        ClearBackground(SKYBLUE);
+        ClearBackground(BLACK);
 
         // 3D
         BeginMode3D(camera);
 
         // Chunk (put in function later)
-        for (int x = 0; x < chunk_size; x++) {
-            for (int y = 0; y < chunk_size; y++) {
-                PlaceCube(x, terrain[x + (y * chunk_size)], y);
-            }
-        }
+        //for (int x = 0; x < chunk_size; x++) {
+        //    for (int y = 0; y < chunk_size; y++) {
+        //        PlaceCube(x, terrain[x + (y * chunk_size)], y);
+        //    }
+        //}
 
         // WATER
         DrawPlane((Vector3) { 0.0f, -0.2f, 0.0f }, (Vector2) { 512.0f, 512.0f }, (Color) {
@@ -244,11 +247,11 @@ int main()
         });
 
         // Draw gizmos (TESTING ONLY)
-        //DrawGrid(16, 1.0f);
-        //DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 8.0f, 0.0f, 0.0f }, RED);
-        //DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 0.0f, 0.0f, 8.0f }, BLUE);
+        DrawGrid(16, 1.0f);
+        DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 8.0f, 0.0f, 0.0f }, RED);
+        DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 0.0f, 0.0f, 8.0f }, BLUE);
 
-        //DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
+        DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
 
         EndMode3D();
 
