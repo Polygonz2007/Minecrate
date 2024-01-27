@@ -13,6 +13,7 @@
 
 #include "perlinNoise.h" // a mimir
 #include "meshes.h" // dos mimires
+#include "block.h"; // tres mimires
 
 
 // COLORS
@@ -36,7 +37,10 @@ static int clampint(int d, int min, int max) {
 // Prototypes
 void PlaceCube(int x, int y, int z);
 
+block_t GetBlock(int x, int y, int z);
 
+
+// Main :D
 int main()
 {
     // WINDOW
@@ -82,26 +86,13 @@ int main()
 
     // TERRAIN (Chunk size: 16 x 64 x 16)int 
     Vector2 c_chunk = { 6, 0 }; // Current chunk pos
-    int chunk_size = 64; // size of x and z in chunk
-    int *terrain = malloc(chunk_size * chunk_size * sizeof(int));
+    int chunk_size = 16; // size of x and z in chunk
 
-    for (int x = 0; x < chunk_size; x++) {
-        for (int y = 0; y < chunk_size; y++) {
-            float cx = (float)x + c_chunk.x * 16;
-            float cy = (float)y + c_chunk.y * 16;
+    block_t ***chunk = malloc(16 * 256 * 16 * sizeof(block_t));
 
-            //terrain[x + (y * chunk_size)] = -2 + 32.0f * sample_perlin_octaves(
-            //            cx / 48.0f,                     // X
-            //            cy / 48.0f,                     // Y
-            //            5,                              // OCTAVES
-            //            2.0f,                           // LACUNARITY
-            //            0.47f)                          // PERSISTANCE
-            //    - sample_perlin(cx / 154.0f, cy / 154.0f) * 60.0f;
-            terrain[x + (y * chunk_size)] = -1;
-        }
-    }
+    // replace with chunk.h and chunk.c
 
-    position.y = (float)terrain[0] + 1.0f;
+    //position.y = (float)terrain[0] + 1.0f;
 
     const int start_time = time(NULL);
 
@@ -109,7 +100,7 @@ int main()
     Model model = LoadModelFromMesh(mush);
 
     Image img = GenImagePerlinNoise(64, 64, 0, 0, 1.0f);
-    ImageColorTint(&img, SAND);
+    ImageColorTint(&img, GRASS);
 
     Texture texture = LoadTextureFromImage(img);
     model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
@@ -143,20 +134,23 @@ int main()
 
         // Deltatime
         srand(start_time);
-        float dt = GetFrameTime();
+        const float dt = GetFrameTime();
 
         // My beloved FPS string
-        int fps = GetFPS();
+        const int fps = GetFPS();
         char fps_string[12];
         snprintf(fps_string, 11, "fps: %d", fps);
 
 
         // MOVEMENT
-        float xm = cos(look.x), ym = sin(look.x);
-        float cs = Speed;
+        const float xm = cos(look.x), ym = sin(look.x);
+        float cs = Speed; // Current speed, for multipliers and stuff
 
         bool w, a, s, d;
-        w = IsKeyDown(KEY_W); a = IsKeyDown(KEY_A); s = IsKeyDown(KEY_S); d = IsKeyDown(KEY_D);
+        w = IsKeyDown(KEY_W);
+        a = IsKeyDown(KEY_A);
+        s = IsKeyDown(KEY_S);
+        d = IsKeyDown(KEY_D);
 
         if ((w && a) || (w && d) || (s && a) || (s && d)) { cs *= 0.707f; }
         if (IsKeyDown(KEY_LEFT_CONTROL)) { cs *= SprintMult; }
@@ -176,6 +170,7 @@ int main()
             }
         }
 
+        // HOTBAR
         const float scroll = floor(GetMouseWheelMove());
         
         if (scroll > 0.0f) {
@@ -297,4 +292,11 @@ void PlaceCube(int x, int y, int z) {
         clampint(col.b + rand() / 128 / 32, 0, 255),
         255
     });
+}
+
+block_t GetBlock(int x, int y, int z) {
+    int cx = floor(x / 16), cy = floor(z / 16);
+    
+
+    return (block_t) { 0 };
 }
