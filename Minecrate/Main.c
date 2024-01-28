@@ -13,7 +13,8 @@
 
 #include "perlinNoise.h" // a mimir
 #include "meshes.h" // dos mimires
-#include "block.h"; // tres mimires
+#include "block.h" // tres mimires
+#include "chunk.h" // finalmente mimir
 
 
 // COLORS
@@ -88,22 +89,20 @@ int main()
     Vector2 c_chunk = { 6, 0 }; // Current chunk pos
     int chunk_size = 16; // size of x and z in chunk
 
-    block_t ***chunk = malloc(16 * 256 * 16 * sizeof(block_t));
+    block_t *chunk = malloc( * sizeof(block_t));
 
     // replace with chunk.h and chunk.c
 
-    //position.y = (float)terrain[0] + 1.0f;
-
     const int start_time = time(NULL);
 
-    Mesh mush = GenPlate();
-    Model model = LoadModelFromMesh(mush);
+    //Mesh mush = GenPlate();
+    //Model model = LoadModelFromMesh(mush);
 
-    Image img = GenImagePerlinNoise(64, 64, 0, 0, 1.0f);
-    ImageColorTint(&img, GRASS);
+    //Image img = GenImagePerlinNoise(64, 64, 0, 0, 1.0f);
+    //ImageColorTint(&img, GRASS);
 
-    Texture texture = LoadTextureFromImage(img);
-    model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
+    //Texture texture = LoadTextureFromImage(img);
+    //model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
 
     // Main game loop
     while (!WindowShouldClose())
@@ -189,19 +188,9 @@ int main()
         vertical_velo += gravity * dt;
         position.y += vertical_velo * dt * 2;
 
-        if (ix >= 0 && ix < chunk_size && iy >= 0 && iy < chunk_size) {
-            const int h = terrain[ix + (iy * chunk_size)] + 1;
-
-            if ((float)h >= position.y) {
-                position.y = (float)h;
-                vertical_velo = 0.0f;
-            }
-        }
-        else {
-            if (0.0f >= position.y) {
-                position.y = 0.0f;
-                vertical_velo = 0.0f;
-            }
+        if (0.0f >= position.y) {
+            position.y = 0.0f;
+            vertical_velo = 0.0f;
         }
 
         // Info
@@ -273,7 +262,7 @@ int main()
         EndDrawing();
     }
 
-    free(terrain);
+    free(chunk);
     CloseWindow();
 
     return 0;
@@ -292,11 +281,4 @@ void PlaceCube(int x, int y, int z) {
         clampint(col.b + rand() / 128 / 32, 0, 255),
         255
     });
-}
-
-block_t GetBlock(int x, int y, int z) {
-    int cx = floor(x / 16), cy = floor(z / 16);
-    
-
-    return (block_t) { 0 };
 }

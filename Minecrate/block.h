@@ -5,22 +5,22 @@
 
 // DEFINE BLOCK STRUCT
 typedef struct {
-	uint8_t type; // max 255 types of blocks for now, excluding air
+	uint8_t type; // max 254 types of blocks for now, excluding air and undefined. 0 is undefined, and air is 1
 } block_t;
 
 
 // DEFINE BLOCK NAMES FOR EACH TYPE
-const char block_names[4][8] = {
-  "Air",
-  "Grass",
-  "Dirt",
-  "Sand"
+const char block_names[5][16] = {
+	"Undefined",
+	"Air",
+	"Grass",
+	"Dirt",
+	"Sand"
 };
 
-// Air----|Grass--|Dirt---|Sand---|
-
 // DEFINE BLOCK HARDNESS(ES)
-const uint8_t block_hardness[4] = { // max block hardness can be 255, and lowest 0.
+const uint8_t block_hardness[5] = { // max block hardness can be 255, and lowest 0.
+	0,	// UNDEFINED
 	0,	// AIR
 	3,	// GRASS
 	2,	// DIRT
