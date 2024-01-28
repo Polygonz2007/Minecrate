@@ -1,9 +1,22 @@
 #include "chunk.h"
 
-block_t GetBlock(int x, int y, int z) {
-    int cx = floor(x / 16), cy = floor(z / 16);
-    x = x % 16;
-    z = z % 16;
+// Memory functions
+int init_chunks() {
 
-    return (block_t) { 0 };
+}
+
+int free_chunks() {
+
+}
+
+
+// Block functions
+uint32_t get_chunk_index(int cx, int cy) {
+	for (uint16_t i = 0; i < num_chunks; ++i) {
+
+	}
+}
+
+block_t get_block(uint32_t x, uint16_t y, uint32_t z) {
+
 }

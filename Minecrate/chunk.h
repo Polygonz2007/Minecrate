@@ -5,6 +5,7 @@
 #include "vec3.h"
 
 // CHUNK SETTINGS (cannot change at runtime! (yet))
+const uint16_t num_chunks;			// Total number of chunks avaliable in chunk_data, chunk_locs and chunk_status
 const uint8_t renderdistance = 8;	// Chunks in each direction.
 									// For example if this is 8 you have (8 + 1 + 8) chunks in each axis.
 
@@ -21,10 +22,10 @@ uint8_t chunk_status;	// 0: Ready to be used, 1: loading, 2: idle somehow idk
 
 
 // CHUNK FUNCTION PROTOTYPES
-int allocate_chunks();		// Allocates both data arrays. Should be called before use of either array.
+int init_chunks();		// Allocates both data arrays. Should be called before use of either array.
 int free_chunks();			// Deallocates both data arrays. Should be called before exiting the program.
 
-int get_chunk_index(int cx, int cy);	// Returns its index in "chunk_data" array where the requested chunk starts. -1 if failed.
-block_t get_block(uint32_t x, uint16_t y, uint32_t z); // Returns block type for this GLOBAL location, automatically finds chunk. Returns -1 if failed
+uint32_t get_chunk_index(int cx, int cy);	// Returns its index in "chunk_data" array where the requested chunk starts. -1 if failed.
+block_t get_block(uint32_t x, uint16_t y, uint32_t z); // Returns block type for this GLOBAL location, automatically finds chunk. Returns UNDERFINED if failed
 
 #endif
