@@ -8,6 +8,12 @@ typedef struct {
 	uint8_t type; // max 254 types of blocks for now, excluding air and undefined. 0 is undefined, and air is 1
 } block_t;
 
+// Struct constructor
+block_t block_t_new(uint8_t type) {
+	return (block_t) { type };
+}
+
+
 
 // DEFINE BLOCK NAMES FOR EACH TYPE
 const char block_names[5][16] = {

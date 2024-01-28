@@ -86,14 +86,16 @@ int main()
 
 
     // TERRAIN (Chunk size: 16 x 64 x 16)int 
-    Vector2 c_chunk = { 6, 0 }; // Current chunk pos
-    int chunk_size = 16; // size of x and z in chunk
+    vec3i16_t current_chunk_pos = { 0, 0 };
 
-    block_t *chunk = malloc( * sizeof(block_t));
 
-    // replace with chunk.h and chunk.c
+
 
     const int start_time = time(NULL);
+
+
+
+
 
     //Mesh mush = GenPlate();
     //Model model = LoadModelFromMesh(mush);
@@ -103,6 +105,9 @@ int main()
 
     //Texture texture = LoadTextureFromImage(img);
     //model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
+
+
+
 
     // Main game loop
     while (!WindowShouldClose())
@@ -234,8 +239,6 @@ int main()
         DrawGrid(16, 1.0f);
         DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 8.0f, 0.0f, 0.0f }, RED);
         DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 0.0f, 0.0f, 8.0f }, BLUE);
-
-        DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
 
         EndMode3D();
 

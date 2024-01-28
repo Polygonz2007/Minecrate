@@ -127,6 +127,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="vec2.c" />
+    <ClCompile Include="vec3.c" />
     <ClCompile Include="chunk.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="meshes.c" />
@@ -137,6 +139,7 @@
     <ClInclude Include="chunk.h" />
     <ClInclude Include="meshes.h" />
     <ClInclude Include="perlinNoise.h" />
+    <ClInclude Include="vec2.h" />
     <ClInclude Include="vec3.h" />
   </ItemGroup>
   <ItemGroup>
