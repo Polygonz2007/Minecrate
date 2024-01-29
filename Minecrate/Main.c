@@ -176,7 +176,6 @@ int main()
             }
         }
 
-
         // HOTBAR
         const float scroll = floor(GetMouseWheelMove());
         

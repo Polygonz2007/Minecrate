@@ -52,6 +52,30 @@ int32_t get_chunk_index(vec2i16_t chunk_pos) {
 }
 
 int32_t get_block_index(vec3i32_t block_pos) {
-	vec2i16_t chunk_pos = { floor(block_pos.x / 16), floor(block_pos.z / 16) };
+	vec2i16_t chunk_pos = { floor(block_pos.x / chunk_size.x), floor(block_pos.z / chunk_size.z) };
 	int32_t chunk_index = get_chunk_index(chunk_pos);
+
+	if (chunk_index == -1)
+		return -1; // CHunk does not exist, so no block
+
+	// Within chunk
+	block_pos.x = block_pos.x % chunk_size.x;
+	block_pos.y = block_pos.y % chunk_size.y;
+	block_pos.z = block_pos.z % chunk_size.z;
+
+	// Find index of block_t
+	int32_t block_index = chunk_index + block_pos.x + (chunk_size.x * block_pos.y) + (chunk_size.x * chunk_size.y * block_pos.z);
+
+	// Return index
+	return block_index;
+}
+
+block_t get_block(vec3i32_t block_pos) {
+	int32_t block_index = get_block_index(block_pos);
+
+	if (block_index == -1)
+		return block_t_new(0); // no block so undefined
+	
+	block_t block = chunk_data[block_index];
+	return block;
 }
