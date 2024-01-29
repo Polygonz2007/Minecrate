@@ -52,7 +52,10 @@ int main()
     bool last_fullscreen = false;
     bool is_fullscreen = false;
 
-    InitWindow(default_window_width, default_window_height, "Minecrate v0.1");
+    //Image Icon = LoadImage("./"); // add minecraftlogo av ael.com
+
+    InitWindow(default_window_width, default_window_height, "Mineshaft Craftsmanship v1.1");
+    //SetWindowIcon(Icon);
 
     DisableCursor();
     SetTargetFPS(60);
@@ -86,7 +89,6 @@ int main()
 
 
     // TERRAIN (Chunk size: 16 x 64 x 16)int 
-    vec3i16_t current_chunk_pos = { 0, 0 };
 
 
 
@@ -174,6 +176,7 @@ int main()
             }
         }
 
+
         // HOTBAR
         const float scroll = floor(GetMouseWheelMove());
         
@@ -254,7 +257,7 @@ int main()
         }
 
         // INFO
-        DrawText("Minecrate v0.1", 10, 10, 30, WHITE);
+        DrawText("Mineshaft Craftsmanship v1.1", 10, 10, 30, WHITE);
 
         DrawText("-- performance --", 10, 50, 20, INFO_TITLE_COL);
         DrawText(fps_string, 10, 70, 20, INFO_COL);
@@ -265,7 +268,6 @@ int main()
         EndDrawing();
     }
 
-    free(chunk);
     CloseWindow();
 
     return 0;

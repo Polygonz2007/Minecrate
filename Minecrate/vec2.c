@@ -22,7 +22,7 @@ inline _Bool vec2i8_t_equals(vec2i8_t a, vec2i8_t b) {
 inline _Bool vec2i16_t_equals(vec2i16_t a, vec2i16_t b) {
 	return (a.x == b.x && a.y == b.y);
 }
-s
+
 inline _Bool vec2i32_t_equals(vec2i32_t a, vec2i32_t b) {
 	return (a.x == b.x && a.y == b.y);
 }

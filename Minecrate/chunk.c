@@ -6,17 +6,24 @@
 
 // Memory functions
 int init_chunks() {
+	if (render_distance > 64)
+		render_distance = 64;
+	if (render_distance < 4)
+		render_distance = 4;
+
 	num_chunks = (render_distance * 2 + 1);
 	num_chunks *= num_chunks; // Squared, bc 2 dimensions, ofc idiot
 
 	chunk_data_size = chunk_size.x * chunk_size.y * chunk_size.z;
 
+	// Allocate memory for chunk data
 	chunk_data = malloc(chunk_data_size * num_chunks * sizeof(block_t));
 	chunk_locs = malloc(num_chunks * sizeof(vec3i16_t));
 	chunk_status = malloc(num_chunks * sizeof(uint8_t));
 }
 
-int free_chunks() {
+int free_chunks() { // WARNING: any chunk functions including load_mesh or load_chunk should NOT be caled after this is called.
+	// Free all allocated memory
 	free(chunk_data);
 	free(chunk_locs);
 	free(chunk_status);
