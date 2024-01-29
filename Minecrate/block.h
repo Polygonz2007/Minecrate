@@ -9,19 +9,16 @@ typedef struct {
 } block_t;
 
 // Struct constructor
-block_t block_t_new(uint8_t type) {
-	return (block_t) { type };
-}
-
+block_t block_t_new(uint8_t type);
 
 
 // DEFINE BLOCK NAMES FOR EACH TYPE
 const char block_names[5][16] = {
-	"Undefined",
-	"Air",
-	"Grass",
-	"Dirt",
-	"Sand"
+	"Undefined",	// 0
+	"Air",			// 1
+	"Grass",		// 2
+	"Dirt",			// 3
+	"Sand"			// 4
 };
 
 // DEFINE BLOCK HARDNESS(ES)

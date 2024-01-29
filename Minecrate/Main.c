@@ -11,6 +11,9 @@
 #include <raylib.h>
 #include <raymath.h>
 
+#include "vec3.h"
+#include "vec2.h"
+
 #include "perlinNoise.h" // a mimir
 #include "meshes.h" // dos mimires
 #include "block.h" // tres mimires
@@ -37,9 +40,6 @@ static int clampint(int d, int min, int max) {
 
 // Prototypes
 void PlaceCube(int x, int y, int z);
-
-block_t GetBlock(int x, int y, int z);
-
 
 // Main :D
 int main()
@@ -89,7 +89,11 @@ int main()
 
 
     // TERRAIN (Chunk size: 16 x 64 x 16)int 
+    init_chunks();
 
+    _Bool yes = load_chunk((vec2i16_t) { 0, 0 });
+    if (yes)
+        printf("Loaded chunk without problems somehow!");
 
 
 
@@ -266,6 +270,8 @@ int main()
 
         EndDrawing();
     }
+
+    free_chunks();
 
     CloseWindow();
 

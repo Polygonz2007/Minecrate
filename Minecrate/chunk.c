@@ -1,18 +1,20 @@
 
-#include <stdio.h>
+#include <malloc.h>
+
+#include "vec2.h"
+#include "vec3.h"
+
 #include "chunk.h"
 #include "block.h"
-#include "vec3.h"
-#include "vec2.h"
 
 // Memory functions
 int init_chunks() {
-	if (render_distance > 64)
+	if (render_distance > 64) // Make sure renderdistance isn't too big or too teeny
 		render_distance = 64;
 	if (render_distance < 4)
 		render_distance = 4;
 
-	num_chunks = (render_distance * 2 + 1);
+	num_chunks = (render_distance * 2 + 1); // (rd + 1 + rd), bc both directions + current chunk
 	num_chunks *= num_chunks; // Squared, bc 2 dimensions, ofc idiot
 
 	chunk_data_size = chunk_size.x * chunk_size.y * chunk_size.z;
@@ -21,6 +23,7 @@ int init_chunks() {
 	chunk_data = malloc(chunk_data_size * num_chunks * sizeof(block_t));
 	chunk_locs = malloc(num_chunks * sizeof(vec3i16_t));
 	chunk_status = malloc(num_chunks * sizeof(uint8_t));
+	chunk_buffer = malloc(chunk_size.x * chunk_size.z * sizeof(uint8_t));
 }
 
 int free_chunks() { // WARNING: any chunk functions including load_mesh or load_chunk should NOT be caled after this is called.
@@ -28,29 +31,71 @@ int free_chunks() { // WARNING: any chunk functions including load_mesh or load_
 	free(chunk_data);
 	free(chunk_locs);
 	free(chunk_status);
+	free(chunk_buffer);
 }
 
 
 // Generation
 int load_chunk(vec2i16_t chunk_pos) {
 	int32_t chunk_index = get_chunk_index(chunk_pos);
+	chunk_status[chunk_index] = 1; // loading
 
 	if (chunk_index == -1)
-		return 1; // error
+		return -1; // error
 
-	// 2d array of heights
+	// Calculate terrain heights, and store to buffer
+	int32_t global_cx = chunk_pos.x * 16;
+	int32_t global_cy = chunk_pos.y * 16;
+
+	for (uint16_t x = 0; x < chunk_size.x; ++x) {
+		for (uint16_t y = 0; y < chunk_size.z; ++y) {
+			int32_t cx = global_cx + x;
+			int32_t cy = global_cy + y;
+
+			chunk_buffer[cx + (cy * chunk_size.x)] = -2 + 32.0f * sample_perlin_octaves(
+				cx / 48.0f,                     // X
+				cy / 48.0f,                     // Y
+				5,                              // OCTAVES
+				2.0f,                           // LACUNARITY
+				0.47f)                          // PERSISTANCE
+			- sample_perlin(cx / 154.0f, cy / 154.0f) * 60.0f;
+		}
+	}
 
 	// fill inn with depths, 1: grass 4: dirt, rest stone for now then bedrock at bedrock
 	// also: 0 in the noise is sea level, (make variable) but should be 63 so when ur standing on shore ur at 64 :D
+	for (uint16_t x = 0; x < chunk_size.x; ++x) {
+		for (uint16_t y = 0; y < chunk_size.y; ++y) {
+			for (uint16_t z = 0; z < chunk_size.z; ++z) {
+				int32_t i = get_block_index((vec3i32_t) { global_cx + x, y, global_cy + z });
+
+				// Valeed?
+				if (i == -1)
+					return -1; // failed
+
+				// Si
+				uint8_t cb = 1; // air
+				uint16_t h = chunk_buffer[x + (y * chunk_size.x)];
+
+				if (y > h)
+					cb = 2; // grass
+
+				chunk_data[i] = block_t_new(cb);
+			}
+		}
+	}
+
+	chunk_status[chunk_index] = 0; /// good
+	return 0;
 }
 
 int unload_chunk(vec2i16_t chunk_pos) {
-
+	return 0;
 }
 
 
 // Block functions
-int32_t get_chunk_index(vec2i16_t chunk_pos) {
+int32_t get_chunk_index_data(vec2i16_t chunk_pos) {
 	for (uint16_t i = 0; i < num_chunks; ++i) {
 		if (vec2i16_t_equals(chunk_pos, chunk_locs[i])) {
 			return i * chunk_data_size;
@@ -60,9 +105,19 @@ int32_t get_chunk_index(vec2i16_t chunk_pos) {
 	return -1; // did not find a chunk
 }
 
+int32_t get_chunk_index(vec2i16_t chunk_pos) {
+	for (uint16_t i = 0; i < num_chunks; ++i) {
+		if (vec2i16_t_equals(chunk_pos, chunk_locs[i])) {
+			return i;
+		}
+	}
+
+	return -1; // did not find a chunk
+}
+
 int32_t get_block_index(vec3i32_t block_pos) {
 	vec2i16_t chunk_pos = get_chunk_pos(block_pos);
-	int32_t chunk_index = get_chunk_index(chunk_pos);
+	int32_t chunk_index = get_chunk_index_data(chunk_pos);
 
 	if (chunk_index == -1)
 		return -1; // Chunk does not exist, so no block

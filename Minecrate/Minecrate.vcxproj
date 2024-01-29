@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="block.c" />
     <ClCompile Include="vec2.c" />
     <ClCompile Include="vec3.c" />
     <ClCompile Include="chunk.c" />

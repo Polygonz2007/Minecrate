@@ -27,6 +27,15 @@
     <ClCompile Include="chunk.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="vec2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vec3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="block.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="perlinNoise.h">
@@ -42,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vec3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vec2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
