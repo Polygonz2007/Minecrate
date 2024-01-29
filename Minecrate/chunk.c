@@ -1,5 +1,6 @@
 
 #include <malloc.h>
+#include "perlinNoise.h"
 
 #include "vec2.h"
 #include "vec3.h"
