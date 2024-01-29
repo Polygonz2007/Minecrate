@@ -31,10 +31,14 @@ uint8_t *chunk_status;	// 0: Ready to be used, 1: loading, 2: idle
 int init_chunks();		// Allocates both data arrays. Should be called before use of either array.
 int free_chunks();		// Deallocates both data arrays. Should be called before exiting the program.
 
-int load_chunk(vec3i16_t chunk_pos);	// Function for loading a chunk. Calculates all blocks within chunk and stores to chunk_data
-int unload_chunk(vec3i16_t chunk_pos);	// Function for unloading a chunk. Sets chunk status to idle
+int load_chunk(vec2i16_t chunk_pos);	// Function for loading a chunk. Calculates all blocks within chunk and stores to chunk_data
+int unload_chunk(vec2i16_t chunk_pos);	// Function for unloading a chunk. Sets chunk status to idle
 
-int32_t get_chunk_index(vec3i16_t chunk_pos);			// Returns its index in "chunk_data" array where the requested chunk starts. -1 if failed.
-block_t get_block(uint32_t x, uint16_t y, uint32_t z);	// Returns block type for this GLOBAL location, automatically finds chunk. Returns UNDERFINED if failed
+int32_t get_chunk_index(vec2i16_t chunk_pos);		// Returns its index in "chunk_data" array where the requested chunk starts. -1 if failed.
+int32_t get_block_index(vec3i32_t block_pos);		// Returns its index in "chunk_data" of the block. -1 if fail
+block_t get_block(vec3i32_t block_pos);				// Returns block type for this GLOBAL location, automatically finds chunk. Returns UNDERFINED (0) if failed
+
+// Utility!
+vec2i16_t get_chunk_pos(vec3i32_t block_pos);	// Convert 3d block pos to 2d chunk pos
 
 #endif
