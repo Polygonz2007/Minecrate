@@ -9,10 +9,10 @@
 #include "block.h"
 
 // CHUNK DATA
-block_t* chunk_data;		// Stores every block type, at every X, Y, and Z position, for every chunk.
-vec2i16_t* chunk_locs;	// Stores position of chunks in "chunk_data". Allows for 2 million chunks in each direction, including negative.
-uint8_t* chunk_status;	// 0: Ready to be used, 1: loading, 2: idle
-uint8_t* chunk_buffer;	// Used for storing 2d heights when calculating blocks within chunk
+static block_t* chunk_data;		// Stores every block type, at every X, Y, and Z position, for every chunk.
+static vec2i16_t* chunk_locs;	// Stores position of chunks in "chunk_data". Allows for 2 million chunks in each direction, including negative.
+static uint8_t* chunk_status;	// 0: Ready to be used, 1: loading, 2: idle
+static uint8_t* chunk_buffer;	// Used for storing 2d heights when calculating blocks within chunk
 
 
 // Memory functions
