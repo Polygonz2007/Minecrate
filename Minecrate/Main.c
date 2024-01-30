@@ -271,7 +271,7 @@ int main()
         EndDrawing();
     }
 
-    free_chunks();
+    int NANANANA = free_chunks();
 
     CloseWindow();
 

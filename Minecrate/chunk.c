@@ -8,6 +8,13 @@
 #include "chunk.h"
 #include "block.h"
 
+// CHUNK DATA
+block_t* chunk_data;		// Stores every block type, at every X, Y, and Z position, for every chunk.
+vec2i16_t* chunk_locs;	// Stores position of chunks in "chunk_data". Allows for 2 million chunks in each direction, including negative.
+uint8_t* chunk_status;	// 0: Ready to be used, 1: loading, 2: idle
+uint8_t* chunk_buffer;	// Used for storing 2d heights when calculating blocks within chunk
+
+
 // Memory functions
 int init_chunks() {
 	if (render_distance > 64) // Make sure renderdistance isn't too big or too teeny
@@ -29,10 +36,15 @@ int init_chunks() {
 
 int free_chunks() { // WARNING: any chunk functions including load_mesh or load_chunk should NOT be caled after this is called.
 	// Free all allocated memory
+	printf("\nChunk data!");
 	free(chunk_data);
+	printf("\nLOCS!");
 	free(chunk_locs);
+	printf("\nA-la status!");
 	free(chunk_status);
+	printf("\nLast but least (sorry buffer) buffer!");
 	free(chunk_buffer);
+	printf("\nIt worked and somehow idfk how did WHAT:!??!?!");
 }
 
 
