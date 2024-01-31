@@ -100,6 +100,7 @@ int load_chunk(vec2i16_t chunk_pos) {
 		}
 	}
 
+	// SO here we add the chunk location MAYBE THAT IS A GOOD IDEA?!??!?!??!!??!? MY DAYSSS PAST POLY WHY U SO DUM
 	chunk_locs[chunk_index] = (vec2i16_t) { chunk_pos.x, chunk_pos.y };
 	chunk_status[chunk_index] = 0; /// good YEYSYSYYSYS 
 
