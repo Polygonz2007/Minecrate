@@ -41,6 +41,8 @@ static int clampint(int d, int min, int max) {
 // Prototypes
 void PlaceCube(int x, int y, int z);
 
+
+
 // Main :D
 int main()
 {
@@ -91,17 +93,22 @@ int main()
     // TERRAIN (Chunk size: 16 x 64 x 16)int 
     init_chunks();
 
-    _Bool yes = load_chunk((vec2i16_t) { 0, 0 });
-    if (yes)
-        printf("Loaded chunk without problems somehow!");
-
+    load_chunk((vec2i16_t) { 0, 0 });
     load_chunk((vec2i16_t) { 1, 0 });
-    load_chunk((vec2i16_t) { 0, 1 });
-    load_chunk((vec2i16_t) { 1, 1 });
+
+    //load_chunk((vec2i16_t) { 1, 0 });
+    //load_chunk((vec2i16_t) { 0, 1 });
+    //load_chunk((vec2i16_t) { 1, 1 });
+
+    // Strimngs
+    char chunk_num_s[48];
+    snprintf(chunk_num_s, 47, "Chunks available: %d (%.03f%% loaded)", num_chunks, 1.0f / (float)num_chunks);
+
+    char render_dist_s[32];
+    snprintf(render_dist_s, 31, "Renderdistance: %d", render_distance);
 
 
-
-    const int start_time = time(NULL);
+    const long start_time = time(NULL);
 
 
 
@@ -164,7 +171,9 @@ int main()
         w = IsKeyDown(KEY_W);
         a = IsKeyDown(KEY_A);
         s = IsKeyDown(KEY_S);
-        d = IsKeyDown(KEY_D);
+        d = IsKeyDown(KEY_D); // NMOM NOM NOM NOM YUMMY!!!! MM BUG
+        // ME EAT EVERY BUG IN THIS CODE THERE ARE SO MANY....
+        // mostly in chunk.c LOL
 
         if ((w && a) || (w && d) || (s && a) || (s && d)) { cs *= 0.707f; }
         if (IsKeyDown(KEY_LEFT_CONTROL)) { cs *= SprintMult; }
@@ -276,6 +285,10 @@ int main()
 
         DrawText("-- player --", 10, 110, 20, INFO_TITLE_COL);
         DrawText(position_string, 10, 130, 20, INFO_COL);
+
+        DrawText("-- terrain --", 10, 170, 20, INFO_TITLE_COL);
+        DrawText(render_dist_s, 10, 190, 20, INFO_COL);
+        DrawText(chunk_num_s, 10, 210, 20, INFO_COL);
 
         EndDrawing();
     }
