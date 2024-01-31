@@ -9,10 +9,10 @@
 #include "block.h"
 
 // CHUNK DATA
-static block_t* chunk_data;		// Stores every block type, at every X, Y, and Z position, for every chunk.
-static vec2i16_t* chunk_locs;	// Stores position of chunks in "chunk_data". Allows for 2 million chunks in each direction, including negative.
-static uint8_t* chunk_status;	// 0: Ready to be used, 1: loading, 2: idle
-static uint8_t* chunk_buffer;	// Used for storing 2d heights when calculating blocks within chunk
+static block_t *chunk_data;		// Stores every block type, at every X, Y, and Z position, for every chunk.
+static vec2i16_t *chunk_locs;	// Stores position of chunks in "chunk_data". Allows for 2 million chunks in each direction, including negative.
+static uint8_t *chunk_status;	// 0: Ready to be used, 1: loading, 2: idle
+static uint8_t *chunk_buffer;	// Used for storing 2d heights when calculating blocks within chunk
 
 
 // Memory functions
@@ -51,10 +51,12 @@ int free_chunks() { // WARNING: any chunk functions including load_mesh or load_
 // Generation
 int load_chunk(vec2i16_t chunk_pos) {
 	int32_t chunk_index = get_chunk_index(chunk_pos);
-	chunk_status[chunk_index] = 1; // loading
 
-	if (chunk_index == -1)
-		return -1; // error
+	if (chunk_index != -1)
+		return -1; // error, the chunk already exist
+
+	// it fine we load chunke
+	chunk_status[chunk_index] = 1; // loading
 
 	// Calculate terrain heights, and store to buffer
 	int32_t global_cx = chunk_pos.x * 16;
@@ -98,7 +100,9 @@ int load_chunk(vec2i16_t chunk_pos) {
 		}
 	}
 
-	chunk_status[chunk_index] = 0; /// good
+	chunk_locs[chunk_index] = (vec2i16_t) { chunk_pos.x, chunk_pos.y };
+	chunk_status[chunk_index] = 0; /// good YEYSYSYYSYS 
+
 	return 0;
 }
 
