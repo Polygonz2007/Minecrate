@@ -52,7 +52,7 @@ int free_chunks() { // WARNING: any chunk functions including load_mesh or load_
 int load_chunk(vec2i16_t chunk_pos) {
 	int32_t chunk_index = get_chunk_index(chunk_pos);
 
-	if (chunk_index != -1)
+	if (chunk_index == -1)
 		return -1; // error, the chunk already exist
 
 	// it fine we load chunke
