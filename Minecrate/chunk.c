@@ -14,6 +14,8 @@ static vec2i16_t *chunk_locs;	// Stores position of chunks in "chunk_data". Allo
 static uint8_t *chunk_status;	// 0: Ready to be used, 1: loading, 2: idle
 static uint8_t *chunk_buffer;	// Used for storing 2d heights when calculating blocks within chunk
 
+static uint8_t sea_level = 63; // temporary
+
 
 // Memory functions
 int init_chunks() {
@@ -67,13 +69,13 @@ int load_chunk(vec2i16_t chunk_pos) {
 			int32_t cx = global_cx + x;
 			int32_t cy = global_cy + y;
 
-			chunk_buffer[cx + (cy * chunk_size.x)] = -2 + 32.0f * sample_perlin_octaves(
+			chunk_buffer[cx + (cy * chunk_size.x)] = sea_level + -2 + (uint8_t)(32.0f * sample_perlin_octaves(
 				cx / 48.0f,                     // X
 				cy / 48.0f,                     // Y
 				5,                              // OCTAVES
 				2.0f,                           // LACUNARITY
 				0.47f)                          // PERSISTANCE
-			- sample_perlin(cx / 154.0f, cy / 154.0f) * 60.0f;
+				- sample_perlin(cx / 154.0f, cy / 154.0f) * 60.0f);
 		}
 	}
 

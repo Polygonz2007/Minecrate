@@ -58,7 +58,7 @@ int main()
     //SetWindowIcon(Icon);
 
     DisableCursor();
-    SetTargetFPS(60);
+    SetTargetFPS(240);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
     // CAMERA
@@ -94,6 +94,10 @@ int main()
     _Bool yes = load_chunk((vec2i16_t) { 0, 0 });
     if (yes)
         printf("Loaded chunk without problems somehow!");
+
+    load_chunk((vec2i16_t) { 1, 0 });
+    load_chunk((vec2i16_t) { 0, 1 });
+    load_chunk((vec2i16_t) { 1, 1 });
 
 
 
@@ -224,15 +228,20 @@ int main()
 
         // DRAW
         BeginDrawing();
-        ClearBackground(BLACK);
+        ClearBackground(SKYBLUE);
 
         // 3D
         BeginMode3D(camera);
 
         // Chunk (put in function later)
-        //for (int x = 0; x < chunk_size; x++) {
-        //    for (int y = 0; y < chunk_size; y++) {
-        //        PlaceCube(x, terrain[x + (y * chunk_size)], y);
+        //for (int x = 0; x < chunk_size.x; ++x) {
+        //    for (int y = 0; y < chunk_size.y; ++y) {
+        //        for (int z = 0; z < chunk_size.z; ++z) {
+        //            block_t block = get_block((vec3i32_t) { x, y, z });
+        //
+        //            if (block.type != 0 && block.type != 1)
+        //                PlaceCube(x, y, z);
+        //        }
         //    }
         //}
 
@@ -242,9 +251,9 @@ int main()
         });
 
         // Draw gizmos (TESTING ONLY)
-        DrawGrid(16, 1.0f);
-        DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 8.0f, 0.0f, 0.0f }, RED);
-        DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 0.0f, 0.0f, 8.0f }, BLUE);
+        //DrawGrid(16, 1.0f);
+        //DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 8.0f, 0.0f, 0.0f }, RED);
+        //DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 0.0f, 0.0f, 8.0f }, BLUE);
 
         EndMode3D();
 
