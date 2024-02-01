@@ -104,8 +104,8 @@ int load_chunk(vec2i16_t chunk_pos) {
 	for (uint16_t x = 0; x < chunk_size.x; ++x) {
 		for (uint16_t y = 0; y < chunk_size.y; ++y) {
 			for (uint16_t z = 0; z < chunk_size.z; ++z) {
-				vec3i32_t block_pos = { global_cx + x, y, global_cy + z };
-				int32_t i = get_block_index(block_pos);
+				vec3i16_t block_pos = { x, y, z };
+				int32_t i = chunk_index + get_block_index_in_chunk(block_pos);
 
 				printf("\n%d: %d, %d, %d", i, block_pos.x, block_pos.y, block_pos.z);
 
@@ -191,6 +191,11 @@ int32_t get_block_index(vec3i32_t block_pos) {
 	// Return index
 	return block_index;
 }
+int32_t get_block_index_in_chunk(vec3i16_t block_pos) {
+	int32_t block_index = block_pos.x + (chunk_size.x * block_pos.y) + (chunk_size.x * chunk_size.y * block_pos.z);
+	return block_index;
+}
+
 
 block_t get_block(vec3i32_t block_pos) {
 	vec2i16_t chunk_pos = get_chunk_pos(block_pos);
