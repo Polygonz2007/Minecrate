@@ -12,24 +12,29 @@
 // CHUNK DATA
 static block_t *chunk_data;		// Stores every block type, at every X, Y, and Z position, for every chunk.
 static vec2i16_t *chunk_locs;	// Stores position of chunks in "chunk_data". Allows for 2 million chunks in each direction, including negative.
-static uint8_t *chunk_status;	// 0: Ready to be used, 1: loading, 2: empty
-static uint8_t *chunk_buffer;	// Used for storing 2d heights when calculating blocks within chunk
+static uint8_t *chunk_status;	// 0: Empty, 1: Loading, 2: Ready (blocks are filled and correct)
+static uint16_t *chunk_buffer;	// Used for storing 2d heights when calculating blocks within chunk
 
 static uint8_t sea_level = 63u; // temporary
 
 
 // Memory functions
 int init_chunks() {
-	if (render_distance > 64u) // Make sure renderdistance isn't too big or too teeny
-		render_distance = 64u;
-	if (render_distance < 4u)
-		render_distance = 4u;
+	// Make sure renderdistance isn't too big or too teeny
+	if (render_distance > 64)
+		render_distance = 64;
+	if (render_distance < 4)
+		render_distance = 4;
 
+	// Calculate and do some stuff
 	num_chunks = (render_distance * 2 + 1); // (rd + 1 + rd), bc both directions + current chunk
-	num_chunks *= num_chunks; // Squared, bc 2 dimensions, ofc idiot
+	num_chunks *= num_chunks;				// Squared, bc 2 dimensions, ofc idot
 
 	chunk_data_size = chunk_size.x * chunk_size.y * chunk_size.z;
 	printf("\n\n\nChunk data size: %d test x: %d", chunk_data_size, chunk_size.z);
+
+	num_block_types = sizeof(block_names) / sizeof(block_names[0]);
+
 
 	// Allocate memory for chunk data
 	printf("\nAllocating memory for chunks...\n");
@@ -37,11 +42,11 @@ int init_chunks() {
 	chunk_data = malloc(chunk_data_size * num_chunks * sizeof(block_t));
 	chunk_locs = malloc(num_chunks * sizeof(vec2i16_t));
 	chunk_status = malloc(num_chunks * sizeof(uint8_t));
-	chunk_buffer = malloc(chunk_size.x * chunk_size.z * sizeof(uint8_t));
+	chunk_buffer = malloc(chunk_size.x * chunk_size.z * sizeof(uint16_t));
 
 	// Initialize all chunks as empty
-	for (uint16_t i = 0u; i < num_chunks; ++i) {
-		chunk_status[i] = 2u;
+	for (uint16_t i = 0; i < num_chunks; ++i) {
+		chunk_status[i] = 0;
 	}
 
 	printf("Memory allocated.\n");
@@ -69,20 +74,19 @@ int load_chunk(vec2i16_t chunk_pos) {
 		return -1; // error, the chunk already exist
 	} else {
 		// Generate new index for use
+		printf("Finding next available memory location.");
 		chunk_index = next_chunk_index();
 	}
 
 	// it fine we load chunke
-	printf("\nLoading chunk %d, %d at index %d, data index %d", chunk_pos.x, chunk_pos.y, chunk_index, chunk_index * chunk_data_size);
+	printf("\nLoading chunk %d, %d at index %d at data index %d.", chunk_pos.x, chunk_pos.y, chunk_index, chunk_index * chunk_data_size);
 
-	chunk_status[chunk_index] = 1; // loading
+	chunk_status[chunk_index] = 1; // Loading
 	chunk_locs[chunk_index] = (vec2i16_t){ chunk_pos.x, chunk_pos.y };
 
 	// Calculate terrain heights, and store to buffer
 	int32_t global_cx = chunk_pos.x * 16;
 	int32_t global_cy = chunk_pos.y * 16;
-
-	printf("\nChunk %d %d has start at global coordinates: %d %d", chunk_pos.x, chunk_pos.y, global_cx, global_cy);
 
 	for (uint16_t x = 0; x < chunk_size.x; ++x) {
 		for (uint16_t y = 0; y < chunk_size.z; ++y) {
@@ -102,24 +106,31 @@ int load_chunk(vec2i16_t chunk_pos) {
 	// fill inn with depths, 1: grass 4: dirt, rest stone for now then bedrock at bedrock
 	// also: 0 in the noise is sea level, (make variable) but should be 63 so when ur standing on shore ur at 64 :D
 	for (uint16_t x = 0; x < chunk_size.x; ++x) {
-		for (uint16_t y = 0; y < chunk_size.y; ++y) {
-			for (uint16_t z = 0; z < chunk_size.z; ++z) {
+		for (uint16_t z = 0; z < chunk_size.z; ++z) {
+			// STore the same height for all y levels on same block in 2d
+			uint16_t h = chunk_buffer[x + (z * chunk_size.x)];
+
+			for (uint16_t y = 0; y < chunk_size.y; ++y) {
 				vec3i16_t block_pos = { x, y, z };
-				int32_t i = chunk_index + get_block_index_in_chunk(block_pos);
+				int32_t i = chunk_index * chunk_data_size + get_block_index_in_chunk(block_pos);
 
-				printf("\n%d: %d, %d, %d", i, block_pos.x, block_pos.y, block_pos.z);
-
-				// Valeed?
-				if (i == -1)
-					printf("\nload_chunk FAILED at block %d %d %d", x, y, z);
-					return -1; // failed
-
-				// Si
+				// Set block
 				uint8_t cb = 1; // air
-				uint16_t h = chunk_buffer[x + (y * chunk_size.x)];
 
-				if (y > h)
-					cb = 2; // grass
+				// Set blocks at different levels
+				if (y == 0) {
+					cb = 2;
+				} else if (y < h - 4) {
+					cb = 5;
+				} else if (y < h - 1) {
+					cb = 4;
+				} else if (y < h) {
+					cb = 3;
+				}
+
+				if (x == 0 && z == 0) {
+					printf("\n%d: %s (heigh at loc: %d)", y, block_names[cb], h);
+				}
 
 				chunk_data[i] = block_t_new(cb);
 			}
@@ -127,7 +138,7 @@ int load_chunk(vec2i16_t chunk_pos) {
 	}
 
 	// yes
-	chunk_status[chunk_index] = 0; /// good YEYSYSYYSYS 
+	chunk_status[chunk_index] = 2; /// Finished, and ready to be used. 
 
 	printf("\nLoaded chunk %d, %d successfully.", chunk_pos.x, chunk_pos.y);
 
@@ -164,29 +175,16 @@ int32_t get_chunk_index(vec2i16_t chunk_pos) {
 
 int32_t next_chunk_index() {
 	for (uint16_t i = 0; i < num_chunks; ++i) {
-		if (chunk_status[i] == 2) // empty chunk
+		if (chunk_status[i] == 0) // empty chunk
 			return i;
 	}
 
 	return 0; // idk
 }
 
-int32_t get_block_index(vec3i32_t block_pos) {
-	vec2i16_t chunk_pos = get_chunk_pos(block_pos);
-	printf("\nChunk pos of %d %d is: %d %d", block_pos.x, block_pos.z, chunk_pos.x, chunk_pos.y);
-
-	int32_t chunk_index = get_chunk_index_data(chunk_pos);
-
-	if (chunk_index == -1)
-		printf("\nNO CHUNKE?!??!");
-		return -1; // Chunk does not exist, so no block
-
-	// Within chunk
-	vec3i16_t c_block_pos = get_block_in_chunk_pos(block_pos);
-	printf("\nGet block in chunk pos: %d %d %d", c_block_pos.x, c_block_pos.y, c_block_pos.y);
-
+int32_t get_block_index(vec3i16_t c_block_pos) {
 	// Find index of block_t
-	int32_t block_index = chunk_index + block_pos.x + (chunk_size.x * block_pos.y) + (chunk_size.x * chunk_size.y * block_pos.z);
+	int32_t block_index = c_block_pos.x + (chunk_size.x * c_block_pos.y) + (chunk_size.x * chunk_size.y * c_block_pos.z);
 
 	// Return index
 	return block_index;
@@ -204,10 +202,10 @@ block_t get_block(vec3i32_t block_pos) {
 	if (chunk_index == -1)
 		return block_t_new(0); // no block so undefined
 
-	// FIne so we find
-	int32_t block_index = get_block_index(block_pos);
+	// Fine so we find
+	int32_t block_index = get_block_index(get_block_in_chunk_pos(block_pos));
 	
-	block_t block = chunk_data[block_index];
+	block_t block = chunk_data[chunk_index + block_index];
 	return block;
 }
 
