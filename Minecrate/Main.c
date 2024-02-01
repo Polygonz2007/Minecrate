@@ -96,9 +96,10 @@ int main()
     load_chunk((vec2i16_t) { 0, 0 });
     load_chunk((vec2i16_t) { 1, 0 });
 
-    //load_chunk((vec2i16_t) { 1, 0 });
-    //load_chunk((vec2i16_t) { 0, 1 });
-    //load_chunk((vec2i16_t) { 1, 1 });
+    
+    load_chunk((vec2i16_t) { 0, 1 });
+    load_chunk((vec2i16_t) { 1, 1 });
+    load_chunk((vec2i16_t) { 25, 74 });
 
     // Strimngs
     char chunk_num_s[48];

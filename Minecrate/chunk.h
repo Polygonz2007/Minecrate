@@ -8,7 +8,7 @@
 
 // CHUNK SETTINGS (cannot change at runtime! (yet))
 uint16_t num_chunks;			// Total number of chunks avaliable in chunk_data, chunk_locs and chunk_status
-uint16_t chunk_data_size;		// Total amount of sizeof(block_t)'s each chunk occupies in the "chunk_data" array.
+uint32_t chunk_data_size;		// Total amount of sizeof(block_t)'s each chunk occupies in the "chunk_data" array.
 
 // Current position of player within chunks, aka chunk offset for blocks
 static vec3i16_t current_chunk_pos = { 0, 0 };
