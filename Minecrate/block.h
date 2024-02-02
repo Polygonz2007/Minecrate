@@ -12,7 +12,7 @@ typedef struct {
 block_t block_t_new(uint8_t type);
 block_t block_t_new_from_name(char type[]);
 
-uint16_t num_block_types = 8;
+uint16_t num_block_types;
 
 // DEFINE BLOCK NAMES FOR EACH TYPE
 // 0: Undefined, 1: Air, 2: Bedrock, 3: Grass, 4: Dirt, 5: Stone, 6: Cobblestone, 7: Sand
@@ -25,6 +25,17 @@ static const char block_names[8][16] = {
 	"Stone",
 	"Cobblestone",
 	"Sand"
+};
+
+static enum block_type {
+	BLOCK_UNDEFINED,
+	BLOCK_AIR,
+	BLOCK_BEDROCK,
+	BLOCK_GRASS,
+	BLOCK_DIRT,
+	BLOCK_STONE,
+	BLOCK_COBBLESTONE,
+	BLOCK_SAND
 };
 
 // DEFINE BLOCK HARDNESS(ES)

@@ -47,8 +47,8 @@ void PlaceCube(int x, int y, int z);
 int main()
 {
     // WINDOW
-    const int default_window_width = 2000;
-    const int default_window_height = 1000;
+    const int default_window_width = 1600;
+    const int default_window_height = 800;
     int window_width = default_window_width;
     int window_height = default_window_height;
     bool last_fullscreen = false;
@@ -60,7 +60,7 @@ int main()
     //SetWindowIcon(Icon);
 
     DisableCursor();
-    SetTargetFPS(240);
+    SetTargetFPS(1000);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
     // CAMERA
@@ -100,14 +100,6 @@ int main()
     load_chunk((vec2i16_t) { 0, 1 });
     load_chunk((vec2i16_t) { 1, 1 });
     load_chunk((vec2i16_t) { 25, 74 });
-
-    // Strimngs
-    char chunk_num_s[48];
-    snprintf(chunk_num_s, 47, "Chunks available: %d (%.03f%% loaded)", num_chunks, 1.0f / (float)num_chunks);
-
-    char render_dist_s[32];
-    snprintf(render_dist_s, 31, "Renderdistance: %d", render_distance);
-
 
     const long start_time = time(NULL);
 
@@ -164,6 +156,9 @@ int main()
         snprintf(fps_string, 11, "fps: %d", fps);
 
 
+
+
+
         // MOVEMENT
         const float xm = cos(look.x), ym = sin(look.x);
         float cs = Speed; // Current speed, for multipliers and stuff
@@ -172,13 +167,12 @@ int main()
         w = IsKeyDown(KEY_W);
         a = IsKeyDown(KEY_A);
         s = IsKeyDown(KEY_S);
-        d = IsKeyDown(KEY_D); // NMOM NOM NOM NOM YUMMY!!!! MM BUG
-        // ME EAT EVERY BUG IN THIS CODE THERE ARE SO MANY....
-        // mostly in chunk.c LOL
+        d = IsKeyDown(KEY_D);
 
         if ((w && a) || (w && d) || (s && a) || (s && d)) { cs *= 0.707f; }
         if (IsKeyDown(KEY_LEFT_CONTROL)) { cs *= SprintMult; }
 
+        // sorry kimiz :(
         if (w) { position.x += cs * dt * xm; position.z += cs * dt * ym; }
         if (s) { position.x += cs * dt * -xm; position.z += cs * dt * -ym; }
         if (a) { position.x += cs * dt * ym; position.z += cs * dt * -xm; }
@@ -218,10 +212,6 @@ int main()
             vertical_velo = 0.0f;
         }
 
-        // Info
-        char position_string[64];
-        snprintf(position_string, 63, "position: %d, %d, %d", (int)floor(position.x), (int)floor(position.y), (int)floor(position.z));
-
         // CAMERA
         camera.position = (Vector3){ position.x, position.y + PlayerHeight, position.z };
 
@@ -234,6 +224,24 @@ int main()
 
         Vector3 CP = camera.position;
         camera.target = (Vector3){ CP.x + cos(look.x), CP.y - tan(look.y), CP.z + sin(look.x) };
+
+
+
+
+        // CHUNKS
+        vec2i16_t new_chunk_pos = (vec2i16_t){ position.x / chunk_size.x, position.z / chunk_size.z };
+
+        if (!vec2i16_t_equals(new_chunk_pos, current_chunk_pos)) {
+            // We moved!
+            printf("\n\nWe moved chunks by %d %d!", new_chunk_pos.x - current_chunk_pos.x, new_chunk_pos.y - current_chunk_pos.y);
+
+            // Unload chunks, and load new ones
+            printf("\nUnloading old chunks...");
+            unload_bounds(new_chunk_pos);
+
+            // Upadte chunk pos
+            current_chunk_pos = new_chunk_pos;
+        }
 
 
         // DRAW
@@ -279,6 +287,23 @@ int main()
         }
 
         // INFO
+        // Info Strings
+        char chunk_num_s[48];
+        snprintf(chunk_num_s, 47, "Loaded Chunks: %d / %d avaliable", get_total_loaded_chunks(), num_chunks);
+
+        char memory_s[64];
+        snprintf(memory_s, 63, "Total memory usage: %d MB  (%d bytes)", chunk_mem_usage / 1000000, chunk_mem_usage);
+
+        char render_dist_s[32];
+        snprintf(render_dist_s, 31, "Render distance: %d", render_distance);
+
+        char position_string[64];
+        snprintf(position_string, 63, "Position: %d, %d, %d", (int)floor(position.x), (int)floor(position.y), (int)floor(position.z));
+
+        char c_position_string[64];
+        snprintf(c_position_string, 63, "Chunk Position: %d, %d", new_chunk_pos.x, new_chunk_pos.y);
+
+        // Draw
         DrawText("Mineshaft Craftsmanship v1.1", 10, 10, 30, WHITE);
 
         DrawText("-- performance --", 10, 50, 20, INFO_TITLE_COL);
@@ -286,16 +311,20 @@ int main()
 
         DrawText("-- player --", 10, 110, 20, INFO_TITLE_COL);
         DrawText(position_string, 10, 130, 20, INFO_COL);
+        DrawText(c_position_string, 10, 150, 20, INFO_COL);
 
-        DrawText("-- terrain --", 10, 170, 20, INFO_TITLE_COL);
-        DrawText(render_dist_s, 10, 190, 20, INFO_COL);
-        DrawText(chunk_num_s, 10, 210, 20, INFO_COL);
+        DrawText("-- terrain --", 10, 190, 20, INFO_TITLE_COL);
+        DrawText(render_dist_s, 10, 210, 20, INFO_COL);
+        DrawText(chunk_num_s, 10, 230, 20, INFO_COL);
+
+        DrawText("-- memory --", 10, 270, 20, INFO_TITLE_COL);
+        DrawText(memory_s, 10, 290, 20, INFO_COL);
 
         EndDrawing();
     }
 
-    int NANANANA = free_chunks();
-
+    // Free memory and close.
+    free_chunks();
     CloseWindow();
 
     return 0;
