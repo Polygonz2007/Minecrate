@@ -31,10 +31,9 @@ int unload_chunk(vec2i16_t chunk_pos);	// Function for unloading a chunk. Sets c
 
 int32_t get_chunk_index_data(vec2i16_t chunk_pos);	// Returns its index in "chunk_data" array where the requested chunk starts. -1 if failed.
 int32_t get_chunk_index(vec2i16_t chunk_pos);	// Returns its index in "chunk_data" array where the requested chunk starts. -1 if failed.
-int32_t get_block_index(vec3i32_t block_pos);		// Returns its index in "chunk_data" of the block. -1 if fail
-int32_t get_block_index_in_chunk(vec3i16_t block_pos); // Get raw
+int32_t get_block_index_in_chunk(vec3i16_t c_block_pos); // Get raw
 
-block_t get_block(vec3i32_t block_pos);				// Returns block type for this GLOBAL location, automatically finds chunk. Returns UNDERFINED (0) if failed
+block_t get_block(vec3i32_t block_pos);	// Returns block type for this GLOBAL location, automatically finds chunk. Returns UNDERFINED (0) if failed
 
 // Utility!
 vec2i16_t get_chunk_pos(vec3i32_t block_pos);	// Convert 3d block pos to 2d chunk pos
