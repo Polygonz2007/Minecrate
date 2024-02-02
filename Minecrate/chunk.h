@@ -14,7 +14,7 @@ uint32_t chunk_mem_usage;
 // Current position of player within chunks, aka chunk offset for blocks
 static vec2i16_t current_chunk_pos = { 0, 0 };
 
-static uint8_t render_distance = 4;	// Chunks in each direction. (rd + 1 + rd)
+static uint8_t render_distance = 12;	// Chunks in each direction. (rd + 1 + rd)
 
 static const vec3u16_t chunk_size = {		// Size of each chunk, in blocks.
 	16,		// X

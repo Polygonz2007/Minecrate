@@ -93,13 +93,14 @@ int main()
     // TERRAIN (Chunk size: 16 x 64 x 16)int 
     init_chunks();
 
-    load_chunk((vec2i16_t) { 0, 0 });
-    load_chunk((vec2i16_t) { 1, 0 });
+    for (uint8_t x = 0; x < 8; ++x) {
+        for (uint8_t y = 0; y < 8; ++y) {
+            load_chunk((vec2i16_t) { x, y });
+        }
+    }
 
-    
-    load_chunk((vec2i16_t) { 0, 1 });
-    load_chunk((vec2i16_t) { 1, 1 });
-    load_chunk((vec2i16_t) { 25, 74 });
+    unload_chunk((vec2i16_t) { 1, 0 });
+    load_chunk((vec2i16_t) { 1, 0 });
 
     const long start_time = time(NULL);
 

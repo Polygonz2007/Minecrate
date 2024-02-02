@@ -149,6 +149,15 @@ int load_chunk(vec2i16_t chunk_pos) {
 }
 
 int unload_chunk(vec2i16_t chunk_pos) {
+	int32_t i = get_chunk_index(chunk_pos);
+
+	if (i == -1)
+		printf("\nCannot unload chunk %d %d because it does not exist.", chunk_pos.x, chunk_pos.y);
+		return -1;
+
+	chunk_status[i] = CHUNK_EMPTY;
+	printf("\n'UNDLOADED' chunk %d %d sex!", chunk_pos.x, chunk_pos.y);
+
 	return 0;
 }
 
@@ -168,7 +177,7 @@ int32_t get_chunk_index_data(vec2i16_t chunk_pos) {
 
 int32_t get_chunk_index(vec2i16_t chunk_pos) {
 	for (uint16_t i = 0; i < num_chunks; ++i) {
-		if (vec2i16_t_equals(chunk_pos, chunk_locs[i])) {
+		if (vec2i16_t_equals(chunk_pos, chunk_locs[i]) && chunk_status[i] == CHUNK_LOADED) {
 			return i;
 		}
 	}
