@@ -15,7 +15,6 @@ block_t block_t_new_from_name(char type[]);
 uint16_t num_block_types;
 
 // DEFINE BLOCK NAMES FOR EACH TYPE
-// 0: Undefined, 1: Air, 2: Bedrock, 3: Grass, 4: Dirt, 5: Stone, 6: Cobblestone, 7: Sand
 static const char block_names[8][16] = {
 	"Undefined",
 	"Air",
@@ -48,11 +47,6 @@ static const uint8_t block_hardness[8] = { // max block hardness can be 255, and
 	5,	// STONE
 	5,	// COBBLESTONE
 	2	// SAND
-};
-
-// BLOCK ENUM
-static enum BLOCK_TYPE {
-
 };
 
 #endif

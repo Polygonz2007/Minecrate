@@ -1,6 +1,8 @@
 
 #include <stdio.h>
 #include <malloc.h>
+#include <stdbool.h>
+
 #include "perlinNoise.h"
 
 #include "vec2.h"
@@ -53,7 +55,7 @@ int init_chunks() {
 
 	// Initialize all chunks as empty
 	for (uint16_t i = 0; i < num_chunks; ++i) {
-		chunk_status[i] = CHUNK_EMPTY;
+		chunk_status[i] = CHUNK_UNLOADED;
 	}
 
 	printf("Memory allocated.\n");
@@ -74,20 +76,14 @@ int free_chunks() { // WARNING: any chunk functions including load_mesh or load_
 int load_chunk(vec2i16_t chunk_pos) {
 	int32_t chunk_index = get_chunk_index(chunk_pos);
 
-	printf("\n"); // New chunk new 100 lines of debugging...
-
 	if (chunk_index != -1) {
-		printf("\nLoading chunk %d, %d failed, chunk already exists.", chunk_pos.x, chunk_pos.y);
 		return -1; // error, the chunk already exist
 	} else {
 		// Generate new index for use
-		printf("Finding next available memory location.");
 		chunk_index = next_chunk_index();
 	}
 
 	// it fine we load chunke
-	printf("\nLoading chunk %d, %d at index %d at data index %d.", chunk_pos.x, chunk_pos.y, chunk_index, chunk_index * chunk_data_size);
-
 	chunk_status[chunk_index] = CHUNK_LOADING; // Loading
 	chunk_locs[chunk_index] = (vec2i16_t){ chunk_pos.x, chunk_pos.y };
 
@@ -140,10 +136,8 @@ int load_chunk(vec2i16_t chunk_pos) {
 		}
 	}
 
-	// yes
+	// Update status
 	chunk_status[chunk_index] = CHUNK_LOADED; /// Finished, and ready to be used. 
-
-	printf("\nLoaded chunk %d, %d successfully.", chunk_pos.x, chunk_pos.y);
 
 	return 0;
 }
@@ -151,13 +145,10 @@ int load_chunk(vec2i16_t chunk_pos) {
 int unload_chunk(vec2i16_t chunk_pos) {
 	int32_t i = get_chunk_index(chunk_pos);
 
-	if (i == -1)
-		printf("\nCannot unload chunk %d %d because it does not exist.", chunk_pos.x, chunk_pos.y);
+	if (i == -1)	// Can't unload because its already unloaded
 		return -1;
 
-	chunk_status[i] = CHUNK_EMPTY;
-	printf("\n'UNDLOADED' chunk %d %d sex!", chunk_pos.x, chunk_pos.y);
-
+	chunk_status[i] = CHUNK_UNLOADED;
 	return 0;
 }
 
@@ -166,8 +157,8 @@ int unload_chunk(vec2i16_t chunk_pos) {
 int32_t get_chunk_index_data(vec2i16_t chunk_pos) {
 	for (uint16_t i = 0; i < num_chunks; ++i) {
 		if (vec2i16_t_equals(chunk_pos, chunk_locs[i])) {
-			printf("\n%d, %d == %d, %d", chunk_pos.x, chunk_pos.y, chunk_locs[i].x, chunk_locs[i].y);
-			printf("\nFOUND CHUNK %d %d AT INDEX %d", chunk_pos.x, chunk_pos.y, i * chunk_data_size);
+			//printf("\n%d, %d == %d, %d", chunk_pos.x, chunk_pos.y, chunk_locs[i].x, chunk_locs[i].y);
+			//printf("\nFOUND CHUNK %d %d AT INDEX %d", chunk_pos.x, chunk_pos.y, i * chunk_data_size);
 			return i * chunk_data_size;
 		}
 	}
@@ -175,9 +166,16 @@ int32_t get_chunk_index_data(vec2i16_t chunk_pos) {
 	return -1; // did not find a chunk
 }
 
+// chunk_pos: position of chunk to be found, free: if the chunk needs to be empty or not
 int32_t get_chunk_index(vec2i16_t chunk_pos) {
 	for (uint16_t i = 0; i < num_chunks; ++i) {
-		if (vec2i16_t_equals(chunk_pos, chunk_locs[i]) && chunk_status[i] == CHUNK_LOADED) {
+		if (vec2i16_t_equals(chunk_pos, chunk_locs[i])) {
+			if (chunk_status[i] == CHUNK_UNLOADED) {
+				//printf("\nINDEX FINDER: Skipped chunk %d %d at index %d because its unloaded", chunk_pos.x, chunk_pos.y, i);
+				return -1;
+			}
+
+			//printf("\nINDEX FINDER: Returning chunk %d %d (loaded)", chunk_pos.x, chunk_pos.y);
 			return i;
 		}
 	}
@@ -187,7 +185,7 @@ int32_t get_chunk_index(vec2i16_t chunk_pos) {
 
 int32_t next_chunk_index() {
 	for (uint16_t i = 0; i < num_chunks; ++i) {
-		if (chunk_status[i] == CHUNK_EMPTY)
+		if (chunk_status[i] == CHUNK_UNLOADED)
 			return i;
 	}
 
@@ -217,7 +215,7 @@ block_t get_block(vec3i32_t block_pos) {
 
 // UTIL
 vec2i16_t get_chunk_pos(vec3i32_t block_pos) {
-	printf("\nI got %d %d", block_pos.x, block_pos.z);
+	//printf("\nI got %d %d", block_pos.x, block_pos.z);
 	return (vec2i16_t) { block_pos.x / (int32_t)chunk_size.x, block_pos.z / (int32_t)chunk_size.z };
 }
 
@@ -243,6 +241,16 @@ uint16_t get_total_loaded_chunks() {
 }
 
 // More chunk funcs
+int load_bounds(vec2i16_t pos) {
+	for (int16_t x = -render_distance; x <= render_distance; ++x) {
+		for (int16_t y = -render_distance; y <= render_distance; ++y) {
+			load_chunk((vec2i16_t) { x + pos.x, y + pos.y });
+		}
+	}
+
+	return 0;
+}
+
 int unload_bounds(vec2i16_t pos) {
 	for (uint16_t i = 0; i < num_chunks; ++i) {
 		vec2i16_t chunk_pos = chunk_locs[i];
@@ -250,14 +258,9 @@ int unload_bounds(vec2i16_t pos) {
 
 		if (chunk_status[i] == CHUNK_LOADED && (diff.x > render_distance || diff.y > render_distance)) {
 			// If chunk is loaded, and is outside our renderdistance bounding box, UNLOAD IT AAA
-			chunk_status[i] = CHUNK_EMPTY;
-			printf("Unloaded chunk %d %d", chunk_pos.x, chunk_pos.y);
+			unload_chunk(chunk_pos);
 		}
 	}
 
-	return 0;
-}
-
-int load_bounds(vec2i16_t pos) {
 	return 0;
 }

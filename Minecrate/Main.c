@@ -90,17 +90,9 @@ int main()
     int hotbar_selected = 0; // 0 - 8
 
 
-    // TERRAIN (Chunk size: 16 x 64 x 16)int 
+    // TERRAIN
     init_chunks();
-
-    for (uint8_t x = 0; x < 8; ++x) {
-        for (uint8_t y = 0; y < 8; ++y) {
-            load_chunk((vec2i16_t) { x, y });
-        }
-    }
-
-    unload_chunk((vec2i16_t) { 1, 0 });
-    load_chunk((vec2i16_t) { 1, 0 });
+    load_bounds(current_chunk_pos);
 
     const long start_time = time(NULL);
 
@@ -233,12 +225,9 @@ int main()
         vec2i16_t new_chunk_pos = (vec2i16_t){ position.x / chunk_size.x, position.z / chunk_size.z };
 
         if (!vec2i16_t_equals(new_chunk_pos, current_chunk_pos)) {
-            // We moved!
-            printf("\n\nWe moved chunks by %d %d!", new_chunk_pos.x - current_chunk_pos.x, new_chunk_pos.y - current_chunk_pos.y);
-
             // Unload chunks, and load new ones
-            printf("\nUnloading old chunks...");
             unload_bounds(new_chunk_pos);
+            load_bounds(current_chunk_pos);
 
             // Upadte chunk pos
             current_chunk_pos = new_chunk_pos;
@@ -289,8 +278,10 @@ int main()
 
         // INFO
         // Info Strings
-        char chunk_num_s[48];
-        snprintf(chunk_num_s, 47, "Loaded Chunks: %d / %d avaliable", get_total_loaded_chunks(), num_chunks);
+        uint16_t tot_loaded_chunks = get_total_loaded_chunks();
+
+        char chunk_num_s[64];
+        snprintf(chunk_num_s, 63, "Loaded Chunks: %d / %d avaliable (%.01f%%)", tot_loaded_chunks, num_chunks, ((float)tot_loaded_chunks / (float)num_chunks) * 100.0f);
 
         char memory_s[64];
         snprintf(memory_s, 63, "Total memory usage: %d MB  (%d bytes)", chunk_mem_usage / 1000000, chunk_mem_usage);

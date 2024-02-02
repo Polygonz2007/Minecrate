@@ -23,7 +23,7 @@ static const vec3u16_t chunk_size = {		// Size of each chunk, in blocks.
 };
 
 static enum chunk_status {
-	CHUNK_EMPTY,
+	CHUNK_UNLOADED,
 	CHUNK_LOADING,
 	CHUNK_LOADED
 };
@@ -34,9 +34,9 @@ int free_chunks();		// Deallocates both data arrays. Should be called before exi
 
 int load_chunk(vec2i16_t chunk_pos);	// Function for loading a chunk. Calculates all blocks within chunk and stores to chunk_data
 int unload_chunk(vec2i16_t chunk_pos);	// Function for unloading a chunk. Sets chunk status to idle
-
-int unload_bounds(vec2i16_t pos);	// Unloads chunks outside of bounds, defined by pos and renderdistance
+ 
 int load_bounds(vec2i16_t pos);		// Loads unloaded chunks inside of bounds, defined by pos and renderdistance
+int unload_bounds(vec2i16_t pos);	// Unloads chunks outside of bounds, defined by pos and renderdistance
 
 int32_t get_chunk_index_data(vec2i16_t chunk_pos);	// Returns its index in "chunk_data" array where the requested chunk starts. -1 if failed.
 int32_t get_chunk_index(vec2i16_t chunk_pos);	// Returns its index in "chunk_data" array where the requested chunk starts. -1 if failed.
