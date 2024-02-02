@@ -257,7 +257,7 @@ int unload_bounds(vec2i16_t pos) {
 		vec2i16_t diff = { abs(pos.x - chunk_pos.x), abs(pos.y - chunk_pos.y) };
 
 		if (chunk_status[i] == CHUNK_LOADED && (diff.x > render_distance || diff.y > render_distance)) {
-			// If chunk is loaded, and is outside our renderdistance bounding box, UNLOAD IT AAA
+			// If chunk is loaded, and is outside our renderdistance bounding box, unload it
 			unload_chunk(chunk_pos);
 		}
 	}
