@@ -2,6 +2,7 @@
 #define BLOCK_H
 
 #include <stdint.h>
+#include <raylib.h>
 
 // DEFINE BLOCK STRUCT
 typedef struct {
@@ -47,6 +48,17 @@ static const uint8_t block_hardness[8] = { // max block hardness can be 255, and
 	5,	// STONE
 	5,	// COBBLESTONE
 	2	// SAND
+};
+
+static const Color block_colors[8] = {
+	{ 0,  0, 0, 0 },
+	{ 255,  255, 255, 10 },
+	{ 0,  0, 0, 255 },
+	{ 60,  200, 30, 255 },
+	{ 180,  127, 0, 255 },
+	{ 180,  180, 180, 255 },
+	{ 120,  120, 120, 255 },
+	{ 180,  130, 80, 255 }
 };
 
 #endif

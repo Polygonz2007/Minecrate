@@ -91,10 +91,14 @@ int main()
 
 
     // TERRAIN
-    init_chunks();
-    load_bounds(current_chunk_pos);
+    const double start_init = GetTime();
 
-    const long start_time = time(NULL);
+    init_chunks();
+    //load_bounds(current_chunk_pos);
+    load_chunk((vec2i16_t) { 0, 0 });
+
+    const double end_init = GetTime();
+    printf("\nInitiated chunks, time: %fs", end_init - start_init);
 
 
 
@@ -110,7 +114,7 @@ int main()
     //model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
 
 
-
+    const long start_time = time(NULL);
 
     // Main game loop
     while (!WindowShouldClose())
@@ -147,10 +151,7 @@ int main()
         const int fps = GetFPS();
         char fps_string[12];
         snprintf(fps_string, 11, "fps: %d", fps);
-
-
-
-
+        
 
         // MOVEMENT
         const float xm = cos(look.x), ym = sin(look.x);
@@ -225,14 +226,18 @@ int main()
         vec2i16_t new_chunk_pos = (vec2i16_t){ position.x / chunk_size.x, position.z / chunk_size.z };
 
         if (!vec2i16_t_equals(new_chunk_pos, current_chunk_pos)) {
+            const double start_chunk_load = GetTime();
+
             // Unload chunks, and load new ones
-            unload_bounds(new_chunk_pos);
-            load_bounds(current_chunk_pos);
+            //unload_bounds(new_chunk_pos);
+            //load_bounds(current_chunk_pos);
 
             // Upadte chunk pos
             current_chunk_pos = new_chunk_pos;
-        }
 
+            const double end_chunk_load = GetTime();
+            printf("\nLoaded chunks, time: %fs", end_chunk_load - start_chunk_load);
+        }
 
         // DRAW
         BeginDrawing();
@@ -242,16 +247,16 @@ int main()
         BeginMode3D(camera);
 
         // Chunk (put in function later)
-        //for (int x = 0; x < chunk_size.x; ++x) {
-        //    for (int y = 0; y < chunk_size.y; ++y) {
-        //        for (int z = 0; z < chunk_size.z; ++z) {
-        //            block_t block = get_block((vec3i32_t) { x, y, z });
-        //
-        //            if (block.type != 0 && block.type != 1)
-        //                PlaceCube(x, y, z);
-        //        }
-        //    }
-        //}
+        for (int x = 0; x < chunk_size.x; ++x) {
+            for (int y = 0; y < chunk_size.y; ++y) {
+                for (int z = 0; z < chunk_size.z; ++z) {
+                    block_t block = get_block((vec3i32_t) { x, y, z });
+
+                    if (block.type > 1)
+                        PlaceCube(x, y, z, block);
+                }
+            }
+        }
 
         // WATER
         DrawPlane((Vector3) { 0.0f, -0.2f, 0.0f }, (Vector2) { 512.0f, 512.0f }, (Color) {
@@ -322,12 +327,8 @@ int main()
     return 0;
 }
 
-void PlaceCube(int x, int y, int z) {
-    Color col = GRASS;
-
-    if (y < sample_perlin((float)x / 10.0f + 1000.0f, (float)y / 10.0f) * 2.0f) {
-        col = SAND;
-    }
+void PlaceCube(int x, int y, int z, block_t block) {
+    Color col = block_colors[block.type];
 
     DrawCube((Vector3) { x + 0.5f, y + 0.5f, z + 0.5f }, 1.0f, 1.0f, 1.0f, (Color) {
         clampint(col.r + rand() / 128 / 32, 0, 255),
