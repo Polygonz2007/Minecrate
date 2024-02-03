@@ -56,7 +56,7 @@ int main()
 
     //Image Icon = LoadImage("./"); // add minecraftlogo av ael.com
 
-    InitWindow(default_window_width, default_window_height, "Mineshaft Craftsmanship v1.1");
+    InitWindow(default_window_width, default_window_height, "Minecrate");
     //SetWindowIcon(Icon);
 
     DisableCursor();
@@ -259,7 +259,7 @@ int main()
         }
 
         // WATER
-        DrawPlane((Vector3) { 0.0f, -0.2f, 0.0f }, (Vector2) { 512.0f, 512.0f }, (Color) {
+        DrawPlane((Vector3) { 0.0f, (float)sea_level - 0.2f, 0.0f }, (Vector2) { 512.0f, 512.0f }, (Color) {
             0, 121, 241, 127
         });
 
@@ -301,7 +301,7 @@ int main()
         snprintf(c_position_string, 63, "Chunk Position: %d, %d", new_chunk_pos.x, new_chunk_pos.y);
 
         // Draw
-        DrawText("Mineshaft Craftsmanship v1.1", 10, 10, 30, WHITE);
+        DrawText("Minecrate v0.2 [CHUNK UPDATE]", 10, 10, 30, WHITE);
 
         DrawText("-- performance --", 10, 50, 20, INFO_TITLE_COL);
         DrawText(fps_string, 10, 70, 20, INFO_COL);

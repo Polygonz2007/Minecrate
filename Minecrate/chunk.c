@@ -17,8 +17,6 @@ static vec2i16_t *chunk_locs;	// Stores position of chunks in "chunk_data". Allo
 static uint8_t *chunk_status;	// 0: Empty, 1: Loading, 2: Ready (blocks are filled and correct)
 static uint16_t *chunk_buffer;	// Used for storing 2d heights when calculating blocks within chunk
 
-static uint8_t sea_level = 63; // temporary
-
 
 // Memory functions
 int init_chunks() {
@@ -130,6 +128,9 @@ int load_chunk(vec2i16_t chunk_pos) {
 				} else if (y < h) {
 					cb = BLOCK_GRASS;
 				}
+
+				if (h < sea_level + 3 && (cb == BLOCK_GRASS || cb == BLOCK_DIRT))
+					cb = BLOCK_SAND; // Sand at shore
 
 				chunk_data[i] = block_t_new(cb);
 			}
