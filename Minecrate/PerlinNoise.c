@@ -46,8 +46,11 @@ float sample_perlin(float x, float y) {
 	float Result   = lerpn(AC, BD, remy);
 
 	// Clamp
-	//if (Result < -1.0f) { Result = -1.0f; }
-	//if (Result > 1.0f)  { Result = 1.0f; }
+	if (Result < -1.0f)
+		Result = -1.0f; 
+
+	if (Result > 1.0f)
+		Result = 1.0f;
 
 	return Result;
 }

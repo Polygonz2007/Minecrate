@@ -11,13 +11,13 @@ uint16_t num_chunks;			// Total number of chunks avaliable in chunk_data, chunk_
 uint32_t chunk_data_size;		// Total amount of sizeof(block_t)'s each chunk occupies in the "chunk_data" array.
 uint32_t chunk_mem_usage;
 
-// Current position of player within chunks, aka chunk offset for blocks
+// Current position of player relative to chunks
 static vec2i16_t current_chunk_pos = { 0, 0 };
-static uint8_t sea_level = 63; // temporary
+static uint8_t sea_level = 63;
 
 static uint8_t render_distance = 8;	// Chunks in each direction. (rd + 1 + rd)
 
-static const vec3u16_t chunk_size = {		// Size of each chunk, in blocks.
+static const vec3u16_t chunk_size = {	// Size of each chunk, in blocks.
 	16,		// X
 	256,	// Y
 	16		// Z
@@ -39,7 +39,6 @@ int unload_chunk(vec2i16_t chunk_pos);	// Function for unloading a chunk. Sets c
 int load_bounds(vec2i16_t pos);		// Loads unloaded chunks inside of bounds, defined by pos and renderdistance
 int unload_bounds(vec2i16_t pos);	// Unloads chunks outside of bounds, defined by pos and renderdistance
 
-int32_t get_chunk_index_data(vec2i16_t chunk_pos);	// Returns its index in "chunk_data" array where the requested chunk starts. -1 if failed.
 int32_t get_chunk_index(vec2i16_t chunk_pos);	// Returns its index in "chunk_data" array where the requested chunk starts. -1 if failed.
 int32_t get_block_index(vec3i16_t c_block_pos); // Get raw
 

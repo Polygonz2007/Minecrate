@@ -1,13 +1,38 @@
 // Minecrap.c : This file contains the 'main' function. Program execution begins and ends there.
 //
 
+#define WIN32_LEAN_AND_MEAN
+#if defined(_WIN32)
+#define WIN32
+#endif
+#if defined(_WIN64)
+#define WIN64
+#define _AMD64_
+#undef _X86_
+#else
+#undef _AMD64_
+#define _X86_
+#endif
+
+#if defined(_WIN32)           
+#define NOGDI             // All GDI defines and routines
+#define NOUSER            // All USER defines and routines
+#endif
+
+#include <Windows.h> // or any library that uses Windows.h
+
+#if defined(_WIN32)           // raylib uses these names as function parameters
+#undef near
+#undef far
+#endif
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 
 #include <time.h>
 #include <math.h>
 
-#include <stdlib.h>
 #include <raylib.h>
 #include <raymath.h>
 
@@ -39,13 +64,12 @@ static int clampint(int d, int min, int max) {
 }
 
 // Prototypes
-void PlaceCube(int x, int y, int z);
-
-
+void place_cube(int x, int y, int z, block_t block);
+DWORD WINAPI update_chunks(LPVOID lpParameter);
 
 // Main :D
-int main()
-{
+//int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char* pCmdLine, int nCmdShow) {
+int main() {
     // WINDOW
     const int default_window_width = 1600;
     const int default_window_height = 800;
@@ -91,12 +115,15 @@ int main()
 
 
     // TERRAIN
+    vec2i16_t* lpArgPtr;
+    HANDLE chunk_h_thread; // Multithreading for chunks
+    DWORD chunk_dw_thread_id;
+
     const double start_init = GetTime();
 
     init_chunks();
-    //load_bounds(current_chunk_pos);
-    load_chunk((vec2i16_t) { 0, 0 });
-
+    load_bounds(current_chunk_pos);
+    
     const double end_init = GetTime();
     printf("\nInitiated chunks, time: %fs", end_init - start_init);
 
@@ -172,14 +199,16 @@ int main()
         if (a) { position.x += cs * dt * ym; position.z += cs * dt * -xm; }
         if (d) { position.x += cs * dt * -ym; position.z += cs * dt * xm; }
 
-        if (IsKeyPressed(KEY_SPACE)) {
-            vertical_velo += 4.0f;
+        if (IsKeyDown(KEY_SPACE)) {
+            //vertical_velo += 4.0f;
+            position.y += 30.0f * dt;
         }
 
         if (IsKeyDown(KEY_LEFT_SHIFT)) {
-            if (vertical_velo > 0.0f) {
-                vertical_velo *= 0.9f;
-            }
+            //if (vertical_velo > 0.0f) {
+            //    vertical_velo *= 0.9f;
+            //}
+            position.y -= 30.0f * dt;
         }
 
         // HOTBAR
@@ -198,13 +227,13 @@ int main()
         const int ix = (int)(position.x);
         const int iy = (int)(position.z);
 
-        vertical_velo += gravity * dt;
-        position.y += vertical_velo * dt * 2;
+        //vertical_velo += gravity * dt;
+        //position.y += vertical_velo * dt * 2;
 
-        if (0.0f >= position.y) {
-            position.y = 0.0f;
-            vertical_velo = 0.0f;
-        }
+        //if (0.0f >= position.y) {
+        //    position.y = 0.0f;
+        //    vertical_velo = 0.0f;
+        //}
 
         // CAMERA
         camera.position = (Vector3){ position.x, position.y + PlayerHeight, position.z };
@@ -223,20 +252,18 @@ int main()
 
 
         // CHUNKS
-        vec2i16_t new_chunk_pos = (vec2i16_t){ position.x / chunk_size.x, position.z / chunk_size.z };
+        vec2i16_t new_chunk_pos = (vec2i16_t){ floor(position.x / chunk_size.x), floor(position.z / chunk_size.z) };
 
         if (!vec2i16_t_equals(new_chunk_pos, current_chunk_pos)) {
-            const double start_chunk_load = GetTime();
+            // Unload chunks and load new ones on another thread, then update chunk pos
+            lpArgPtr = (vec2i16_t*)malloc(sizeof(vec2i16_t));
+            *lpArgPtr = new_chunk_pos;
 
-            // Unload chunks, and load new ones
-            //unload_bounds(new_chunk_pos);
-            //load_bounds(current_chunk_pos);
+            chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
 
-            // Upadte chunk pos
+            printf("\nFinished updating.\n");
+
             current_chunk_pos = new_chunk_pos;
-
-            const double end_chunk_load = GetTime();
-            printf("\nLoaded chunks, time: %fs", end_chunk_load - start_chunk_load);
         }
 
         // DRAW
@@ -247,13 +274,13 @@ int main()
         BeginMode3D(camera);
 
         // Chunk (put in function later)
-        for (int x = 0; x < chunk_size.x; ++x) {
-            for (int y = 0; y < chunk_size.y; ++y) {
-                for (int z = 0; z < chunk_size.z; ++z) {
-                    block_t block = get_block((vec3i32_t) { x, y, z });
+        for (int x = -24; x < 24; ++x) {
+            for (int y = -24; y < 24; ++y) {
+                for (int z = -24; z < 24; ++z) {
+                    block_t block = get_block((vec3i32_t) { (int32_t)position.x + x, (int32_t)position.y + y, (int32_t)position.z + z });
 
-                    if (block.type > 1)
-                        PlaceCube(x, y, z, block);
+                    if (block.type != 1)
+                        place_cube(position.x + x, position.y + y, position.z + z, block);
                 }
             }
         }
@@ -327,7 +354,7 @@ int main()
     return 0;
 }
 
-void PlaceCube(int x, int y, int z, block_t block) {
+void place_cube(int x, int y, int z, block_t block) {
     Color col = block_colors[block.type];
 
     DrawCube((Vector3) { x + 0.5f, y + 0.5f, z + 0.5f }, 1.0f, 1.0f, 1.0f, (Color) {
@@ -336,4 +363,16 @@ void PlaceCube(int x, int y, int z, block_t block) {
         clampint(col.b + rand() / 128 / 32, 0, 255),
         255
     });
+}
+
+DWORD WINAPI update_chunks(LPVOID lpParameter) {
+    vec2i16_t new_chunk_pos;
+    new_chunk_pos = *(vec2i16_t *)lpParameter;
+
+    unload_bounds(new_chunk_pos);
+    load_bounds(new_chunk_pos);
+
+    printf("Loaded chunks succesfully....");
+
+    return 0;
 }

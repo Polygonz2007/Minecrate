@@ -51,7 +51,7 @@ static const uint8_t block_hardness[8] = { // max block hardness can be 255, and
 };
 
 static const Color block_colors[8] = {
-	{ 0,  0, 0, 0 },
+	{ 255,  0, 0, 255 },
 	{ 255,  255, 255, 10 },
 	{ 0,  0, 0, 255 },
 	{ 60,  200, 30, 255 },
