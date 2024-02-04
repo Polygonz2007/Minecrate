@@ -122,7 +122,12 @@ int main() {
     const double start_init = GetTime();
 
     init_chunks();
-    load_bounds(current_chunk_pos);
+    
+    // Load starting chunks, on different thread
+    lpArgPtr = (vec2i16_t*)malloc(sizeof(vec2i16_t));
+    *lpArgPtr = (vec2i16_t){ 0, 0 };
+
+    chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
     
     const double end_init = GetTime();
     printf("\nInitiated chunks, time: %fs", end_init - start_init);
@@ -274,13 +279,13 @@ int main() {
         BeginMode3D(camera);
 
         // Chunk (put in function later)
-        for (int x = -24; x < 24; ++x) {
-            for (int y = -24; y < 24; ++y) {
-                for (int z = -24; z < 24; ++z) {
-                    block_t block = get_block((vec3i32_t) { (int32_t)position.x + x, (int32_t)position.y + y, (int32_t)position.z + z });
+        for (int x = -8; x < 8; ++x) {
+            for (int y = 0; y < chunk_size.y; ++y) {
+                for (int z = -8; z < 8; ++z) {
+                    block_t block = get_block((vec3i32_t) { x, y, z });
 
                     if (block.type != 1)
-                        place_cube(position.x + x, position.y + y, position.z + z, block);
+                        place_cube(x, y, z, block);
                 }
             }
         }

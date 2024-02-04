@@ -124,18 +124,29 @@ int load_chunk(vec2i16_t chunk_pos) {
 				int cb = BLOCK_AIR;
 
 				// Set blocks at different levels
-				if (y == 0) {
-					cb = BLOCK_BEDROCK;
-				} else if (y < h - 5) {
-					cb = BLOCK_STONE;
-				} else if (y < h - 1) {
-					cb = BLOCK_DIRT;
-				} else if (y < h) {
-					cb = BLOCK_GRASS;
-				}
+				//if (y == 0) {
+				//	cb = BLOCK_BEDROCK;
+				//} else if (y < h - 5) {
+				//	cb = BLOCK_STONE;
+				//} else if (y < h - 1) {
+				//	cb = BLOCK_DIRT;
+				//} else if (y < h) {
+				//	cb = BLOCK_GRASS;
+				//}
 
-				if (h < sea_level + 3 && (cb == BLOCK_GRASS || cb == BLOCK_DIRT))
-					cb = BLOCK_SAND; // Sand at shore
+				//if (h < sea_level + 3 && (cb == BLOCK_GRASS || cb == BLOCK_DIRT))
+				//	cb = BLOCK_SAND; // Sand at shore
+
+				if (y == 0)
+					cb = BLOCK_BEDROCK;
+				if (y == 1)
+					cb = BLOCK_SAND;
+				if (y == 2)
+					cb = BLOCK_GRASS;
+				if (y == 255)
+					cb = BLOCK_DIRT;
+				if (y == 254)
+					cb = BLOCK_STONE;
 
 				chunk_data[i] = block_t_new(cb);
 			}
