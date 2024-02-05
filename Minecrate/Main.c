@@ -1,6 +1,5 @@
-// Minecrap.c : This file contains the 'main' function. Program execution begins and ends there.
-//
 
+// FOR MULITHREADING
 #define WIN32_LEAN_AND_MEAN
 #if defined(_WIN32)
 #define WIN32
@@ -25,6 +24,7 @@
 #undef near
 #undef far
 #endif
+// END MULTITHREADING
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,6 +70,7 @@ DWORD WINAPI update_chunks(LPVOID lpParameter);
 // Main :D
 //int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char* pCmdLine, int nCmdShow) {
 int main() {
+
     // WINDOW
     const int default_window_width = 1600;
     const int default_window_height = 800;
@@ -94,7 +95,7 @@ int main() {
     camera.fovy = 80.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 
-    float Sensitivity = 300.0f; // Higher sensitivity --> Less rotation per px moved
+    float sensitivity = 300.0f; // Higher sensitivity --> Less rotation per px moved
 
     // PHYSICS
     const float gravity = -9.81f;
@@ -104,9 +105,9 @@ int main() {
     Vector2 look = { 0.707f, 0.0f }; // camera rotation in radians
     float vertical_velo = 0.0f;
 
-    float PlayerHeight = 1.83f; // y offset of camera relative to player pos
-    float Speed = 3.8f; // unit / second
-    float SprintMult = 2.0f;
+    float player_height = 1.83f; // y offset of camera relative to player pos
+    float player_speed = 3.8f; // unit / second
+    float sprint_multiplier = 2.0f;
 
 
     // GAMEPLAY
@@ -119,17 +120,12 @@ int main() {
     HANDLE chunk_h_thread; // Multithreading for chunks
     DWORD chunk_dw_thread_id;
 
-    const double start_init = GetTime();
-
     init_chunks();
-    
+
     // Load starting chunks, on different thread
     *lpArgPtr = (vec2i16_t){ 0, 0 };
 
     chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
-    
-    const double end_init = GetTime();
-    printf("\nInitiated chunks, time: %fs", end_init - start_init);
 
 
 
@@ -186,7 +182,7 @@ int main() {
 
         // MOVEMENT
         const float xm = cos(look.x), ym = sin(look.x);
-        float cs = Speed; // Current speed, for multipliers and stuff
+        float cs = player_speed; // Current player_speed, for multipliers and stuff
 
         bool w, a, s, d;
         w = IsKeyDown(KEY_W);
@@ -195,7 +191,7 @@ int main() {
         d = IsKeyDown(KEY_D);
 
         if ((w && a) || (w && d) || (s && a) || (s && d)) { cs *= 0.707f; }
-        if (IsKeyDown(KEY_LEFT_CONTROL)) { cs *= SprintMult; }
+        if (IsKeyDown(KEY_LEFT_CONTROL)) { cs *= sprint_multiplier; }
 
         // sorry kimiz :(
         if (w) { position.x += cs * dt * xm; position.z += cs * dt * ym; }
@@ -240,11 +236,11 @@ int main() {
         //}
 
         // CAMERA
-        camera.position = (Vector3){ position.x, position.y + PlayerHeight, position.z };
+        camera.position = (Vector3){ position.x, position.y + player_height, position.z };
 
         Vector2 md = GetMouseDelta();
-        look.x += md.x / Sensitivity;
-        look.y += md.y / Sensitivity;
+        look.x += md.x / sensitivity;
+        look.y += md.y / sensitivity;
 
         look.x = fmodf(look.x, PI * 2);
         look.y = clamp(look.y, -1.57f, 1.57f);
@@ -261,13 +257,17 @@ int main() {
         if (!vec2i16_t_equals(new_chunk_pos, current_chunk_pos)) {
             // Unload chunks and load new ones on another thread, then update chunk pos
             *lpArgPtr = new_chunk_pos;
-
             chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
 
             printf("\nFinished updating.\n");
 
             current_chunk_pos = new_chunk_pos;
         }
+
+        if (chunk_h_thread != NULL)
+            printf("\nThread still going");
+        else
+            printf("\nThread done");
 
         // DRAW
         BeginDrawing();
@@ -299,6 +299,13 @@ int main() {
         //DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 0.0f, 0.0f, 8.0f }, BLUE);
 
         EndMode3D();
+
+        // WATER (screen effect)
+        if (position.y + player_height < (float)sea_level - 0.2f) {
+            DrawRectangle(0, 0, window_width, window_height, (Color) {
+                0, 121, 241, 127
+            });
+        }
 
         // --  UI  --
         // HOTBAR
