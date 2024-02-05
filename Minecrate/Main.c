@@ -115,7 +115,7 @@ int main() {
 
 
     // TERRAIN
-    vec2i16_t* lpArgPtr;
+    vec2i16_t* lpArgPtr = malloc(sizeof(vec2i16_t));;
     HANDLE chunk_h_thread; // Multithreading for chunks
     DWORD chunk_dw_thread_id;
 
@@ -124,7 +124,6 @@ int main() {
     init_chunks();
     
     // Load starting chunks, on different thread
-    lpArgPtr = (vec2i16_t*)malloc(sizeof(vec2i16_t));
     *lpArgPtr = (vec2i16_t){ 0, 0 };
 
     chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
@@ -261,7 +260,6 @@ int main() {
 
         if (!vec2i16_t_equals(new_chunk_pos, current_chunk_pos)) {
             // Unload chunks and load new ones on another thread, then update chunk pos
-            lpArgPtr = (vec2i16_t*)malloc(sizeof(vec2i16_t));
             *lpArgPtr = new_chunk_pos;
 
             chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
