@@ -66,6 +66,7 @@ static int clampint(int d, int min, int max) {
 // Prototypes
 void place_cube(int x, int y, int z, block_t block);
 DWORD WINAPI update_chunks(LPVOID lpParameter);
+_Bool is_thread_running(HANDLE hThread);
 
 // Main :D
 //int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char* pCmdLine, int nCmdShow) {
@@ -119,6 +120,7 @@ int main() {
     vec2i16_t* lpArgPtr = malloc(sizeof(vec2i16_t));;
     HANDLE chunk_h_thread; // Multithreading for chunks
     DWORD chunk_dw_thread_id;
+    _Bool chunk_thread_status = false; // fasle: open, true: running
 
     init_chunks();
 
@@ -140,12 +142,32 @@ int main() {
     //Texture texture = LoadTextureFromImage(img);
     //model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
 
-
+    _Bool start_loading_finished = false;
     const long start_time = time(NULL);
 
     // Main game loop
     while (!WindowShouldClose())
     {
+        if (!start_loading_finished && is_thread_running(chunk_h_thread)) {
+            // Render loading screen
+            BeginDrawing();
+            ClearBackground(BLACK);
+
+            char s[64];
+            uint16_t tot_loaded_chunks = get_total_loaded_chunks();
+            float loaded = ((float)tot_loaded_chunks / (float)num_chunks);
+            snprintf(s, 63, "Loading world... (%.01f%%)", loaded * 100.0f);
+
+            DrawRectangle(0, 0, loaded * window_width, window_height, RED);
+            DrawText(s, 200, (window_height - 24) * 0.5f, 24, RAYWHITE);
+
+            EndDrawing();
+
+            continue;
+        } else {
+            start_loading_finished = true;
+        }
+
         // WINDOW
         if (IsKeyPressed(KEY_F11)) { is_fullscreen = !is_fullscreen; }
 
@@ -168,7 +190,6 @@ int main() {
 
             last_fullscreen = is_fullscreen;
         }
-
 
         // Deltatime
         srand(start_time);
@@ -264,11 +285,6 @@ int main() {
             current_chunk_pos = new_chunk_pos;
         }
 
-        if (chunk_h_thread != NULL)
-            printf("\nThread still going");
-        else
-            printf("\nThread done");
-
         // DRAW
         BeginDrawing();
         ClearBackground(SKYBLUE);
@@ -277,7 +293,7 @@ int main() {
         BeginMode3D(camera);
 
         // Chunk (put in function later)
-        for (int x = -8; x < 8; ++x) {
+        /*for (int x = -8; x < 8; ++x) {
             for (int y = 0; y < chunk_size.y; ++y) {
                 for (int z = -8; z < 8; ++z) {
                     block_t block = get_block((vec3i32_t) { x, y, z });
@@ -286,7 +302,7 @@ int main() {
                         place_cube(x, y, z, block);
                 }
             }
-        }
+        }*/
 
         // WATER
         DrawPlane((Vector3) { 0.0f, (float)sea_level - 0.2f, 0.0f }, (Vector2) { 512.0f, 512.0f }, (Color) {
@@ -385,4 +401,9 @@ DWORD WINAPI update_chunks(LPVOID lpParameter) {
     printf("Loaded chunks succesfully....");
 
     return 0;
+}
+
+_Bool is_thread_running(HANDLE hThread) {
+    DWORD result = WaitForSingleObject(hThread, 0);
+    return !result == WAIT_OBJECT_0;
 }
