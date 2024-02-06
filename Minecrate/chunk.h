@@ -13,9 +13,9 @@ uint32_t chunk_mem_usage;
 
 // Current position of player relative to chunks
 static vec2i16_t current_chunk_pos = { 0, 0 };
-static uint8_t sea_level = 63;
+static uint8_t sea_level = 63; // SEA LEVEL NOT RENDER DISTANCE STOP IT POLE
 
-static uint8_t render_distance = 8;	// Chunks in each direction. (rd + 1 + rd)
+static uint8_t render_distance = 12;	// Chunks in each direction. (rd + 1 + rd)
 
 static const vec3u16_t chunk_size = {	// Size of each chunk, in blocks.
 	16,		// X

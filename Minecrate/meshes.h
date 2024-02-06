@@ -5,6 +5,7 @@
 #include <raylib.h>
 #endif
 
+Mesh generate_mesh_plane(Vector3 offset);
 Mesh GenPlate();
 
 #endif
