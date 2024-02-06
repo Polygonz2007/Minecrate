@@ -148,7 +148,9 @@ int main() {
     // Main game loop
     while (!WindowShouldClose())
     {
-        if (!start_loading_finished && is_thread_running(chunk_h_thread)) {
+        _Bool chunk_thread_running = is_thread_running(chunk_h_thread);
+
+        if (!start_loading_finished && chunk_thread_running) {
             // Render loading screen
             BeginDrawing();
             ClearBackground(BLACK);
@@ -275,12 +277,10 @@ int main() {
         // CHUNKS
         vec2i16_t new_chunk_pos = (vec2i16_t){ floor(position.x / chunk_size.x), floor(position.z / chunk_size.z) };
 
-        if (!vec2i16_t_equals(new_chunk_pos, current_chunk_pos)) {
+        if (!vec2i16_t_equals(new_chunk_pos, current_chunk_pos) && !chunk_thread_running) {
             // Unload chunks and load new ones on another thread, then update chunk pos
             *lpArgPtr = new_chunk_pos;
             chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
-
-            printf("\nFinished updating.\n");
 
             current_chunk_pos = new_chunk_pos;
         }
@@ -369,6 +369,9 @@ int main() {
 
         DrawText("-- memory --", 10, 270, 20, INFO_TITLE_COL);
         DrawText(memory_s, 10, 290, 20, INFO_COL);
+
+        if (chunk_thread_running)
+            DrawText("Updating chunks...", 10, window_height - 40, 30, RED);
 
         EndDrawing();
     }
