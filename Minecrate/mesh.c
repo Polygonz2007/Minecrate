@@ -28,7 +28,7 @@ Mesh generate_mesh_plane(Vector3 offset) {
 
     // Vertex 1 0
     mesh.vertices[3] = 0 + ox;
-    mesh.vertices[4] = 1 + oy;
+    mesh.vertices[4] = 0.2f + oy;
     mesh.vertices[5] = 1 + oz;
     mesh.normals[3] = 0;
     mesh.normals[4] = 1;
@@ -69,7 +69,7 @@ Mesh generate_mesh_plane(Vector3 offset) {
 
     // Vertex 0 1
     mesh.vertices[15] = 0 + ox;
-    mesh.vertices[16] = 1 + oy;
+    mesh.vertices[16] = 0.2f + oy;
     mesh.vertices[17] = 1 + oz;
     mesh.normals[15] = 0;
     mesh.normals[16] = 1;
