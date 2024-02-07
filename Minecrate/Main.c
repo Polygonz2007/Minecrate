@@ -39,8 +39,8 @@
 #include "vec3.h"
 #include "vec2.h"
 
-#include "perlinNoise.h" // a mimir
-#include "meshes.h" // dos mimires
+#include "perlin_noise.h" // a mimir
+#include "mesh.h" // dos mimires
 #include "block.h" // tres mimires
 #include "chunk.h" // finalmente mimir
 

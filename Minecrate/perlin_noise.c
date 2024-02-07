@@ -1,4 +1,4 @@
-#include "perlinNoise.h"
+#include "perlin_noise.h"
 
 #ifndef RAYLIB_H
 #include <raylib.h>

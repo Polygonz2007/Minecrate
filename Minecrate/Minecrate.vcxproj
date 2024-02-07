@@ -133,14 +133,14 @@
     <ClCompile Include="vec3.c" />
     <ClCompile Include="chunk.c" />
     <ClCompile Include="main.c" />
-    <ClCompile Include="meshes.c" />
-    <ClCompile Include="perlinNoise.c" />
+    <ClCompile Include="mesh.c" />
+    <ClCompile Include="perlin_noise.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="block.h" />
     <ClInclude Include="chunk.h" />
-    <ClInclude Include="meshes.h" />
-    <ClInclude Include="perlinNoise.h" />
+    <ClInclude Include="mesh.h" />
+    <ClInclude Include="perlin_noise.h" />
     <ClInclude Include="vec2.h" />
     <ClInclude Include="vec3.h" />
   </ItemGroup>

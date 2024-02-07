@@ -1,4 +1,7 @@
-#include "meshes.h"
+#include "mesh.h"
+#include "block.h"
+#include "chunk.h"
+
 
 // test
 Mesh generate_mesh_plane(Vector3 offset) {

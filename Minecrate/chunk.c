@@ -3,7 +3,7 @@
 #include <malloc.h>
 #include <stdbool.h>
 
-#include "perlinNoise.h"
+#include "perlin_noise.h"
 
 #include "vec2.h"
 #include "vec3.h"

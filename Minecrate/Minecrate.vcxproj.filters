@@ -18,10 +18,10 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="perlinNoise.c">
+    <ClCompile Include="perlin_noise.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="meshes.c">
+    <ClCompile Include="mesh.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="chunk.c">
@@ -38,10 +38,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="perlinNoise.h">
+    <ClInclude Include="perlin_noise.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="meshes.h">
+    <ClInclude Include="mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="block.h">
