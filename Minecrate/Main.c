@@ -83,7 +83,7 @@ struct debug_settings {
 };
 
 struct debug_settings debug = {
-    .terrain_loading = false,
+    .terrain_loading = true,
     .display_info = true,
     .test_environment = true,
     .fly_mode = false
@@ -352,9 +352,9 @@ int main() {
 
         // Draw gizmos (TESTING ONLY)
         if (debug.test_environment) {
-            DrawGrid(16, 1.0f);
-            DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 8.0f, 0.0f, 0.0f }, RED);
-            DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 0.0f, 0.0f, 8.0f }, BLUE);
+            DrawGrid(8, 16.0f);
+            DrawLine3D((Vector3) { 0.0f, position.y, 0.0f }, (Vector3) { 8.0f, position.y, 0.0f }, RED);
+            DrawLine3D((Vector3) { 0.0f, position.y, 0.0f }, (Vector3) { 0.0f, position.y, 8.0f }, BLUE);
         }
 
         DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
