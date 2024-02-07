@@ -69,6 +69,11 @@ _Bool is_thread_running(HANDLE hThread);
 
 
 
+
+
+
+
+
 // DEBUG
 struct debug_settings {
     _Bool terrain_loading;
