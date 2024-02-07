@@ -49,9 +49,6 @@
 #define INFO_TITLE_COL (Color){ 255, 255, 255, 215 }
 #define INFO_COL (Color){ 255, 255, 255, 175 }
 
-#define GRASS (Color){ 50, 180, 60, 255 }
-#define SAND (Color){ 240, 230, 170, 255 }
-
 // Static
 static float clamp(float d, float min, float max) {
     const float t = d < min ? min : d;
@@ -68,8 +65,27 @@ void place_cube(int x, int y, int z, block_t block);
 DWORD WINAPI update_chunks(LPVOID lpParameter);
 _Bool is_thread_running(HANDLE hThread);
 
+
+
+
+
+// DEBUG
+struct debug_settings {
+    _Bool terrain_loading;
+    _Bool display_info;
+    _Bool test_environment;
+    _Bool fly_mode;
+};
+
+struct debug_settings debug = {
+    .terrain_loading = false,
+    .display_info = true,
+    .test_environment = true,
+    .fly_mode = false
+};
+
+
 // Main :D
-//int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char* pCmdLine, int nCmdShow) {
 int main() {
 
     // WINDOW
@@ -86,7 +102,7 @@ int main() {
     //SetWindowIcon(Icon);
 
     DisableCursor();
-    SetTargetFPS(1000);
+    SetTargetFPS(144);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
     // CAMERA
@@ -101,7 +117,8 @@ int main() {
     // PHYSICS
     const float gravity = -9.81f;
 
-    // PLAYER
+
+    // PLAYER SETTINGS AND DATA
     Vector3 position = { 0.5f, 0.0f, 0.5f }; // player position
     Vector2 look = { 0.707f, 0.0f }; // camera rotation in radians
     float vertical_velo = 0.0f;
@@ -118,39 +135,77 @@ int main() {
 
     // TERRAIN
     vec2i16_t* lpArgPtr = malloc(sizeof(vec2i16_t));;
-    HANDLE chunk_h_thread; // Multithreading for chunks
+    *lpArgPtr = (vec2i16_t){ 0, 0 };
+
+    HANDLE chunk_h_thread = NULL; // Multithreading for chunks
     DWORD chunk_dw_thread_id;
     _Bool chunk_thread_status = false; // fasle: open, true: running
 
-    init_chunks();
+    // Init and load terrain
+    if (debug.terrain_loading) { 
+        init_chunks();
 
-    // Load starting chunks, on different thread
-    *lpArgPtr = (vec2i16_t){ 0, 0 };
-
-    chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
-
-
-
+        // Load starting chunks, on different thread
+        chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
+    }
 
 
-    //Mesh mush = GenPlate();
-    //Model model = LoadModelFromMesh(mush);
 
-    //Image img = GenImagePerlinNoise(64, 64, 0, 0, 1.0f);
-    //ImageColorTint(&img, GRASS);
+    // MESH GEN TESTING
+    Mesh mush = GenPlate();
+    Model model = LoadModelFromMesh(mush);
 
-    //Texture texture = LoadTextureFromImage(img);
-    //model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
+    Image img = GenImagePerlinNoise(64, 64, 0, 0, 4.0f);
+    ImageColorTint(&img, block_colors[BLOCK_GRASS]);
 
+    Texture texture = LoadTextureFromImage(img);
+    model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
+
+
+    // Performance
     _Bool start_loading_finished = false;
     const long start_time = time(NULL);
+
 
     // Main game loop
     while (!WindowShouldClose())
     {
-        _Bool chunk_thread_running = is_thread_running(chunk_h_thread);
 
-        if (!start_loading_finished && chunk_thread_running) {
+        // WINDOW AND SETTINGS
+        if (IsKeyPressed(KEY_F3))
+            debug.display_info = !debug.display_info;
+
+        if (IsKeyPressed(KEY_F11))
+            is_fullscreen = !is_fullscreen;
+
+        if (is_fullscreen != last_fullscreen) {
+            if (is_fullscreen) {
+                const int monitor = GetCurrentMonitor();
+                window_width = GetMonitorWidth(monitor);
+                window_height = GetMonitorHeight(monitor);
+
+                SetWindowSize(window_width, window_height);
+                ToggleBorderlessWindowed();
+            }
+            else {
+                ToggleBorderlessWindowed();
+
+                window_width = default_window_width;
+                window_height = default_window_height;
+
+                SetWindowSize(window_width, window_height);
+            }
+
+            last_fullscreen = is_fullscreen;
+        }
+
+        // Terrain loaodng blah blah
+        _Bool chunk_thread_running = false;
+
+        if (debug.terrain_loading)
+            chunk_thread_running = is_thread_running(chunk_h_thread);
+
+        if (!start_loading_finished && chunk_thread_running && debug.terrain_loading) {
             // Render loading screen
             BeginDrawing();
             ClearBackground(BLACK);
@@ -168,29 +223,6 @@ int main() {
             continue;
         } else {
             start_loading_finished = true;
-        }
-
-        // WINDOW
-        if (IsKeyPressed(KEY_F11)) { is_fullscreen = !is_fullscreen; }
-
-        if (is_fullscreen != last_fullscreen) {
-            if (is_fullscreen) {
-                const int monitor = GetCurrentMonitor();
-                window_width = GetMonitorWidth(monitor);
-                window_height = GetMonitorHeight(monitor);
-
-                SetWindowSize(window_width, window_height);
-                ToggleBorderlessWindowed();
-            } else {
-                ToggleBorderlessWindowed();
-
-                window_width = default_window_width;
-                window_height = default_window_height;
-
-                SetWindowSize(window_width, window_height);
-            }
-
-            last_fullscreen = is_fullscreen;
         }
 
         // Deltatime
@@ -222,16 +254,23 @@ int main() {
         if (a) { position.x += cs * dt * ym; position.z += cs * dt * -xm; }
         if (d) { position.x += cs * dt * -ym; position.z += cs * dt * xm; }
 
-        if (IsKeyDown(KEY_SPACE)) {
-            //vertical_velo += 4.0f;
-            position.y += 30.0f * dt;
+        // Creative and survival movement (vertical)
+        if (debug.fly_mode) {
+            if (IsKeyDown(KEY_SPACE))
+                position.y += 30.0f * dt;
+        } else {
+            if (IsKeyPressed(KEY_SPACE))
+                vertical_velo += 4.0f;
         }
-
+        
         if (IsKeyDown(KEY_LEFT_SHIFT)) {
-            //if (vertical_velo > 0.0f) {
-            //    vertical_velo *= 0.9f;
-            //}
-            position.y -= 30.0f * dt;
+            if (debug.fly_mode) {
+                position.y -= 30.0f * dt;
+            }
+            else {
+                if (vertical_velo > 0.0f)
+                    vertical_velo *= 0.9f;
+            }
         }
 
         // HOTBAR
@@ -247,16 +286,18 @@ int main() {
         
 
         // Gravity
-        const int ix = (int)(position.x);
-        const int iy = (int)(position.z);
+        if (!debug.fly_mode) {
+            const int ix = (int)(position.x);
+            const int iy = (int)(position.z);
 
-        //vertical_velo += gravity * dt;
-        //position.y += vertical_velo * dt * 2;
+            vertical_velo += gravity * dt;
+            position.y += vertical_velo * dt * 2;
 
-        //if (0.0f >= position.y) {
-        //    position.y = 0.0f;
-        //    vertical_velo = 0.0f;
-        //}
+            if (0.0f >= position.y) {
+                position.y = 0.0f;
+                vertical_velo = 0.0f;
+            }
+        }
 
         // CAMERA
         camera.position = (Vector3){ position.x, position.y + player_height, position.z };
@@ -277,7 +318,7 @@ int main() {
         // CHUNKS
         vec2i16_t new_chunk_pos = (vec2i16_t){ floor(position.x / chunk_size.x), floor(position.z / chunk_size.z) };
 
-        if (!vec2i16_t_equals(new_chunk_pos, current_chunk_pos) && !chunk_thread_running) {
+        if (!vec2i16_t_equals(new_chunk_pos, current_chunk_pos) && !chunk_thread_running && debug.terrain_loading) {
             // Unload chunks and load new ones on another thread, then update chunk pos
             *lpArgPtr = new_chunk_pos;
             chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
@@ -287,7 +328,7 @@ int main() {
 
         // DRAW
         BeginDrawing();
-        ClearBackground(SKYBLUE);
+        ClearBackground(debug.test_environment ? BLACK : SKYBLUE);
 
         // 3D
         BeginMode3D(camera);
@@ -304,23 +345,20 @@ int main() {
             }
         }*/
 
-        // WATER
-        DrawPlane((Vector3) { 0.0f, (float)sea_level - 0.2f, 0.0f }, (Vector2) { 512.0f, 512.0f }, (Color) {
-            0, 121, 241, 127
-        });
-
         // Draw gizmos (TESTING ONLY)
-        //DrawGrid(16, 1.0f);
-        //DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 8.0f, 0.0f, 0.0f }, RED);
-        //DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 0.0f, 0.0f, 8.0f }, BLUE);
+        if (debug.test_environment) {
+            DrawGrid(16, 1.0f);
+            DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 8.0f, 0.0f, 0.0f }, RED);
+            DrawLine3D((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 0.0f, 0.0f, 8.0f }, BLUE);
+        }
+
+        DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
 
         EndMode3D();
 
-        // WATER (screen effect)
-        if (position.y + player_height < (float)sea_level - 0.2f) {
-            DrawRectangle(0, 0, window_width, window_height, (Color) {
-                0, 121, 241, 127
-            });
+        // Water screen effect (under ui ofc)
+        if (position.y + player_height < (float)sea_level - 0.2f && !debug.test_environment) {
+            DrawRectangle(0, 0, window_width, window_height, block_colors[BLOCK_WATER]);
         }
 
         // --  UI  --
@@ -334,44 +372,49 @@ int main() {
             DrawRectangle(x + border, window_height - hotbar_item_size + border, hotbar_item_size - 2 * border, hotbar_item_size - 2 * border, hotbar_selected == i ? BLACK : GRAY); // OUTLINE
         }
 
+
+
         // INFO
         // Info Strings
-        uint16_t tot_loaded_chunks = get_total_loaded_chunks();
-
-        char chunk_num_s[64];
-        snprintf(chunk_num_s, 63, "Loaded Chunks: %d / %d avaliable (%.01f%%)", tot_loaded_chunks, num_chunks, ((float)tot_loaded_chunks / (float)num_chunks) * 100.0f);
-
-        char memory_s[64];
-        snprintf(memory_s, 63, "Total memory usage: %d MB  (%d bytes)", chunk_mem_usage / 1000000, chunk_mem_usage);
-
-        char render_dist_s[32];
-        snprintf(render_dist_s, 31, "Render distance: %d", render_distance);
-
-        char position_string[64];
-        snprintf(position_string, 63, "Position: %d, %d, %d", (int)floor(position.x), (int)floor(position.y), (int)floor(position.z));
-
-        char c_position_string[64];
-        snprintf(c_position_string, 63, "Chunk Position: %d, %d", new_chunk_pos.x, new_chunk_pos.y);
-
-        // Draw
         DrawText("Minecrate v0.2 [CHUNK UPDATE]", 10, 10, 30, WHITE);
 
-        DrawText("-- performance --", 10, 50, 20, INFO_TITLE_COL);
-        DrawText(fps_string, 10, 70, 20, INFO_COL);
+        if (debug.display_info) {
+            uint16_t tot_loaded_chunks = get_total_loaded_chunks();
 
-        DrawText("-- player --", 10, 110, 20, INFO_TITLE_COL);
-        DrawText(position_string, 10, 130, 20, INFO_COL);
-        DrawText(c_position_string, 10, 150, 20, INFO_COL);
+            char chunk_num_s[64];
+            snprintf(chunk_num_s, 63, "Loaded Chunks: %d / %d avaliable (%.01f%%)", tot_loaded_chunks, num_chunks, ((float)tot_loaded_chunks / (float)num_chunks) * 100.0f);
 
-        DrawText("-- terrain --", 10, 190, 20, INFO_TITLE_COL);
-        DrawText(render_dist_s, 10, 210, 20, INFO_COL);
-        DrawText(chunk_num_s, 10, 230, 20, INFO_COL);
+            char memory_s[64];
+            snprintf(memory_s, 63, "Total memory usage: %d MB  (%d bytes)", chunk_mem_usage / 1000000, chunk_mem_usage);
 
-        DrawText("-- memory --", 10, 270, 20, INFO_TITLE_COL);
-        DrawText(memory_s, 10, 290, 20, INFO_COL);
+            char render_dist_s[32];
+            snprintf(render_dist_s, 31, "Render distance: %d", render_distance);
 
-        if (chunk_thread_running)
-            DrawText("Updating chunks...", 10, window_height - 40, 30, RED);
+            char position_string[64];
+            snprintf(position_string, 63, "Position: %d, %d, %d", (int)floor(position.x), (int)floor(position.y), (int)floor(position.z));
+
+            char c_position_string[64];
+            snprintf(c_position_string, 63, "Chunk Position: %d, %d", new_chunk_pos.x, new_chunk_pos.y);
+
+
+            // Draw
+            DrawText("-- performance --", 10, 50, 20, INFO_TITLE_COL);
+            DrawText(fps_string, 10, 70, 20, INFO_COL);
+
+            DrawText("-- player --", 10, 110, 20, INFO_TITLE_COL);
+            DrawText(position_string, 10, 130, 20, INFO_COL);
+            DrawText(c_position_string, 10, 150, 20, INFO_COL);
+
+            DrawText("-- terrain --", 10, 190, 20, INFO_TITLE_COL);
+            DrawText(render_dist_s, 10, 210, 20, INFO_COL);
+            DrawText(chunk_num_s, 10, 230, 20, INFO_COL);
+
+            DrawText("-- memory --", 10, 270, 20, INFO_TITLE_COL);
+            DrawText(memory_s, 10, 290, 20, INFO_COL);
+
+            if (chunk_thread_running)
+                DrawText("Updating chunks...", 10, window_height - 40, 30, RED);
+        }
 
         EndDrawing();
     }
