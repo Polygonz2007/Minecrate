@@ -48,6 +48,7 @@
 // COLORS
 #define INFO_TITLE_COL (Color){ 255, 255, 255, 215 }
 #define INFO_COL (Color){ 255, 255, 255, 175 }
+#define NIGHT (Color) { 0, 20, 80, 255 }
 
 // Static
 static float clamp(float d, float min, float max) {
@@ -162,7 +163,7 @@ int main() {
     Mesh mush = GenPlate();
     Model model = LoadModelFromMesh(mush);
 
-    Image img = GenImagePerlinNoise(64, 64, 0, 0, 4.0f);
+    Image img = GenImagePerlinNoise(16, 16, 0, 0, 4.0f);
     ImageColorTint(&img, block_colors[BLOCK_GRASS]);
 
     Texture texture = LoadTextureFromImage(img);
@@ -338,7 +339,7 @@ int main() {
 
         // DRAW
         BeginDrawing();
-        ClearBackground(debug.test_environment ? BLACK : SKYBLUE);
+        ClearBackground(debug.test_environment ? NIGHT : SKYBLUE);
 
         // 3D
         BeginMode3D(camera);
@@ -371,7 +372,7 @@ int main() {
             }
         }
 
-        DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
+        DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 16.0f, WHITE);
 
         EndMode3D();
 
