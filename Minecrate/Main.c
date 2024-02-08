@@ -80,13 +80,15 @@ struct debug_settings {
     _Bool display_info;
     _Bool test_environment;
     _Bool fly_mode;
+    _Bool show_chunk_borders;
 };
 
 struct debug_settings debug = {
     .terrain_loading = true,
     .display_info = true,
     .test_environment = true,
-    .fly_mode = false
+    .fly_mode = false,
+    .show_chunk_borders = true
 };
 
 
@@ -179,6 +181,9 @@ int main() {
         // WINDOW AND SETTINGS
         if (IsKeyPressed(KEY_F3))
             debug.display_info = !debug.display_info;
+
+        if (IsKeyDown(KEY_F3) && IsKeyPressed(KEY_G))
+            debug.show_chunk_borders = !debug.show_chunk_borders;
 
         if (IsKeyPressed(KEY_F11))
             is_fullscreen = !is_fullscreen;
@@ -350,11 +355,20 @@ int main() {
             }
         }*/
 
-        // Draw gizmos (TESTING ONLY)
-        if (debug.test_environment) {
+        // DEBUG STUFF
+        if (debug.test_environment) {   // Gizmos
             DrawGrid(8, 16.0f);
             DrawLine3D((Vector3) { 0.0f, position.y, 0.0f }, (Vector3) { 8.0f, position.y, 0.0f }, RED);
             DrawLine3D((Vector3) { 0.0f, position.y, 0.0f }, (Vector3) { 0.0f, position.y, 8.0f }, BLUE);
+        }
+
+        if (debug.show_chunk_borders) { // Chunk borders
+            for (int16_t x = -1; x <= 2; ++x) {
+                for (int16_t y = -1; y <= 2; ++y) {
+                    vec2i16_t local = (vec2i16_t){ (current_chunk_pos.x + x) * chunk_size.x, (current_chunk_pos.y + y) * chunk_size.z };
+                    DrawLine3D((Vector3) { local.x, 0, local.y }, (Vector3) { local.x, chunk_size.y, local.y }, RED);
+                }
+            }
         }
 
         DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
