@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <math.h>
 #include <malloc.h>
 #include <stdbool.h>
 
@@ -224,7 +225,7 @@ block_t get_block(vec3i32_t block_pos) {
 // UTIL
 vec2i16_t get_chunk_pos(vec3i32_t block_pos) {
 	//printf("\nI got %d %d", block_pos.x, block_pos.z);
-	return (vec2i16_t) { block_pos.x / (int32_t)chunk_size.x, block_pos.z / (int32_t)chunk_size.z };
+	return (vec2i16_t) { floor((double)block_pos.x / (double)chunk_size.x), floor((double)block_pos.z / (double)chunk_size.z) };
 }
 
 vec3i16_t get_block_in_chunk_pos(vec3i32_t block_pos) {

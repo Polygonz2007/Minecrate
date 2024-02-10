@@ -88,7 +88,7 @@ struct debug_settings debug = {
     .terrain_loading = true,
     .display_info = true,
     .test_environment = true,
-    .fly_mode = false,
+    .fly_mode = true,
     .show_chunk_borders = true
 };
 
@@ -110,7 +110,7 @@ int main() {
     //SetWindowIcon(Icon);
 
     DisableCursor();
-    SetTargetFPS(144);
+    SetTargetFPS(30);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
     // CAMERA
@@ -185,6 +185,9 @@ int main() {
 
         if (IsKeyDown(KEY_F3) && IsKeyPressed(KEY_G))
             debug.show_chunk_borders = !debug.show_chunk_borders;
+
+        if (IsKeyDown(KEY_F3) && IsKeyPressed(KEY_F))
+            debug.fly_mode = !debug.fly_mode;
 
         if (IsKeyPressed(KEY_F11))
             is_fullscreen = !is_fullscreen;
@@ -345,16 +348,16 @@ int main() {
         BeginMode3D(camera);
 
         // Chunk (put in function later)
-        /*for (int x = -8; x < 8; ++x) {
+        for (int x = -32; x < 32; ++x) {
             for (int y = 0; y < chunk_size.y; ++y) {
-                for (int z = -8; z < 8; ++z) {
+                for (int z = 0; z < 1; ++z) {
                     block_t block = get_block((vec3i32_t) { x, y, z });
 
                     if (block.type != 1)
                         place_cube(x, y, z, block);
                 }
             }
-        }*/
+        }
 
         // DEBUG STUFF
         if (debug.test_environment) {   // Gizmos
@@ -405,7 +408,7 @@ int main() {
             snprintf(chunk_num_s, 63, "Loaded Chunks: %d / %d avaliable (%.01f%%)", tot_loaded_chunks, num_chunks, ((float)tot_loaded_chunks / (float)num_chunks) * 100.0f);
 
             char memory_s[64];
-            snprintf(memory_s, 63, "Total memory usage: %d MB  (%d bytes)", chunk_mem_usage / 1000000, chunk_mem_usage);
+            snprintf(memory_s, 63, "Total memory usage: %.01f MB  (%d bytes)", chunk_mem_usage / 1000000.0f, chunk_mem_usage);
 
             char render_dist_s[32];
             snprintf(render_dist_s, 31, "Render distance: %d", render_distance);
@@ -464,7 +467,7 @@ DWORD WINAPI update_chunks(LPVOID lpParameter) {
     unload_bounds(new_chunk_pos);
     load_bounds(new_chunk_pos);
 
-    printf("Loaded chunks succesfully....");
+    printf("\nLoaded chunks succesfully....");
 
     return 0;
 }
