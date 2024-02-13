@@ -42,14 +42,14 @@ int init_chunks() {
 	chunk_data = malloc(chunk_data_size * num_chunks * sizeof(block_t));
 	chunk_locs = malloc(num_chunks * sizeof(vec2i16_t));
 	chunk_status = malloc(num_chunks * sizeof(uint8_t));
-	chunk_buffer = malloc(chunk_size.x * chunk_size.z * sizeof(int16_t));
+	chunk_buffer = malloc(chunk_size.x * chunk_size.z * sizeof(uint16_t));
 
 	// Track memory
 	chunk_mem_usage = 0;
 	chunk_mem_usage += chunk_data_size * num_chunks * sizeof(block_t);
 	chunk_mem_usage += num_chunks * sizeof(vec2i16_t);
 	chunk_mem_usage += num_chunks * sizeof(uint8_t);
-	chunk_mem_usage += chunk_size.x * chunk_size.z * sizeof(int16_t);
+	chunk_mem_usage += chunk_size.x * chunk_size.z * sizeof(uint16_t);
 
 
 	// Initialize all chunks as empty
@@ -57,7 +57,7 @@ int init_chunks() {
 		chunk_status[i] = CHUNK_UNLOADED;
 	}
 
-	printf("Memory allocated.\n");
+	printf("Memory allocated.\nChunk data size: %d\n", chunk_data_size);
 }
 
 int free_chunks() { // WARNING: any chunk functions including load_mesh or load_chunk should NOT be caled after this is called.
@@ -118,7 +118,7 @@ int load_chunk(vec2i16_t chunk_pos) {
 			uint16_t h = chunk_buffer[x + (z * chunk_size.x)];
 
 			for (uint16_t y = 0; y < chunk_size.y; ++y) {
-				vec3i16_t block_pos = { x, y, z };
+				vec3u16_t block_pos = { x, y, z };
 				int32_t i = chunk_index * chunk_data_size + get_block_index(block_pos);
 
 				// Set block
@@ -139,17 +139,10 @@ int load_chunk(vec2i16_t chunk_pos) {
 				//	cb = BLOCK_SAND; // Sand at shore
 
 				if (y == 0)
-					cb = BLOCK_BEDROCK;
-				if (y == 1)
-					cb = BLOCK_SAND;
-				if (y == 2)
 					cb = BLOCK_GRASS;
+
 				if (y == 255)
 					cb = BLOCK_DIRT;
-				if (y == 254)
-					cb = BLOCK_STONE;
-				if (y == 253)
-					cb = BLOCK_WATER;
 
 				chunk_data[i] = block_t_new(cb);
 			}
@@ -203,7 +196,7 @@ int32_t next_chunk_index() {
 	return 0; // idk
 }
 
-int32_t get_block_index(vec3i16_t c_block_pos) {
+int32_t get_block_index(vec3u16_t c_block_pos) {
 	int32_t block_index = c_block_pos.x + (chunk_size.x * c_block_pos.y) + (chunk_size.x * chunk_size.y * c_block_pos.z);
 	return block_index;
 }
@@ -227,15 +220,18 @@ block_t get_block(vec3i32_t block_pos) {
 // UTIL
 vec2i16_t get_chunk_pos(vec3i32_t block_pos) {
 	//printf("\nI got %d %d", block_pos.x, block_pos.z);
-	return (vec2i16_t) { floor((double)block_pos.x / (double)chunk_size.x), floor((double)block_pos.z / (double)chunk_size.z) };
+	return (vec2i16_t) { 
+		floor((double)block_pos.x / (double)chunk_size.x),
+		floor((double)block_pos.z / (double)chunk_size.z) 
+	};
 }
 
-vec3i16_t get_block_in_chunk_pos(vec3i32_t block_pos) {
-	int16_t x = block_pos.x % chunk_size.x;
-	int16_t y = block_pos.y;
-	int16_t z = block_pos.z % chunk_size.z;
+vec3u16_t get_block_in_chunk_pos(vec3i32_t block_pos) {
+	uint16_t x = block_pos.x % chunk_size.x;
+	uint16_t y = block_pos.y;
+	uint16_t z = block_pos.z % chunk_size.z;
 
-	vec3i16_t c_block_pos = { x, y, z };
+	vec3u16_t c_block_pos = { x, y, z };
 
 	return c_block_pos;
 }

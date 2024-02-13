@@ -85,7 +85,7 @@ struct debug_settings {
 };
 
 struct debug_settings debug = {
-    .terrain_loading = true,
+    .terrain_loading = false,
     .display_info = true,
     .test_environment = true,
     .fly_mode = true,
@@ -110,7 +110,7 @@ int main() {
     //SetWindowIcon(Icon);
 
     DisableCursor();
-    SetTargetFPS(30);
+    SetTargetFPS(144);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
     // CAMERA
@@ -157,6 +157,12 @@ int main() {
         chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
     }
 
+    init_chunks();
+    load_chunk((vec2i16_t) { 0, 0 });
+    load_chunk((vec2i16_t) { -1, 0 });
+    load_chunk((vec2i16_t) { 0, -1 });
+    load_chunk((vec2i16_t) { -1, -1 });
+
 
 
     // MESH GEN TESTING
@@ -183,11 +189,12 @@ int main() {
         if (IsKeyPressed(KEY_F3))
             debug.display_info = !debug.display_info;
 
-        if (IsKeyDown(KEY_F3) && IsKeyPressed(KEY_G))
+        if (IsKeyPressed(KEY_F4))
             debug.show_chunk_borders = !debug.show_chunk_borders;
 
-        if (IsKeyDown(KEY_F3) && IsKeyPressed(KEY_F))
+        if (IsKeyPressed(KEY_F2))
             debug.fly_mode = !debug.fly_mode;
+
 
         if (IsKeyPressed(KEY_F11))
             is_fullscreen = !is_fullscreen;
@@ -347,10 +354,14 @@ int main() {
         // 3D
         BeginMode3D(camera);
 
-        // Chunk (put in function later)
-        for (int x = -32; x < 32; ++x) {
-            for (int y = 0; y < chunk_size.y; ++y) {
-                for (int z = 0; z < 1; ++z) {
+        // Chunk
+        // CHANK
+        // CHINK
+        // CHONKE
+        // CHUNK
+        for (int32_t x = 0; x < 8; ++x) {
+            for (int32_t y = 0; y < 4; ++y) {
+                for (int32_t z = 0; z < 8; ++z) {
                     block_t block = get_block((vec3i32_t) { x, y, z });
 
                     if (block.type != 1)
@@ -467,7 +478,7 @@ DWORD WINAPI update_chunks(LPVOID lpParameter) {
     unload_bounds(new_chunk_pos);
     load_bounds(new_chunk_pos);
 
-    printf("\nLoaded chunks succesfully....");
+    printf("\nLoaded chunks succesfully!");
 
     return 0;
 }
