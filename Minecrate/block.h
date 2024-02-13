@@ -11,8 +11,6 @@ typedef struct {
 
 // Struct constructor
 block_t block_t_new(uint8_t type);
-block_t block_t_new_from_name(char type[]);
-
 uint16_t num_block_types;
 
 // DEFINE BLOCK NAMES FOR EACH TYPE

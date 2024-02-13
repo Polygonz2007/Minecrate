@@ -456,7 +456,7 @@ void place_cube(int x, int y, int z, block_t block) {
         clampint(col.r + rand() / 128 / 32, 0, 255),
         clampint(col.g + rand() / 128 / 32, 0, 255),
         clampint(col.b + rand() / 128 / 32, 0, 255),
-        255
+        block.type == BLOCK_WATER ? 127 : 255
     });
 }
 

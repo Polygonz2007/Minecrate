@@ -148,6 +148,8 @@ int load_chunk(vec2i16_t chunk_pos) {
 					cb = BLOCK_DIRT;
 				if (y == 254)
 					cb = BLOCK_STONE;
+				if (y == 253)
+					cb = BLOCK_WATER;
 
 				chunk_data[i] = block_t_new(cb);
 			}
