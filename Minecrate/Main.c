@@ -180,6 +180,8 @@ int main() {
     _Bool start_loading_finished = false;
     const long start_time = time(NULL);
 
+    // This??
+    get_block((vec3i32_t) { -1, 0, 0, });
 
     // Main game loop
     while (!WindowShouldClose())
@@ -359,16 +361,16 @@ int main() {
         // CHINK
         // CHONKE
         // CHUNK
-        for (int32_t x = 0; x < 8; ++x) {
+        /*for (int32_t x = -8; x < 8; ++x) {
             for (int32_t y = 0; y < 4; ++y) {
-                for (int32_t z = 0; z < 8; ++z) {
+                for (int32_t z = -8; z < 8; ++z) {
                     block_t block = get_block((vec3i32_t) { x, y, z });
 
                     if (block.type != 1)
                         place_cube(x, y, z, block);
                 }
             }
-        }
+        }*/
 
         // DEBUG STUFF
         if (debug.test_environment) {   // Gizmos
