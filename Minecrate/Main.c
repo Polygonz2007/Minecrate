@@ -128,6 +128,8 @@ int main() {
 
     // PLAYER SETTINGS AND DATA
     Vector3 position = { 0.5f, 0.0f, 0.5f }; // player position
+    vec3i32_t int_pos = { 0, 0, 0 }; // Floored pos
+
     Vector2 look = { 0.707f, 0.0f }; // camera rotation in radians
     float vertical_velo = 0.0f;
 
@@ -180,14 +182,11 @@ int main() {
     _Bool start_loading_finished = false;
     const long start_time = time(NULL);
 
-    // This??
-    get_block((vec3i32_t) { -1, 0, 0, });
-
     // Main game loop
     while (!WindowShouldClose())
     {
-
-        // WINDOW AND SETTINGS
+        //
+        // Window and Keys
         if (IsKeyPressed(KEY_F3))
             debug.display_info = !debug.display_info;
 
@@ -221,8 +220,13 @@ int main() {
 
             last_fullscreen = is_fullscreen;
         }
+        // End Window and Keys
+        //
 
-        // Terrain loaodng blah blah
+
+
+        //
+        // Terrain
         _Bool chunk_thread_running = false;
 
         if (debug.terrain_loading)
@@ -247,8 +251,13 @@ int main() {
         } else {
             start_loading_finished = true;
         }
+        // End Terrain
+        //
 
-        // Deltatime
+
+
+        //
+        // Performance and Debugging
         srand(start_time);
         const float dt = GetFrameTime();
 
@@ -256,8 +265,9 @@ int main() {
         const int fps = GetFPS();
         char fps_string[12];
         snprintf(fps_string, 11, "fps: %d", fps);
-        
 
+
+        // MOVE TO ANOTHER FILE
         // MOVEMENT
         const float xm = cos(look.x), ym = sin(look.x);
         float cs = player_speed; // Current player_speed, for multipliers and stuff
@@ -408,7 +418,8 @@ int main() {
             DrawRectangle(x + border, window_height - hotbar_item_size + border, hotbar_item_size - 2 * border, hotbar_item_size - 2 * border, hotbar_selected == i ? BLACK : GRAY); // OUTLINE
         }
 
-
+        block_t blo = get_block((vec3i32_t) { -1, 0, 0, });
+        printf("Standing on %s at %d %d %d", block_names[blo.type], position.x, position.y, position.z);
 
         // INFO
         // Info Strings
