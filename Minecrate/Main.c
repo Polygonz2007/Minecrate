@@ -287,6 +287,8 @@ int main() {
         if (a) { position.x += cs * dt * ym; position.z += cs * dt * -xm; }
         if (d) { position.x += cs * dt * -ym; position.z += cs * dt * xm; }
 
+        int_pos = (vec3i32_t){ position.x, position.y, position.z };
+
         // Creative and survival movement (vertical)
         if (debug.fly_mode) {
             if (IsKeyDown(KEY_SPACE))
@@ -418,8 +420,8 @@ int main() {
             DrawRectangle(x + border, window_height - hotbar_item_size + border, hotbar_item_size - 2 * border, hotbar_item_size - 2 * border, hotbar_selected == i ? BLACK : GRAY); // OUTLINE
         }
 
-        block_t blo = get_block((vec3i32_t) { -1, 0, 0, });
-        printf("Standing on %s at %d %d %d", block_names[blo.type], position.x, position.y, position.z);
+        block_t blo = get_block((vec3i32_t) { int_pos.x, int_pos.y, int_pos.z });
+        printf("\nStanding on %s at %d %d %d", block_names[blo.type], int_pos.x, int_pos.y, int_pos.z);
 
         // INFO
         // Info Strings
@@ -429,18 +431,15 @@ int main() {
             uint16_t tot_loaded_chunks = get_total_loaded_chunks();
 
             char chunk_num_s[64];
-            snprintf(chunk_num_s, 63, "Loaded Chunks: %d / %d avaliable (%.01f%%)", tot_loaded_chunks, num_chunks, ((float)tot_loaded_chunks / (float)num_chunks) * 100.0f);
-
             char memory_s[64];
-            snprintf(memory_s, 63, "Total memory usage: %.01f MB  (%d bytes)", chunk_mem_usage / 1000000.0f, chunk_mem_usage);
-
             char render_dist_s[32];
-            snprintf(render_dist_s, 31, "Render distance: %d", render_distance);
-
             char position_string[64];
-            snprintf(position_string, 63, "Position: %d, %d, %d", (int)floor(position.x), (int)floor(position.y), (int)floor(position.z));
-
             char c_position_string[64];
+
+            snprintf(chunk_num_s, 63, "Loaded Chunks: %d / %d avaliable (%.01f%%)", tot_loaded_chunks, num_chunks, ((float)tot_loaded_chunks / (float)num_chunks) * 100.0f);
+            snprintf(memory_s, 63, "Total memory usage: %.01f MB  (%d bytes)", chunk_mem_usage / 1000000.0f, chunk_mem_usage);
+            snprintf(render_dist_s, 31, "Render distance: %d", render_distance);
+            snprintf(position_string, 63, "Position: %d, %d, %d", int_pos.x, int_pos.y, int_pos.z);
             snprintf(c_position_string, 63, "Chunk Position: %d, %d", new_chunk_pos.x, new_chunk_pos.y);
 
 
