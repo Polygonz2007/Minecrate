@@ -177,7 +177,6 @@ int main() {
     Texture texture = LoadTextureFromImage(img);
     model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
 
-
     // Performance
     _Bool start_loading_finished = false;
     const long start_time = time(NULL);
@@ -288,6 +287,10 @@ int main() {
         if (d) { position.x += cs * dt * -ym; position.z += cs * dt * xm; }
 
         int_pos = (vec3i32_t){ position.x, position.y, position.z };
+        if (position.x < 0)
+            int_pos.x--;
+        if (position.z < 0)
+            int_pos.z--;
 
         // Creative and survival movement (vertical)
         if (debug.fly_mode) {
@@ -373,7 +376,7 @@ int main() {
         // CHINK
         // CHONKE
         // CHUNK
-        /*for (int32_t x = -8; x < 8; ++x) {
+        for (int32_t x = -8; x < 8; ++x) {
             for (int32_t y = 0; y < 4; ++y) {
                 for (int32_t z = -8; z < 8; ++z) {
                     block_t block = get_block((vec3i32_t) { x, y, z });
@@ -382,7 +385,7 @@ int main() {
                         place_cube(x, y, z, block);
                 }
             }
-        }*/
+        }
 
         // DEBUG STUFF
         if (debug.test_environment) {   // Gizmos
@@ -419,9 +422,6 @@ int main() {
             DrawRectangle(x, window_height - hotbar_item_size, hotbar_item_size, hotbar_item_size, WHITE); // OUTLINE
             DrawRectangle(x + border, window_height - hotbar_item_size + border, hotbar_item_size - 2 * border, hotbar_item_size - 2 * border, hotbar_selected == i ? BLACK : GRAY); // OUTLINE
         }
-
-        block_t blo = get_block((vec3i32_t) { int_pos.x, int_pos.y, int_pos.z });
-        printf("\nStanding on %s at %d %d %d", block_names[blo.type], int_pos.x, int_pos.y, int_pos.z);
 
         // INFO
         // Info Strings

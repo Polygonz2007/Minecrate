@@ -219,17 +219,24 @@ block_t get_block(vec3i32_t block_pos) {
 
 // UTIL
 vec2i16_t get_chunk_pos(vec3i32_t block_pos) {
-	//printf("\nI got %d %d", block_pos.x, block_pos.z);
 	return (vec2i16_t) { 
-		floor((double)block_pos.x / (double)chunk_size.x),
-		floor((double)block_pos.z / (double)chunk_size.z) 
+		floor((float)block_pos.x / chunk_size.x),
+		floor((float)block_pos.z / chunk_size.z) 
 	};
 }
 
 vec3u16_t get_block_in_chunk_pos(vec3i32_t block_pos) {
-	uint16_t x = block_pos.x % chunk_size.x;
+	// Modulo x and z
+	vec2i16_t chunk_pos = get_chunk_pos(block_pos);
+	int16_t ix = block_pos.x, iz = block_pos.z;
+
+	ix -= chunk_pos.x * chunk_size.x;
+	iz -= chunk_pos.y * chunk_size.z;
+
+	// Unsign and return
+	uint16_t x = (uint16_t)ix;
 	uint16_t y = block_pos.y;
-	uint16_t z = block_pos.z % chunk_size.z;
+	uint16_t z = (uint16_t)iz;
 
 	vec3u16_t c_block_pos = { x, y, z };
 
