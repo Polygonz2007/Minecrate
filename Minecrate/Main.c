@@ -159,23 +159,17 @@ int main() {
         chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
     }
 
-    init_chunks();
-    load_chunk((vec2i16_t) { 0, 0 });
-    load_chunk((vec2i16_t) { -1, 0 });
-    load_chunk((vec2i16_t) { 0, -1 });
-    load_chunk((vec2i16_t) { -1, -1 });
-
 
 
     // MESH GEN TESTING
     Mesh mush = GenPlate();
     Model model = LoadModelFromMesh(mush);
 
-    Image img = GenImagePerlinNoise(16, 16, 0, 0, 4.0f);
-    ImageColorTint(&img, block_colors[BLOCK_GRASS]);
+    //Image img = GenImagePerlinNoise(16, 16, 0, 0, 4.0f);
+    //ImageColorTint(&img, block_colors[BLOCK_GRASS]);
 
-    Texture texture = LoadTextureFromImage(img);
-    model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
+    //Texture texture = LoadTextureFromImage(img);
+    //model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
 
     // Performance
     _Bool start_loading_finished = false;
@@ -376,13 +370,15 @@ int main() {
         // CHINK
         // CHONKE
         // CHUNK
-        for (int32_t x = -8; x < 8; ++x) {
-            for (int32_t y = 0; y < 4; ++y) {
-                for (int32_t z = -8; z < 8; ++z) {
-                    block_t block = get_block((vec3i32_t) { x, y, z });
+        if (debug.terrain_loading) {
+            for (int32_t x = -12; x < 12; ++x) {
+                for (int32_t y = -8; y < 8; ++y) {
+                    for (int32_t z = -12; z < 12; ++z) {
+                        block_t block = get_block((vec3i32_t) { int_pos.x + x, int_pos.y + y, int_pos.z + z });
 
-                    if (block.type != 1)
-                        place_cube(x, y, z, block);
+                        if (block.type != 1)
+                            place_cube(int_pos.x + x, int_pos.y + y, int_pos.z + z, block);
+                    }
                 }
             }
         }
@@ -403,7 +399,9 @@ int main() {
             }
         }
 
-        DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 16.0f, WHITE);
+        DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, GRAY);
+        DrawModelWires(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
+        
 
         EndMode3D();
 

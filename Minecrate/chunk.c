@@ -12,13 +12,6 @@
 #include "chunk.h"
 #include "block.h"
 
-// CHUNK DATA
-static block_t *chunk_data;		// Stores every block type, at every X, Y, and Z position, for every chunk.
-static vec2i16_t *chunk_locs;	// Stores position of chunks in "chunk_data". Allows for 2 million chunks in each direction, including negative.
-static uint8_t *chunk_status;	// 0: Empty, 1: Loading, 2: Ready (blocks are filled and correct)
-static int16_t *chunk_buffer;	// Used for storing 2d heights when calculating blocks within chunk
-
-
 // Memory functions
 int init_chunks() {
 	// Make sure renderdistance isn't too big or too teeny
@@ -52,12 +45,12 @@ int init_chunks() {
 	chunk_mem_usage += chunk_size.x * chunk_size.z * sizeof(uint16_t);
 
 
-	// Initialize all chunks as empty
+	// Initialize all chunks as unloaded
 	for (uint16_t i = 0; i < num_chunks; ++i) {
 		chunk_status[i] = CHUNK_UNLOADED;
 	}
 
-	printf("Memory allocated.\nChunk data size: %d\n", chunk_data_size);
+	printf("Memory allocated.\nChunk data size: %d\nTotal memory usage: %d\n", chunk_data_size, chunk_mem_usage);
 }
 
 int free_chunks() { // WARNING: any chunk functions including load_mesh or load_chunk should NOT be caled after this is called.
@@ -96,15 +89,15 @@ int load_chunk(vec2i16_t chunk_pos) {
 
 	for (uint16_t x = 0; x < chunk_size.x; ++x) {
 		for (uint16_t y = 0; y < chunk_size.z; ++y) {
-			int32_t cx = 100 + global_cx + (int32_t)x;
-			int32_t cy = 100 + global_cy + (int32_t)y;
+			int32_t cx = global_cx + (int32_t)x;
+			int32_t cy = global_cy + (int32_t)y;
 
 			chunk_buffer[x + (y * chunk_size.x)] = sea_level + (int16_t)(32.0f * sample_perlin_octaves(
 				cx / 48.0f,                     // X
 				cy / 48.0f,                     // Y
 				5,                              // OCTAVES
 				2.0f,                           // LACUNARITY
-				0.47f));                        // PERSISTANCE
+				0.47f) - 16.0f);                        // PERSISTANCE
 		}
 	}
 
@@ -124,25 +117,25 @@ int load_chunk(vec2i16_t chunk_pos) {
 				// Set block
 				int cb = BLOCK_AIR;
 
-				// Set blocks at different levels
-				//if (y == 0) {
-				//	cb = BLOCK_BEDROCK;
-				//} else if (y < h - 5) {
-				//	cb = BLOCK_STONE;
-				//} else if (y < h - 1) {
-				//	cb = BLOCK_DIRT;
-				//} else if (y < h) {
-				//	cb = BLOCK_GRASS;
-				//}
-
-				//if (h < sea_level + 3 && (cb == BLOCK_GRASS || cb == BLOCK_DIRT))
-				//	cb = BLOCK_SAND; // Sand at shore
-
-				if (y == 0)
-					cb = BLOCK_GRASS;
-
-				if (y == 255)
+				// LAND
+				if (y == 0) {
+					cb = BLOCK_BEDROCK;
+				} else if (y < h - 5) {
+					cb = BLOCK_STONE;
+				} else if (y < h - 1) {
 					cb = BLOCK_DIRT;
+				} else if (y < h) {
+					cb = BLOCK_GRASS;
+				}
+
+				// OCEAN
+				if (h < sea_level + 3 && (cb == BLOCK_GRASS || cb == BLOCK_DIRT))
+					cb = BLOCK_SAND; // Sand at shore
+
+				if (y < sea_level && cb == BLOCK_AIR)
+					cb = BLOCK_WATER;
+
+				// CAVES
 
 				chunk_data[i] = block_t_new(cb);
 			}
@@ -203,6 +196,9 @@ int32_t get_block_index(vec3u16_t c_block_pos) {
 
 
 block_t get_block(vec3i32_t block_pos) {
+	if (block_pos.y < 0)
+		return block_t_new(BLOCK_UNDEFINED);
+
 	int32_t chunk_index = get_chunk_index(get_chunk_pos(block_pos));
 	
 	if (chunk_index == -1)
