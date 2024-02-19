@@ -32,11 +32,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
 
     // Fill buffer with empty data
     for (uint32_t i = 0; i < chunk_data_size; ++i) {
-        struct mesh_sides s = mesh_sides_empty();
-
-        mesh_gen_buffer[i].x = s.x;
-        mesh_gen_buffer[i].y = s.y;
-        mesh_gen_buffer[i].z = s.z;
+        mesh_gen_buffer[i] = mesh_sides_empty();
     }
 
     // Calculate how big mesh will be (Loop through chunk and count and store)
@@ -264,6 +260,6 @@ struct mesh_sides {
 
 static inline struct mesh_sides mesh_sides_empty() {
     return (struct mesh_sides) {
-        BLOCK_UNDEFINED, BLOCK_UNDEFINED, BLOCK_UNDEFINED
+        BLOCK_UNDEFINED, false, BLOCK_UNDEFINED, false, BLOCK_UNDEFINED, false
     };
 }
