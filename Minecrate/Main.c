@@ -162,8 +162,9 @@ int main() {
 
 
     // MESH GEN TESTING
-    Mesh mush = GenPlate();
-    Model model = LoadModelFromMesh(mush);
+    init_mesh_gen();
+    /*Mesh mush = GenPlate();
+    Model model = LoadModelFromMesh(mush);*/
 
     //Image img = GenImagePerlinNoise(16, 16, 0, 0, 4.0f);
     //ImageColorTint(&img, block_colors[BLOCK_GRASS]);
@@ -399,8 +400,8 @@ int main() {
             }
         }
 
-        DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, GRAY);
-        DrawModelWires(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
+        //DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, GRAY);
+        //DrawModelWires(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
         
 
         EndMode3D();
@@ -464,6 +465,7 @@ int main() {
     }
 
     // Free memory and close.
+    free_mesh_gen();
     free_chunks();
     CloseWindow();
 
