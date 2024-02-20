@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <malloc.h>
 
 #include <math.h>
 #include <raymath.h>
@@ -9,6 +10,23 @@
 #include "chunk.h"
 
 static struct mesh_sides* mesh_gen_buffer;	// Used for storing sides to load in a mesh
+
+
+
+// graaah
+// Vector3 utility (move later)
+static inline Vector3 add_vector3(Vector3 a, Vector3 b) {
+    return (Vector3) { a.x + b.x, a.y + b.y, a.z + b.z };
+}
+
+static inline struct mesh_sides mesh_sides_empty() {
+    return (struct mesh_sides) {
+        BLOCK_UNDEFINED, false, BLOCK_UNDEFINED, false, BLOCK_UNDEFINED, false
+    };
+}
+
+
+
 
 // INIT MESH GEN
 int init_mesh_gen() {
@@ -126,6 +144,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                 // todo: generate the things and put into the verticices and stuff
                 struct mesh_sides sides = mesh_gen_buffer[index];
 
+                // X FACE
                 if (sides.x.type != BLOCK_UNDEFINED) {
                     // We want a face on this side, so generate blueprint..
                     struct mesh_base_plane px = gen_plane_blueprint(
@@ -138,6 +157,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     const ind3 = face_ind * 18; // current index
                     const ind2 = face_ind * 12; // current index for texcoords (4, because
 
+                    // VERT 0 0
                     mesh.vertices[ind3 + 0] = px.pos1.x;
                     mesh.vertices[ind3 + 1] = px.pos1.y;
                     mesh.vertices[ind3 + 2] = px.pos1.z;
@@ -149,12 +169,252 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.normals[ind3 + 1] = px.normal.y;
                     mesh.normals[ind3 + 2] = px.normal.z;
 
+                    // VERT 1 0
+                    mesh.vertices[ind3 + 3] = px.pos1.x;
+                    mesh.vertices[ind3 + 4] = px.pos1.y;
+                    mesh.vertices[ind3 + 5] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 2] = 0;
+                    mesh.texcoords[ind2 + 3] = 0;
+
+                    mesh.normals[ind3 + 3] = px.normal.x;
+                    mesh.normals[ind3 + 4] = px.normal.y;
+                    mesh.normals[ind3 + 5] = px.normal.z;
+
+                    // VERT 0 1
+                    mesh.vertices[ind3 + 6] = px.pos1.x;
+                    mesh.vertices[ind3 + 7] = px.pos1.y;
+                    mesh.vertices[ind3 + 8] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 4] = 0;
+                    mesh.texcoords[ind2 + 5] = 0;
+
+                    mesh.normals[ind3 + 6] = px.normal.x;
+                    mesh.normals[ind3 + 7] = px.normal.y;
+                    mesh.normals[ind3 + 8] = px.normal.z;
+
+                    // VERT 1 0
+                    mesh.vertices[ind3 + 9] = px.pos1.x;
+                    mesh.vertices[ind3 + 10] = px.pos1.y;
+                    mesh.vertices[ind3 + 11] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 6] = 0;
+                    mesh.texcoords[ind2 + 7] = 0;
+
+                    mesh.normals[ind3 + 9] = px.normal.x;
+                    mesh.normals[ind3 + 10] = px.normal.y;
+                    mesh.normals[ind3 + 11] = px.normal.z;
+
+                    // VERT 0 1
+                    mesh.vertices[ind3 + 12] = px.pos1.x;
+                    mesh.vertices[ind3 + 13] = px.pos1.y;
+                    mesh.vertices[ind3 + 14] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 8] = 0;
+                    mesh.texcoords[ind2 + 9] = 0;
+
+                    mesh.normals[ind3 + 12] = px.normal.x;
+                    mesh.normals[ind3 + 13] = px.normal.y;
+                    mesh.normals[ind3 + 14] = px.normal.z;
+
+                    // VERT 1 1
+                    mesh.vertices[ind3 + 15] = px.pos1.x;
+                    mesh.vertices[ind3 + 16] = px.pos1.y;
+                    mesh.vertices[ind3 + 17] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 10] = 0;
+                    mesh.texcoords[ind2 + 11] = 0;
+
+                    mesh.normals[ind3 + 15] = px.normal.x;
+                    mesh.normals[ind3 + 16] = px.normal.y;
+                    mesh.normals[ind3 + 17] = px.normal.z;
+
                     // Finally, increment face_ind so we dont overwrite this face!
                     face_ind++;
                 }
+                // Y FACE
+                if (sides.y.type != BLOCK_UNDEFINED) {
+                    // We want a face on this side, so generate blueprint..
+                    struct mesh_base_plane px = gen_plane_blueprint(
+                        (vec3i16_t) { x, y, z },                        // OFFSET
+                        (vec3i8_t) { 0, sides.x_normals ? -1 : 1, 0 }   // DIRECTION (NORMAL)
+                    );
+
+                    // ..and add the verticies. (we add 6 verticies, and each uses 3 dimensions...)
+                    // and also 6 uvs, but 2 dimensions!
+                    const ind3 = face_ind * 18; // current index
+                    const ind2 = face_ind * 12; // current index for texcoords (4, because
+
+                    // VERT 0 0
+                    mesh.vertices[ind3 + 0] = px.pos1.x;
+                    mesh.vertices[ind3 + 1] = px.pos1.y;
+                    mesh.vertices[ind3 + 2] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 0] = 0;
+                    mesh.texcoords[ind2 + 1] = 0;
+
+                    mesh.normals[ind3 + 0] = px.normal.x;
+                    mesh.normals[ind3 + 1] = px.normal.y;
+                    mesh.normals[ind3 + 2] = px.normal.z;
+
+                    // VERT 1 0
+                    mesh.vertices[ind3 + 3] = px.pos1.x;
+                    mesh.vertices[ind3 + 4] = px.pos1.y;
+                    mesh.vertices[ind3 + 5] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 2] = 0;
+                    mesh.texcoords[ind2 + 3] = 0;
+
+                    mesh.normals[ind3 + 3] = px.normal.x;
+                    mesh.normals[ind3 + 4] = px.normal.y;
+                    mesh.normals[ind3 + 5] = px.normal.z;
+
+                    // VERT 0 1
+                    mesh.vertices[ind3 + 6] = px.pos1.x;
+                    mesh.vertices[ind3 + 7] = px.pos1.y;
+                    mesh.vertices[ind3 + 8] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 4] = 0;
+                    mesh.texcoords[ind2 + 5] = 0;
+
+                    mesh.normals[ind3 + 6] = px.normal.x;
+                    mesh.normals[ind3 + 7] = px.normal.y;
+                    mesh.normals[ind3 + 8] = px.normal.z;
+
+                    // VERT 1 0
+                    mesh.vertices[ind3 + 9] = px.pos1.x;
+                    mesh.vertices[ind3 + 10] = px.pos1.y;
+                    mesh.vertices[ind3 + 11] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 6] = 0;
+                    mesh.texcoords[ind2 + 7] = 0;
+
+                    mesh.normals[ind3 + 9] = px.normal.x;
+                    mesh.normals[ind3 + 10] = px.normal.y;
+                    mesh.normals[ind3 + 11] = px.normal.z;
+
+                    // VERT 0 1
+                    mesh.vertices[ind3 + 12] = px.pos1.x;
+                    mesh.vertices[ind3 + 13] = px.pos1.y;
+                    mesh.vertices[ind3 + 14] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 8] = 0;
+                    mesh.texcoords[ind2 + 9] = 0;
+
+                    mesh.normals[ind3 + 12] = px.normal.x;
+                    mesh.normals[ind3 + 13] = px.normal.y;
+                    mesh.normals[ind3 + 14] = px.normal.z;
+
+                    // VERT 1 1
+                    mesh.vertices[ind3 + 15] = px.pos1.x;
+                    mesh.vertices[ind3 + 16] = px.pos1.y;
+                    mesh.vertices[ind3 + 17] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 10] = 0;
+                    mesh.texcoords[ind2 + 11] = 0;
+
+                    mesh.normals[ind3 + 15] = px.normal.x;
+                    mesh.normals[ind3 + 16] = px.normal.y;
+                    mesh.normals[ind3 + 17] = px.normal.z;
+
+                    // Finally, increment face_ind so we dont overwrite this face!
+                    face_ind++;
+                }
+
+                // Z FACE
+                if (sides.y.type != BLOCK_UNDEFINED) {
+                    // We want a face on this side, so generate blueprint..
+                    struct mesh_base_plane px = gen_plane_blueprint(
+                        (vec3i16_t) { x, y, z },                        // OFFSET
+                        (vec3i8_t) { 0, 0, sides.z_normals ? -1 : 1 }   // DIRECTION (NORMAL)
+                    );
+
+                    // ..and add the verticies. (we add 6 verticies, and each uses 3 dimensions...)
+                    // and also 6 uvs, but 2 dimensions!
+                    const ind3 = face_ind * 18; // current index
+                    const ind2 = face_ind * 12; // current index for texcoords (4, because
+
+                    // VERT 0 0
+                    mesh.vertices[ind3 + 0] = px.pos1.x;
+                    mesh.vertices[ind3 + 1] = px.pos1.y;
+                    mesh.vertices[ind3 + 2] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 0] = 0;
+                    mesh.texcoords[ind2 + 1] = 0;
+
+                    mesh.normals[ind3 + 0] = px.normal.x;
+                    mesh.normals[ind3 + 1] = px.normal.y;
+                    mesh.normals[ind3 + 2] = px.normal.z;
+
+                    // VERT 1 0
+                    mesh.vertices[ind3 + 3] = px.pos1.x;
+                    mesh.vertices[ind3 + 4] = px.pos1.y;
+                    mesh.vertices[ind3 + 5] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 2] = 0;
+                    mesh.texcoords[ind2 + 3] = 0;
+
+                    mesh.normals[ind3 + 3] = px.normal.x;
+                    mesh.normals[ind3 + 4] = px.normal.y;
+                    mesh.normals[ind3 + 5] = px.normal.z;
+
+                    // VERT 0 1
+                    mesh.vertices[ind3 + 6] = px.pos1.x;
+                    mesh.vertices[ind3 + 7] = px.pos1.y;
+                    mesh.vertices[ind3 + 8] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 4] = 0;
+                    mesh.texcoords[ind2 + 5] = 0;
+
+                    mesh.normals[ind3 + 6] = px.normal.x;
+                    mesh.normals[ind3 + 7] = px.normal.y;
+                    mesh.normals[ind3 + 8] = px.normal.z;
+
+                    // VERT 1 0
+                    mesh.vertices[ind3 + 9] = px.pos1.x;
+                    mesh.vertices[ind3 + 10] = px.pos1.y;
+                    mesh.vertices[ind3 + 11] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 6] = 0;
+                    mesh.texcoords[ind2 + 7] = 0;
+
+                    mesh.normals[ind3 + 9] = px.normal.x;
+                    mesh.normals[ind3 + 10] = px.normal.y;
+                    mesh.normals[ind3 + 11] = px.normal.z;
+
+                    // VERT 0 1
+                    mesh.vertices[ind3 + 12] = px.pos1.x;
+                    mesh.vertices[ind3 + 13] = px.pos1.y;
+                    mesh.vertices[ind3 + 14] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 8] = 0;
+                    mesh.texcoords[ind2 + 9] = 0;
+
+                    mesh.normals[ind3 + 12] = px.normal.x;
+                    mesh.normals[ind3 + 13] = px.normal.y;
+                    mesh.normals[ind3 + 14] = px.normal.z;
+
+                    // VERT 1 1
+                    mesh.vertices[ind3 + 15] = px.pos1.x;
+                    mesh.vertices[ind3 + 16] = px.pos1.y;
+                    mesh.vertices[ind3 + 17] = px.pos1.z;
+
+                    mesh.texcoords[ind2 + 10] = 0;
+                    mesh.texcoords[ind2 + 11] = 0;
+
+                    mesh.normals[ind3 + 15] = px.normal.x;
+                    mesh.normals[ind3 + 16] = px.normal.y;
+                    mesh.normals[ind3 + 17] = px.normal.z;
+
+                    // Finally, increment face_ind so we dont overwrite this face!
+                    face_ind++;
+                }
+
             }
         }
     }
+
+    printf("It somehow worked, and we are now loading the mesh.");
 
     UploadMesh(&mesh, false);
 
@@ -165,26 +425,6 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
 
 
 
-
-
-
-
-
-// Generate base plane meshes
-// Struct used to store data for a single mesh plane
-struct mesh_base_plane {
-    Vector3 pos1;
-    Vector3 pos2;
-    Vector3 pos3;
-    Vector3 pos4;
-
-    Vector3 normal;
-
-    Vector2 uv1;
-    Vector2 uv2;
-    Vector2 uv3;
-    Vector2 uv4;
-} mesh_base_plane;
 
 
 // Dir should be either positive 1 or negative 1 in only one of the axis.
@@ -237,29 +477,4 @@ struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, vec3i8_t dir) {
 
     // Return it
     return plane;
-}
-
-
-// Vector3 utility (move later)
-static inline Vector3 add_vector3(Vector3 a, Vector3 b) {
-    return (Vector3) { a.x + b.x, a.y + b.y, a.z + b.z };
-}
-
-
-// Struct for mesh generating buffer, this is if theres a face at 0, if theres one at 1 it will be on next over
-struct mesh_sides {
-    block_t x;          // type of block on this face
-    _Bool x_normals;    // false: negative, true: positive
-
-    block_t y;
-    _Bool y_normals;
-
-    block_t z;
-    _Bool z_normals;
-};
-
-static inline struct mesh_sides mesh_sides_empty() {
-    return (struct mesh_sides) {
-        BLOCK_UNDEFINED, false, BLOCK_UNDEFINED, false, BLOCK_UNDEFINED, false
-    };
 }

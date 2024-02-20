@@ -159,6 +159,13 @@ int main() {
         chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
     }
 
+    // test mesh
+    init_chunks();
+    init_mesh_gen();
+
+    load_chunk((vec2i16_t) { 0, 0 });
+    Mesh mush = GenChunkMesh((vec2i16_t) { 0, 0 });
+    Model chunk_model = LoadModelFromMesh(mush);
 
 
     // MESH GEN TESTING
@@ -371,7 +378,7 @@ int main() {
         // CHINK
         // CHONKE
         // CHUNK
-        if (debug.terrain_loading) {
+        /*if (debug.terrain_loading) {
             for (int32_t x = -12; x < 12; ++x) {
                 for (int32_t y = -8; y < 8; ++y) {
                     for (int32_t z = -12; z < 12; ++z) {
@@ -382,7 +389,7 @@ int main() {
                     }
                 }
             }
-        }
+        }*/
 
         // DEBUG STUFF
         if (debug.test_environment) {   // Gizmos
@@ -403,6 +410,7 @@ int main() {
         //DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, GRAY);
         //DrawModelWires(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
         
+        DrawModel(chunk_model, Vector3Zero(), 1.0f, WHITE);
 
         EndMode3D();
 
