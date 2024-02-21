@@ -79,73 +79,68 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                 uint32_t cind = chunk_index * chunk_data_size;
                 block_t cb = chunk_data[cind + index];
 
-                printf("\n\n[ %d %d %d ]\nIndex: %d\nBlock: %s", x, y, z, cind + index, block_names[cb.type]);
-
                 if (cb.type == BLOCK_AIR || cb.type == BLOCK_WATER) {
-                    printf("\nDoing block %d %d %d in chunk", x, y, z);
-
+                    printf("\n[%d %d %d]", x, y, z);
                     // We are in a transparent block, so check all sides and add to buffer if we need plane
                     // Make sure its not outside of chunk
-                    block_t px = x < chunk_size.x
-                        ? chunk_data[cind + index + plus_x]
-                        : block_t_new(BLOCK_UNDEFINED);
+                    block_t px = block_t_new(BLOCK_UNDEFINED);
+                    if (x + 1 < chunk_size.x)
+                        px = chunk_data[cind + index + plus_x];
 
-                    block_t py = y < chunk_size.y
-                        ? chunk_data[cind + index + plus_y]
-                        : block_t_new(BLOCK_UNDEFINED);
+                    block_t py = block_t_new(BLOCK_UNDEFINED);
+                    if (y + 1 < chunk_size.y)
+                        py = chunk_data[cind + index + plus_y];
 
-                    block_t pz = z < chunk_size.z
-                        ? chunk_data[cind + index + plus_z]
-                        : block_t_new(BLOCK_UNDEFINED);
+                    block_t pz = block_t_new(BLOCK_UNDEFINED);
+                    if (z + 1 < chunk_size.z)
+                        pz = chunk_data[cind + index + plus_z];
 
                     // Negative, so make sure more than 0
-                    block_t nx = x >= 0
-                        ? chunk_data[cind + index - plus_x]
-                        : block_t_new(BLOCK_UNDEFINED);
+                    block_t nx = block_t_new(BLOCK_UNDEFINED);
+                    if (x > 0)
+                        nx = chunk_data[cind + index - plus_x];
 
-                    block_t ny = y >= 0
-                        ? chunk_data[cind + index - plus_y]
-                        : block_t_new(BLOCK_UNDEFINED);
+                    block_t ny = block_t_new(BLOCK_UNDEFINED);
+                    if (y > 0)
+                        ny = chunk_data[cind + index - plus_y];
 
-                    block_t nz = z >= 0
-                        ? chunk_data[cind + index - plus_z]
-                        : block_t_new(BLOCK_UNDEFINED);
-
-                    printf("\nPlus X: %d", px.type);
+                    block_t nz = block_t_new(BLOCK_UNDEFINED);
+                    if (z > 0)
+                        nz = chunk_data[cind + index - plus_z];
 
                     // Edit values for blocks, this block bc negative bc 0
-                    if (nx.type != BLOCK_AIR && nx.type != BLOCK_WATER) {
+                    if (nx.type != BLOCK_UNDEFINED && nx.type != BLOCK_AIR && nx.type != BLOCK_WATER) {
                         tot_tris += 2;
                         mesh_gen_buffer[index].x = nx;
                         mesh_gen_buffer[index].x_normals = true;
                     }
 
-                    if (ny.type != BLOCK_AIR && ny.type != BLOCK_WATER) {
+                    if (ny.type != BLOCK_UNDEFINED && ny.type != BLOCK_AIR && ny.type != BLOCK_WATER) {
                         tot_tris += 2;
                         mesh_gen_buffer[index].y = ny;
                         mesh_gen_buffer[index].y_normals = true;
                     }
 
-                    if (nz.type != BLOCK_AIR && nz.type != BLOCK_WATER) {
+                    if (nz.type != BLOCK_UNDEFINED && nz.type != BLOCK_AIR && nz.type != BLOCK_WATER) {
                         tot_tris += 2;
                         mesh_gen_buffer[index].z = nz;
                         mesh_gen_buffer[index].z_normals = true;
                     }
 
                     // Edit values for blocks with OFFSET!!! (wow, so cool!) bc 1, with offset! (and positive)
-                    if (px.type != BLOCK_AIR && px.type != BLOCK_WATER) {
+                    if (px.type != BLOCK_UNDEFINED && px.type != BLOCK_AIR && px.type != BLOCK_WATER) {
                         tot_tris += 2;
                         mesh_gen_buffer[index + plus_x].x = px;
                         mesh_gen_buffer[index + plus_x].x_normals = false;
                     }
 
-                    if (py.type != BLOCK_AIR && py.type != BLOCK_WATER) {
+                    if (py.type != BLOCK_UNDEFINED && py.type != BLOCK_AIR && py.type != BLOCK_WATER) {
                         tot_tris += 2;
                         mesh_gen_buffer[index + plus_y].y = py;
                         mesh_gen_buffer[index].y_normals = false;
                     }
 
-                    if (pz.type != BLOCK_AIR && pz.type != BLOCK_WATER) {
+                    if (pz.type != BLOCK_UNDEFINED && pz.type != BLOCK_AIR && pz.type != BLOCK_WATER) {
                         tot_tris += 2;
                         mesh_gen_buffer[index + plus_z].z = pz;
                         mesh_gen_buffer[index].z_normals = false;
@@ -165,7 +160,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     mesh.texcoords = (float*)MemAlloc(mesh.vertexCount * 2 * sizeof(float));
     mesh.normals = (float*)MemAlloc(mesh.vertexCount * 3 * sizeof(float));
 
-    printf("Initiated chunk mesh, with %d triangles and %d verticies.", mesh.triangleCount, mesh.vertexCount);
+    printf("\nInitiated chunk mesh, with %d triangles and %d verticies.", mesh.triangleCount, mesh.vertexCount);
 
     // Fill in the data
     uint32_t face_ind = 0;
@@ -448,12 +443,13 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
         }
     }
 
-    printf("It somehow worked, and we are now loading the mesh.");
+    printf("\nIt somehow worked, and we are now loading the mesh.");
 
     UploadMesh(&mesh, false);
 
-    return mesh;
+    printf("Uploaded mesh.. returning.");
 
+    return mesh;
 }
 
 
