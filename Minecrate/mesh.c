@@ -3,6 +3,7 @@
 #include <malloc.h>
 
 #include <math.h>
+#include <raylib.h>
 #include <raymath.h>
 
 #include "mesh.h"
@@ -48,10 +49,14 @@ int free_mesh_gen() {
 // Generate chunk
 Mesh GenChunkMesh(vec2i16_t chunk_pos) {
 
+    printf("\n\nGenerating mesh for chunk %d %d rn.", chunk_pos.x, chunk_pos.y);
+
     // Fill buffer with empty data
     for (uint32_t i = 0; i < chunk_data_size; ++i) {
         mesh_gen_buffer[i] = mesh_sides_empty();
     }
+
+    printf("\nEmptied buffer.");
 
     // Calculate how big mesh will be (Loop through chunk and count and store)
     uint32_t tot_tris = 0;
@@ -62,22 +67,51 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     uint16_t plus_y = chunk_size.x;
     uint16_t plus_z = chunk_size.x * chunk_size.y;
 
+    uint32_t howmany = 0;
+
     for (uint16_t x = 0; x < chunk_size.x; ++x) {
+        printf("\nCalculating row %d of %d", x, chunk_size.x);
         for (uint16_t y = 0; y < chunk_size.y; ++y) {
+            printf("\nDoing y %d in x %d", y, x);
             for (uint16_t z = 0; z < chunk_size.z; ++z) {
                 uint32_t index = x + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
 
                 uint32_t cind = chunk_index * chunk_data_size;
                 block_t cb = chunk_data[cind + index];
 
+                printf("\n\n[ %d %d %d ]\nIndex: %d\nBlock: %s", x, y, z, cind + index, block_names[cb.type]);
+
                 if (cb.type == BLOCK_AIR || cb.type == BLOCK_WATER) {
+                    printf("\nDoing block %d %d %d in chunk", x, y, z);
+
                     // We are in a transparent block, so check all sides and add to buffer if we need plane
-                    block_t px = chunk_data[cind + index + plus_x];
-                    block_t py = chunk_data[cind + index + plus_y];
-                    block_t pz = chunk_data[cind + index + plus_z];
-                    block_t nx = chunk_data[cind + index - plus_x];
-                    block_t ny = chunk_data[cind + index - plus_y];
-                    block_t nz = chunk_data[cind + index - plus_z];
+                    // Make sure its not outside of chunk
+                    block_t px = x < chunk_size.x
+                        ? chunk_data[cind + index + plus_x]
+                        : block_t_new(BLOCK_UNDEFINED);
+
+                    block_t py = y < chunk_size.y
+                        ? chunk_data[cind + index + plus_y]
+                        : block_t_new(BLOCK_UNDEFINED);
+
+                    block_t pz = z < chunk_size.z
+                        ? chunk_data[cind + index + plus_z]
+                        : block_t_new(BLOCK_UNDEFINED);
+
+                    // Negative, so make sure more than 0
+                    block_t nx = x >= 0
+                        ? chunk_data[cind + index - plus_x]
+                        : block_t_new(BLOCK_UNDEFINED);
+
+                    block_t ny = y >= 0
+                        ? chunk_data[cind + index - plus_y]
+                        : block_t_new(BLOCK_UNDEFINED);
+
+                    block_t nz = z >= 0
+                        ? chunk_data[cind + index - plus_z]
+                        : block_t_new(BLOCK_UNDEFINED);
+
+                    printf("\nPlus X: %d", px.type);
 
                     // Edit values for blocks, this block bc negative bc 0
                     if (nx.type != BLOCK_AIR && nx.type != BLOCK_WATER) {

@@ -1,10 +1,8 @@
 #include "perlin_noise.h"
 
-#ifndef RAYLIB_H
 #include <raylib.h>
 #include <raymath.h>
 #include <math.h>
-#endif
 
 #include <stdio.h>
 
@@ -18,7 +16,7 @@ static float dot(Vector2 a, Vector2 b) {
 
 static float randdir(int x, int y) {
 	x += y * 100;
-
+	
     x = ((x >> 16) ^ x) * 0x45d9f3b;
     x = ((x >> 16) ^ x) * 0x45d9f3b;
     x = (x >> 16) ^ x;

@@ -169,7 +169,6 @@ int main() {
 
 
     // MESH GEN TESTING
-    init_mesh_gen();
     /*Mesh mush = GenPlate();
     Model model = LoadModelFromMesh(mush);*/
 
