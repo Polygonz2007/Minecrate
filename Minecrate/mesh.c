@@ -71,6 +71,10 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     double start_time = GetTime();
 
     for (uint16_t x = 0; x < chunk_size.x; ++x) {
+        if (x < 7) {
+            continue;
+        }
+
         for (uint16_t y = 0; y < chunk_size.y; ++y) {
             for (uint16_t z = 0; z < chunk_size.z; ++z) {
                 uint32_t index = x + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
