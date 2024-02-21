@@ -135,13 +135,13 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     if (py.type != BLOCK_UNDEFINED && py.type != BLOCK_AIR && py.type != BLOCK_WATER) {
                         tot_tris += 2;
                         mesh_gen_buffer[index + plus_y].y = py;
-                        mesh_gen_buffer[index].y_normals = false;
+                        mesh_gen_buffer[index + plus_y].y_normals = false;
                     }
 
                     if (pz.type != BLOCK_UNDEFINED && pz.type != BLOCK_AIR && pz.type != BLOCK_WATER) {
                         tot_tris += 2;
                         mesh_gen_buffer[index + plus_z].z = pz;
-                        mesh_gen_buffer[index].z_normals = false;
+                        mesh_gen_buffer[index + plus_z].z_normals = false;
                     }
 
                     // gaah, now go to next and after fill in the data...

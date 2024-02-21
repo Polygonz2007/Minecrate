@@ -164,7 +164,15 @@ int main() {
     init_mesh_gen();
 
     load_chunk((vec2i16_t) { 0, 0 });
+
+
+    // Load test model
     Model chunk_model = LoadModelFromMesh(GenChunkMesh((vec2i16_t) { 0, 0 }));
+    Image checked = GenImageChecked(2, 2, 1, 1, block_colors[BLOCK_STONE], block_colors[BLOCK_COBBLESTONE]);
+    Texture2D texture = LoadTextureFromImage(checked);
+    UnloadImage(checked);
+
+    chunk_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
 
     printf(" Loaded model.");
 
@@ -400,6 +408,7 @@ int main() {
         //DrawModelWires(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
         
         DrawModel(chunk_model, Vector3Zero(), 1.0f, WHITE);
+        place_cube(int_pos.x, int_pos.y, int_pos.z, block_t_new(BLOCK_WATER));
 
         EndMode3D();
 
@@ -421,7 +430,7 @@ int main() {
 
         // INFO
         // Info Strings
-        DrawText("Minecrate v0.2 [CHUNK UPDATE]", 10, 10, 30, WHITE);
+        DrawText("Minecrate v0.3 [MESH UPDATE]", 10, 10, 30, WHITE);
 
         if (debug.display_info) {
             uint16_t tot_loaded_chunks = get_total_loaded_chunks();
@@ -431,12 +440,14 @@ int main() {
             char render_dist_s[32];
             char position_string[64];
             char c_position_string[64];
+            char current_block_string[32];
 
             snprintf(chunk_num_s, 63, "Loaded Chunks: %d / %d avaliable (%.01f%%)", tot_loaded_chunks, num_chunks, ((float)tot_loaded_chunks / (float)num_chunks) * 100.0f);
             snprintf(memory_s, 63, "Total memory usage: %.01f MB  (%d bytes)", chunk_mem_usage / 1000000.0f, chunk_mem_usage);
             snprintf(render_dist_s, 31, "Render distance: %d", render_distance);
             snprintf(position_string, 63, "Position: %d, %d, %d", int_pos.x, int_pos.y, int_pos.z);
             snprintf(c_position_string, 63, "Chunk Position: %d, %d", new_chunk_pos.x, new_chunk_pos.y);
+            snprintf(current_block_string, 31, "Standing on %s", block_names[get_block(int_pos).type]);
 
 
             // Draw
@@ -449,10 +460,11 @@ int main() {
 
             DrawText("-- terrain --", 10, 190, 20, INFO_TITLE_COL);
             DrawText(render_dist_s, 10, 210, 20, INFO_COL);
-            DrawText(chunk_num_s, 10, 230, 20, INFO_COL);
+            DrawText(chunk_num_s, 10, 250, 20, INFO_COL);
+            DrawText(current_block_string, 10, 270, 20, INFO_COL);
 
-            DrawText("-- memory --", 10, 270, 20, INFO_TITLE_COL);
-            DrawText(memory_s, 10, 290, 20, INFO_COL);
+            DrawText("-- memory --", 10, 310, 20, INFO_TITLE_COL);
+            DrawText(memory_s, 10, 330, 20, INFO_COL);
 
             if (chunk_thread_running)
                 DrawText("Updating chunks...", 10, window_height - 40, 30, RED);
