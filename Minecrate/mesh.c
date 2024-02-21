@@ -67,12 +67,10 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     uint16_t plus_y = chunk_size.x;
     uint16_t plus_z = chunk_size.x * chunk_size.y;
 
-    uint32_t howmany = 0;
+    double start_time = GetTime();
 
     for (uint16_t x = 0; x < chunk_size.x; ++x) {
-        printf("\nCalculating row %d of %d", x, chunk_size.x);
         for (uint16_t y = 0; y < chunk_size.y; ++y) {
-            printf("\nDoing y %d in x %d", y, x);
             for (uint16_t z = 0; z < chunk_size.z; ++z) {
                 uint32_t index = x + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
 
@@ -80,7 +78,6 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                 block_t cb = chunk_data[cind + index];
 
                 if (cb.type == BLOCK_AIR || cb.type == BLOCK_WATER) {
-                    printf("\n[%d %d %d]", x, y, z);
                     // We are in a transparent block, so check all sides and add to buffer if we need plane
                     // Make sure its not outside of chunk
                     block_t px = block_t_new(BLOCK_UNDEFINED);
@@ -154,7 +151,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
 
     // Init mesh object
     Mesh mesh = { 0 };
-    mesh.triangleCount = chunk_size.x * chunk_size.z;
+    mesh.triangleCount = tot_tris;
     mesh.vertexCount = mesh.triangleCount * 3;
     mesh.vertices = (float*)MemAlloc(mesh.vertexCount * 3 * sizeof(float));
     mesh.texcoords = (float*)MemAlloc(mesh.vertexCount * 2 * sizeof(float));
@@ -191,8 +188,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 1] = px.pos1.y;
                     mesh.vertices[ind3 + 2] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 0] = 0;
-                    mesh.texcoords[ind2 + 1] = 0;
+                    mesh.texcoords[ind2 + 0] = 0.0f;
+                    mesh.texcoords[ind2 + 1] = 0.0f;
 
                     mesh.normals[ind3 + 0] = px.normal.x;
                     mesh.normals[ind3 + 1] = px.normal.y;
@@ -203,8 +200,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 4] = px.pos1.y;
                     mesh.vertices[ind3 + 5] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 2] = 0;
-                    mesh.texcoords[ind2 + 3] = 0;
+                    mesh.texcoords[ind2 + 2] = 1.0f;
+                    mesh.texcoords[ind2 + 3] = 0.0f;
 
                     mesh.normals[ind3 + 3] = px.normal.x;
                     mesh.normals[ind3 + 4] = px.normal.y;
@@ -215,8 +212,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 7] = px.pos1.y;
                     mesh.vertices[ind3 + 8] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 4] = 0;
-                    mesh.texcoords[ind2 + 5] = 0;
+                    mesh.texcoords[ind2 + 4] = 0.0f;
+                    mesh.texcoords[ind2 + 5] = 1.0f;
 
                     mesh.normals[ind3 + 6] = px.normal.x;
                     mesh.normals[ind3 + 7] = px.normal.y;
@@ -227,8 +224,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 10] = px.pos1.y;
                     mesh.vertices[ind3 + 11] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 6] = 0;
-                    mesh.texcoords[ind2 + 7] = 0;
+                    mesh.texcoords[ind2 + 6] = 1.0f;
+                    mesh.texcoords[ind2 + 7] = 0.0f;
 
                     mesh.normals[ind3 + 9] = px.normal.x;
                     mesh.normals[ind3 + 10] = px.normal.y;
@@ -239,8 +236,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 13] = px.pos1.y;
                     mesh.vertices[ind3 + 14] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 8] = 0;
-                    mesh.texcoords[ind2 + 9] = 0;
+                    mesh.texcoords[ind2 + 8] = 0.0f;
+                    mesh.texcoords[ind2 + 9] = 1.0f;
 
                     mesh.normals[ind3 + 12] = px.normal.x;
                     mesh.normals[ind3 + 13] = px.normal.y;
@@ -251,8 +248,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 16] = px.pos1.y;
                     mesh.vertices[ind3 + 17] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 10] = 0;
-                    mesh.texcoords[ind2 + 11] = 0;
+                    mesh.texcoords[ind2 + 10] = 1.0f;
+                    mesh.texcoords[ind2 + 11] = 1.0f;
 
                     mesh.normals[ind3 + 15] = px.normal.x;
                     mesh.normals[ind3 + 16] = px.normal.y;
@@ -265,8 +262,12 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                 if (sides.y.type != BLOCK_UNDEFINED) {
                     // We want a face on this side, so generate blueprint..
                     struct mesh_base_plane px = gen_plane_blueprint(
-                        (vec3i16_t) { x, y, z },                        // OFFSET
-                        (vec3i8_t) { 0, sides.x_normals ? -1 : 1, 0 }   // DIRECTION (NORMAL)
+                        (vec3i16_t) {
+                        x, y, z
+                    },                        // OFFSET
+                        (vec3i8_t) {
+                        0, sides.x_normals ? -1 : 1, 0
+                    }   // DIRECTION (NORMAL)
                     );
 
                     // ..and add the verticies. (we add 6 verticies, and each uses 3 dimensions...)
@@ -279,8 +280,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 1] = px.pos1.y;
                     mesh.vertices[ind3 + 2] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 0] = 0;
-                    mesh.texcoords[ind2 + 1] = 0;
+                    mesh.texcoords[ind2 + 0] = 0.0f;
+                    mesh.texcoords[ind2 + 1] = 0.0f;
 
                     mesh.normals[ind3 + 0] = px.normal.x;
                     mesh.normals[ind3 + 1] = px.normal.y;
@@ -291,8 +292,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 4] = px.pos1.y;
                     mesh.vertices[ind3 + 5] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 2] = 0;
-                    mesh.texcoords[ind2 + 3] = 0;
+                    mesh.texcoords[ind2 + 2] = 1.0f;
+                    mesh.texcoords[ind2 + 3] = 0.0f;
 
                     mesh.normals[ind3 + 3] = px.normal.x;
                     mesh.normals[ind3 + 4] = px.normal.y;
@@ -303,8 +304,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 7] = px.pos1.y;
                     mesh.vertices[ind3 + 8] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 4] = 0;
-                    mesh.texcoords[ind2 + 5] = 0;
+                    mesh.texcoords[ind2 + 4] = 0.0f;
+                    mesh.texcoords[ind2 + 5] = 1.0f;
 
                     mesh.normals[ind3 + 6] = px.normal.x;
                     mesh.normals[ind3 + 7] = px.normal.y;
@@ -315,8 +316,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 10] = px.pos1.y;
                     mesh.vertices[ind3 + 11] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 6] = 0;
-                    mesh.texcoords[ind2 + 7] = 0;
+                    mesh.texcoords[ind2 + 6] = 1.0f;
+                    mesh.texcoords[ind2 + 7] = 0.0f;
 
                     mesh.normals[ind3 + 9] = px.normal.x;
                     mesh.normals[ind3 + 10] = px.normal.y;
@@ -327,8 +328,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 13] = px.pos1.y;
                     mesh.vertices[ind3 + 14] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 8] = 0;
-                    mesh.texcoords[ind2 + 9] = 0;
+                    mesh.texcoords[ind2 + 8] = 0.0f;
+                    mesh.texcoords[ind2 + 9] = 1.0f;
 
                     mesh.normals[ind3 + 12] = px.normal.x;
                     mesh.normals[ind3 + 13] = px.normal.y;
@@ -339,8 +340,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 16] = px.pos1.y;
                     mesh.vertices[ind3 + 17] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 10] = 0;
-                    mesh.texcoords[ind2 + 11] = 0;
+                    mesh.texcoords[ind2 + 10] = 1.0f;
+                    mesh.texcoords[ind2 + 11] = 1.0f;
 
                     mesh.normals[ind3 + 15] = px.normal.x;
                     mesh.normals[ind3 + 16] = px.normal.y;
@@ -354,8 +355,12 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                 if (sides.y.type != BLOCK_UNDEFINED) {
                     // We want a face on this side, so generate blueprint..
                     struct mesh_base_plane px = gen_plane_blueprint(
-                        (vec3i16_t) { x, y, z },                        // OFFSET
-                        (vec3i8_t) { 0, 0, sides.z_normals ? -1 : 1 }   // DIRECTION (NORMAL)
+                        (vec3i16_t) {
+                        x, y, z
+                    },                        // OFFSET
+                        (vec3i8_t) {
+                        0, 0, sides.z_normals ? -1 : 1
+                    }   // DIRECTION (NORMAL)
                     );
 
                     // ..and add the verticies. (we add 6 verticies, and each uses 3 dimensions...)
@@ -368,8 +373,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 1] = px.pos1.y;
                     mesh.vertices[ind3 + 2] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 0] = 0;
-                    mesh.texcoords[ind2 + 1] = 0;
+                    mesh.texcoords[ind2 + 0] = 0.0f;
+                    mesh.texcoords[ind2 + 1] = 0.0f;
 
                     mesh.normals[ind3 + 0] = px.normal.x;
                     mesh.normals[ind3 + 1] = px.normal.y;
@@ -380,8 +385,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 4] = px.pos1.y;
                     mesh.vertices[ind3 + 5] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 2] = 0;
-                    mesh.texcoords[ind2 + 3] = 0;
+                    mesh.texcoords[ind2 + 2] = 1.0f;
+                    mesh.texcoords[ind2 + 3] = 0.0f;
 
                     mesh.normals[ind3 + 3] = px.normal.x;
                     mesh.normals[ind3 + 4] = px.normal.y;
@@ -392,8 +397,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 7] = px.pos1.y;
                     mesh.vertices[ind3 + 8] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 4] = 0;
-                    mesh.texcoords[ind2 + 5] = 0;
+                    mesh.texcoords[ind2 + 4] = 0.0f;
+                    mesh.texcoords[ind2 + 5] = 1.0f;
 
                     mesh.normals[ind3 + 6] = px.normal.x;
                     mesh.normals[ind3 + 7] = px.normal.y;
@@ -404,8 +409,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 10] = px.pos1.y;
                     mesh.vertices[ind3 + 11] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 6] = 0;
-                    mesh.texcoords[ind2 + 7] = 0;
+                    mesh.texcoords[ind2 + 6] = 1.0f;
+                    mesh.texcoords[ind2 + 7] = 0.0f;
 
                     mesh.normals[ind3 + 9] = px.normal.x;
                     mesh.normals[ind3 + 10] = px.normal.y;
@@ -416,8 +421,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 13] = px.pos1.y;
                     mesh.vertices[ind3 + 14] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 8] = 0;
-                    mesh.texcoords[ind2 + 9] = 0;
+                    mesh.texcoords[ind2 + 8] = 0.0f;
+                    mesh.texcoords[ind2 + 9] = 1.0f;
 
                     mesh.normals[ind3 + 12] = px.normal.x;
                     mesh.normals[ind3 + 13] = px.normal.y;
@@ -428,8 +433,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 16] = px.pos1.y;
                     mesh.vertices[ind3 + 17] = px.pos1.z;
 
-                    mesh.texcoords[ind2 + 10] = 0;
-                    mesh.texcoords[ind2 + 11] = 0;
+                    mesh.texcoords[ind2 + 10] = 1.0f;
+                    mesh.texcoords[ind2 + 11] = 1.0f;
 
                     mesh.normals[ind3 + 15] = px.normal.x;
                     mesh.normals[ind3 + 16] = px.normal.y;
@@ -444,10 +449,11 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     }
 
     printf("\nIt somehow worked, and we are now loading the mesh.");
+    printf("\nLoaded mesh in %.04f seconds.", GetTime() - start_time);
 
     UploadMesh(&mesh, false);
 
-    printf("Uploaded mesh.. returning.");
+    printf("\nUploaded mesh.");
 
     return mesh;
 }

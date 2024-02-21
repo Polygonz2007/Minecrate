@@ -40,9 +40,9 @@
 #include "vec2.h"
 
 #include "perlin_noise.h" // a mimir
-#include "mesh.h" // dos mimires
 #include "block.h" // tres mimires
 #include "chunk.h" // finalmente mimir
+#include "mesh.h" // dos mimires
 
 
 // COLORS
@@ -164,19 +164,9 @@ int main() {
     init_mesh_gen();
 
     load_chunk((vec2i16_t) { 0, 0 });
-    Mesh mush = GenChunkMesh((vec2i16_t) { 0, 0 });
-    Model chunk_model = LoadModelFromMesh(mush);
+    Model chunk_model = LoadModelFromMesh(GenChunkMesh((vec2i16_t) { 0, 0 }));
 
-
-    // MESH GEN TESTING
-    /*Mesh mush = GenPlate();
-    Model model = LoadModelFromMesh(mush);*/
-
-    //Image img = GenImagePerlinNoise(16, 16, 0, 0, 4.0f);
-    //ImageColorTint(&img, block_colors[BLOCK_GRASS]);
-
-    //Texture texture = LoadTextureFromImage(img);
-    //model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
+    printf(" Loaded model.");
 
     // Performance
     _Bool start_loading_finished = false;
@@ -474,6 +464,9 @@ int main() {
     // Free memory and close.
     free_mesh_gen();
     free_chunks();
+
+    UnloadModel(chunk_model);
+
     CloseWindow();
 
     return 0;
