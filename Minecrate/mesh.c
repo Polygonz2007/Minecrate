@@ -268,7 +268,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                         x, y, z
                     },                        // OFFSET
                         (vec3i8_t) {
-                        0, sides.x_normals ? -1 : 1, 0
+                        0, sides.y_normals ? 1 : -1, 0
                     }   // DIRECTION (NORMAL)
                     );
 

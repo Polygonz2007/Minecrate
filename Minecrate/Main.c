@@ -163,11 +163,11 @@ int main() {
     init_chunks();
     init_mesh_gen();
 
-    load_chunk((vec2i16_t) { 0, 0 });
+    load_chunk((vec2i16_t) { 1, 0 });
 
 
     // Load test model
-    Model chunk_model = LoadModelFromMesh(GenChunkMesh((vec2i16_t) { 0, 0 }));
+    Model chunk_model = LoadModelFromMesh(GenChunkMesh((vec2i16_t) { 1, 0 }));
     Image checked = GenImageChecked(2, 2, 1, 1, block_colors[BLOCK_STONE], block_colors[BLOCK_COBBLESTONE]);
     Texture2D texture = LoadTextureFromImage(checked);
     UnloadImage(checked);
@@ -407,7 +407,7 @@ int main() {
         //DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, GRAY);
         //DrawModelWires(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
         
-        DrawModel(chunk_model, Vector3Zero(), 1.0f, WHITE);
+        DrawModel(chunk_model, (Vector3){16,0,0}, 1.0f, WHITE);
         place_cube(int_pos.x, int_pos.y, int_pos.z, block_t_new(BLOCK_WATER));
 
         EndMode3D();
