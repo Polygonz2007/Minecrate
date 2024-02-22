@@ -50,6 +50,11 @@
 #define INFO_COL (Color){ 255, 255, 255, 175 }
 #define NIGHT (Color) { 0, 20, 80, 255 }
 
+// DEBUG COLORS
+#define DEBUG_RED (Color) { 255, 0, 0, 127 }
+#define DEBUG_GREEN (Color) { 0, 255, 0, 127 }
+#define DEBUG_BLUE (Color) { 0, 0, 255, 127 }
+
 // Static
 static float clamp(float d, float min, float max) {
     const float t = d < min ? min : d;
@@ -72,7 +77,6 @@ _Bool is_thread_running(HANDLE hThread);
 struct debug_settings {
     _Bool terrain_loading;
     _Bool display_info;
-    _Bool test_environment;
     _Bool fly_mode;
     _Bool show_chunk_borders;
 };
@@ -80,7 +84,6 @@ struct debug_settings {
 struct debug_settings debug = {
     .terrain_loading = true,
     .display_info = true,
-    .test_environment = true,
     .fly_mode = true,
     .show_chunk_borders = true
 };
@@ -157,6 +160,10 @@ int main() {
     _Bool start_loading_finished = false;
     const long start_time = time(NULL);
 
+    _Bool test_model_bool = false;
+    Model modul = { 0 };
+    Model* ptr_modul = &modul;
+
     // Main game loop
     while (!WindowShouldClose())
     {
@@ -198,7 +205,10 @@ int main() {
         // End Window and Keys
         //
 
-
+        if (start_loading_finished && !test_model_bool) {
+            modul = LoadModelFromMesh(GenChunkMesh((vec2i16_t) { 0, 0 }));
+            test_model_bool = true;
+        }
 
         //
         // Terrain
@@ -354,44 +364,20 @@ int main() {
 
         // DRAW
         BeginDrawing();
-        ClearBackground(debug.test_environment ? NIGHT : SKYBLUE);
+        ClearBackground(NIGHT);
 
         // 3D
         BeginMode3D(camera);
-
-        // Chunk
-        // CHANK
-        // CHINK
-        // CHONKE
-        // CHUNK
-        /*if (debug.terrain_loading) {
-            for (int32_t x = -12; x < 12; ++x) {
-                for (int32_t y = -8; y < 8; ++y) {
-                    for (int32_t z = -12; z < 12; ++z) {
-                        block_t block = get_block((vec3i32_t) { int_pos.x + x, int_pos.y + y, int_pos.z + z });
-
-                        if (block.type != 1)
-                            place_cube(int_pos.x + x, int_pos.y + y, int_pos.z + z, block);
-                    }
-                }
-            }
-        }*/
-
-        // DEBUG STUFF
-        if (debug.test_environment) {   // Gizmos
-            DrawLine3D((Vector3) { 0.0f, position.y, 0.0f }, (Vector3) { 8.0f, position.y, 0.0f }, RED);
-            DrawLine3D((Vector3) { 0.0f, position.y, 0.0f }, (Vector3) { 0.0f, position.y, 8.0f }, BLUE);
-        }
 
         if (debug.show_chunk_borders) { // Chunk borders
             for (int16_t x = -1; x <= 2; ++x) {
                 for (int16_t y = -1; y <= 2; ++y) {
                     vec2i16_t local = (vec2i16_t){ (current_chunk_pos.x + x) * chunk_size.x, (current_chunk_pos.y + y) * chunk_size.z };
                     
-                    float ph = position.y;
-                    DrawLine3D((Vector3) { local.x, ph, local.y }, (Vector3) { local.x + 16.0f, ph, local.y }, RED);
-                    DrawLine3D((Vector3) { local.x, 0, local.y }, (Vector3) { local.x, chunk_size.y, local.y }, GREEN);
-                    DrawLine3D((Vector3) { local.x, ph, local.y }, (Vector3) { local.x, ph, local.y + 16.0f }, BLUE);
+                    //float ph = position.y;
+                    DrawLine3D((Vector3) { local.x, 0, local.y }, (Vector3) { local.x + 16.0f, 0, local.y }, DEBUG_RED);
+                    DrawLine3D((Vector3) { local.x, 0, local.y }, (Vector3) { local.x, chunk_size.y, local.y }, DEBUG_GREEN);
+                    DrawLine3D((Vector3) { local.x, 0, local.y }, (Vector3) { local.x, 0, local.y + 16.0f }, DEBUG_BLUE);
                 }
             }
         }
@@ -400,17 +386,21 @@ int main() {
         for (uint16_t i = 0; i < num_chunks; ++i) {
             if (chunk_status[i] == CHUNK_LOADED_WITH_MESH) {
                 vec2i16_t loc = chunk_locs[i];
-                Vector3 cpos = (Vector3){ loc.x * 16.0f, 0.0f, loc.y * 16.0f };
-                DrawModel(chunk_models[i], cpos, 1.0f, WHITE);
+                Vector3 cpos = (Vector3){ (float)loc.x * 16.0f, 0.0f, (float)loc.y * 16.0f };
+
+                Model c_chunk_model = chunk_models[i];
+                DrawModel(c_chunk_model, Vector3Zero(), 1.0f, WHITE);
+
+                // Show chunk stat
+                Color col = BLACK;
+                DrawPlane(Vector3Add(cpos, (Vector3) { 8, -0.01f, 8 }), (Vector2) { 16, 16 }, col);
             }
         }
-
-        place_cube(int_pos.x, int_pos.y, int_pos.z, block_t_new(BLOCK_WATER));
 
         EndMode3D();
 
         // Water screen effect (under ui ofc)
-        if (position.y + player_height < (float)sea_level - 0.2f && !debug.test_environment) {
+        if (get_block((vec3i32_t){ int_pos.x, int_pos.y + (uint32_t)player_height, int_pos.z }).type == BLOCK_WATER) {
             DrawRectangle(0, 0, window_width, window_height, block_colors[BLOCK_WATER]);
         }
 

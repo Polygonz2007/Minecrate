@@ -57,14 +57,13 @@ int load_chunk_mesh(vec2i16_t chunk_pos) {
         return -1; // We already have mesh dont load a new one idot
 
     // Load texture
-    Image checked = GenImageChecked(2, 2, 1, 1, block_colors[BLOCK_STONE], block_colors[BLOCK_COBBLESTONE]);
-    Texture2D texture = LoadTextureFromImage(checked);
-    UnloadImage(checked);
+    //Image checked = GenImageChecked(2, 2, 1, 1, block_colors[BLOCK_STONE], block_colors[BLOCK_COBBLESTONE]);
+    //Texture2D texture = LoadTextureFromImage(checked);
+    //UnloadImage(checked);
 
     // Load mesh and give materials
-    Model model = LoadModelFromMesh(GenChunkMesh(chunk_pos));
-    chunk_models[index] = model;
-    chunk_models[index].materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
+    chunk_models[index] = LoadModelFromMesh(GenChunkMesh(chunk_pos));
+    //chunk_models[index].materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
 
     chunk_status[index] = CHUNK_LOADED_WITH_MESH;
 
@@ -94,6 +93,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     // Calculate how big mesh will be (Loop through chunk and count and store)
     uint32_t tot_tris = 0;
     uint32_t chunk_index = get_chunk_index(chunk_pos);
+    uint32_t cind = chunk_index * chunk_data_size;
 
     // Use to get block above, below, sides, etc of this block
     uint16_t plus_x = 1;
@@ -104,8 +104,6 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
         for (uint16_t y = 0; y < chunk_size.y; ++y) {
             for (uint16_t z = 0; z < chunk_size.z; ++z) {
                 uint32_t index = x + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
-
-                uint32_t cind = chunk_index * chunk_data_size;
                 block_t cb = chunk_data[cind + index];
 
                 if (cb.type == BLOCK_AIR || cb.type == BLOCK_WATER) {
@@ -135,6 +133,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     block_t nz = block_t_new(BLOCK_UNDEFINED);
                     if (z > 0)
                         nz = chunk_data[cind + index - plus_z];
+
+
 
                     // Edit values for blocks, this block bc negative bc 0
                     if (nx.type != BLOCK_UNDEFINED && nx.type != BLOCK_AIR && nx.type != BLOCK_WATER) {
@@ -184,9 +184,9 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     Mesh mesh = { 0 };
     mesh.triangleCount = tot_tris;
     mesh.vertexCount = mesh.triangleCount * 3;
-    mesh.vertices = (float*)MemAlloc(mesh.vertexCount * 3 * sizeof(float));
-    mesh.texcoords = (float*)MemAlloc(mesh.vertexCount * 2 * sizeof(float));
-    mesh.normals = (float*)MemAlloc(mesh.vertexCount * 3 * sizeof(float));
+    mesh.vertices = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float));
+    mesh.texcoords = (float *)MemAlloc(mesh.vertexCount * 2 * sizeof(float));
+    mesh.normals = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float));
 
     // Fill in the data
     uint32_t face_ind = 0;

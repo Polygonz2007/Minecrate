@@ -268,13 +268,17 @@ int load_bounds(vec2i16_t pos) {
 
 int unload_bounds(vec2i16_t pos) {
 	for (uint16_t i = 0; i < num_chunks; ++i) {
+		// Make sure the chunk is unloadable
+		if (chunk_status[i] == CHUNK_UNLOADED || chunk_status[i] == CHUNK_LOADING)
+			continue;
+
+		// Unload if too far away
 		vec2i16_t chunk_pos = chunk_locs[i];
 		vec2i16_t diff = { abs(pos.x - chunk_pos.x), abs(pos.y - chunk_pos.y) };
 
-		if (chunk_status[i] == CHUNK_LOADED && (diff.x > render_distance || diff.y > render_distance)) {
-			// If chunk is loaded, and is outside our renderdistance bounding box, unload it
-			unload_chunk(chunk_pos);
+		if (diff.x > render_distance || diff.y > render_distance) {
 			unload_chunk_mesh(chunk_pos);
+			unload_chunk(chunk_pos);
 		}
 	}
 
