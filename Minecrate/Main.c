@@ -389,7 +389,7 @@ int main() {
                 Vector3 cpos = (Vector3){ (float)loc.x * 16.0f, 0.0f, (float)loc.y * 16.0f };
 
                 Model c_chunk_model = chunk_models[i];
-                DrawModel(c_chunk_model, Vector3Zero(), 1.0f, WHITE);
+                DrawModel(c_chunk_model, cpos, 1.0f, WHITE);
 
                 // Show chunk stat
                 Color col = BLACK;
