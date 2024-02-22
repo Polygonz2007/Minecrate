@@ -1,6 +1,7 @@
 #ifndef CHUNK_H
 #define CHUNK_H
 
+#include <raylib.h>
 #include <stdint.h>
 #include "block.h"
 #include "vec3.h"
@@ -8,6 +9,7 @@
 
 // Buffers and data
 block_t* chunk_data;	// Stores every block type, at every X, Y, and Z position, for every chunk.
+Model* chunk_models;	// Each model just stores pointer to data, so always same size. These correspond to data in chunk data
 vec2i16_t* chunk_locs;	// Stores position of chunks in "chunk_data". Allows for 2 million chunks in each direction, including negative.
 uint8_t* chunk_status;	// 0: Empty, 1: Loading, 2: Ready (blocks are filled and correct)
 int16_t* chunk_buffer;	// Used for storing 2d heights when calculating blocks within chunk
@@ -21,7 +23,7 @@ uint32_t chunk_mem_usage;
 // Current position of player relative to chunks
 static vec2i16_t current_chunk_pos = { 0, 0 };
 static uint8_t sea_level = 63; // SEA LEVEL NOT RENDER DISTANCE STOP IT POLE
-static uint8_t render_distance = 2;	// Chunks in each direction. (rd + 1 + rd) MIN 1 MAX 64 (so u dont kill comper)
+static uint8_t render_distance = 8;	// Chunks in each direction. (rd + 1 + rd) MIN 1 MAX 64 (so u dont kill comper)
 
 static const vec3u16_t chunk_size = {	// Size of each chunk, in blocks.
 	16,		// X
@@ -32,7 +34,8 @@ static const vec3u16_t chunk_size = {	// Size of each chunk, in blocks.
 static enum chunk_status {
 	CHUNK_UNLOADED,
 	CHUNK_LOADING,
-	CHUNK_LOADED
+	CHUNK_LOADED,
+	CHUNK_LOADED_WITH_MESH
 };
 
 // CHUNK FUNCTION PROTOTYPES

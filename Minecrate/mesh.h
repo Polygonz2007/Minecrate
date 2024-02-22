@@ -1,5 +1,5 @@
-#ifndef MESHES_H
-#define MESHES_H
+#ifndef MESH_H
+#define MESH_H
 
 #include "vec2.h"
 #include "vec3.h"
@@ -36,6 +36,8 @@ struct mesh_sides {
 
 
 
+int load_chunk_mesh(vec2i16_t chunk_pos);
+int unload_chunk_mesh(vec2i16_t chunk_pos);
 
 struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, vec3i8_t dir);
 Mesh GenChunkMesh(vec2i16_t chunk_pos);

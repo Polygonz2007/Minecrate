@@ -68,13 +68,6 @@ _Bool is_thread_running(HANDLE hThread);
 
 
 
-
-
-
-
-
-
-
 // DEBUG
 struct debug_settings {
     _Bool terrain_loading;
@@ -85,7 +78,7 @@ struct debug_settings {
 };
 
 struct debug_settings debug = {
-    .terrain_loading = false,
+    .terrain_loading = true,
     .display_info = true,
     .test_environment = true,
     .fly_mode = true,
@@ -154,27 +147,11 @@ int main() {
     // Init and load terrain
     if (debug.terrain_loading) { 
         init_chunks();
+        init_mesh_gen();
 
         // Load starting chunks, on different thread
         chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
     }
-
-    // test mesh
-    init_chunks();
-    init_mesh_gen();
-
-    load_chunk((vec2i16_t) { 1, 0 });
-
-
-    // Load test model
-    Model chunk_model = LoadModelFromMesh(GenChunkMesh((vec2i16_t) { 1, 0 }));
-    Image checked = GenImageChecked(2, 2, 1, 1, block_colors[BLOCK_STONE], block_colors[BLOCK_COBBLESTONE]);
-    Texture2D texture = LoadTextureFromImage(checked);
-    UnloadImage(checked);
-
-    chunk_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
-
-    printf(" Loaded model.");
 
     // Performance
     _Bool start_loading_finished = false;
@@ -249,6 +226,7 @@ int main() {
         } else {
             start_loading_finished = true;
         }
+
         // End Terrain
         //
 
@@ -330,11 +308,22 @@ int main() {
             vertical_velo += gravity * dt;
             position.y += vertical_velo * dt * 2;
 
-            if (0.0f >= position.y) {
-                position.y = 0.0f;
-                vertical_velo = 0.0f;
+            block_t block = get_block(int_pos);
+            block_t in_block = get_block((vec3i32_t){int_pos.x, int_pos.y + 1, int_pos.z});
+            if (!(block.type == BLOCK_AIR || block.type == BLOCK_WATER)) {
+                //position.y = (float)int_pos.y;
+                vertical_velo += -gravity * dt;
+
+                if (!(in_block.type == BLOCK_AIR || in_block.type == BLOCK_WATER))
+                    position.y++;
             }
         }
+
+        // CAP
+        if (position.y < 0)
+            position.y = 0;
+        if (position.y > chunk_size.y)
+            position.y = chunk_size.y;
 
         // CAMERA
         camera.position = (Vector3){ position.x, position.y + player_height, position.z };
@@ -390,7 +379,6 @@ int main() {
 
         // DEBUG STUFF
         if (debug.test_environment) {   // Gizmos
-            DrawGrid(8, 16.0f);
             DrawLine3D((Vector3) { 0.0f, position.y, 0.0f }, (Vector3) { 8.0f, position.y, 0.0f }, RED);
             DrawLine3D((Vector3) { 0.0f, position.y, 0.0f }, (Vector3) { 0.0f, position.y, 8.0f }, BLUE);
         }
@@ -399,15 +387,24 @@ int main() {
             for (int16_t x = -1; x <= 2; ++x) {
                 for (int16_t y = -1; y <= 2; ++y) {
                     vec2i16_t local = (vec2i16_t){ (current_chunk_pos.x + x) * chunk_size.x, (current_chunk_pos.y + y) * chunk_size.z };
-                    DrawLine3D((Vector3) { local.x, 0, local.y }, (Vector3) { local.x, chunk_size.y, local.y }, RED);
+                    
+                    float ph = position.y;
+                    DrawLine3D((Vector3) { local.x, ph, local.y }, (Vector3) { local.x + 16.0f, ph, local.y }, RED);
+                    DrawLine3D((Vector3) { local.x, 0, local.y }, (Vector3) { local.x, chunk_size.y, local.y }, GREEN);
+                    DrawLine3D((Vector3) { local.x, ph, local.y }, (Vector3) { local.x, ph, local.y + 16.0f }, BLUE);
                 }
             }
         }
 
-        //DrawModel(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, GRAY);
-        //DrawModelWires(model, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
-        
-        DrawModel(chunk_model, (Vector3){16,0,0}, 1.0f, WHITE);
+        //  Chunk mesh
+        for (uint16_t i = 0; i < num_chunks; ++i) {
+            if (chunk_status[i] == CHUNK_LOADED_WITH_MESH) {
+                vec2i16_t loc = chunk_locs[i];
+                Vector3 cpos = (Vector3){ loc.x * 16.0f, 0.0f, loc.y * 16.0f };
+                DrawModel(chunk_models[i], cpos, 1.0f, WHITE);
+            }
+        }
+
         place_cube(int_pos.x, int_pos.y, int_pos.z, block_t_new(BLOCK_WATER));
 
         EndMode3D();
@@ -477,8 +474,6 @@ int main() {
     free_mesh_gen();
     free_chunks();
 
-    UnloadModel(chunk_model);
-
     CloseWindow();
 
     return 0;
@@ -499,10 +494,14 @@ DWORD WINAPI update_chunks(LPVOID lpParameter) {
     vec2i16_t new_chunk_pos;
     new_chunk_pos = *(vec2i16_t *)lpParameter;
 
+    // Load chunk data
+    printf("\n\nUpdating chunks.");
+    double start_time = GetTime();
+
     unload_bounds(new_chunk_pos);
     load_bounds(new_chunk_pos);
 
-    printf("\nLoaded chunks succesfully!");
+    printf("\nUpdated chunks in %.03f seconds.", GetTime() - start_time);
 
     return 0;
 }

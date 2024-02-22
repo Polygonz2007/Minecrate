@@ -47,17 +47,49 @@ int free_mesh_gen() {
     return 0;
 }
 
+int load_chunk_mesh(vec2i16_t chunk_pos) {
+    uint16_t index = get_chunk_index(chunk_pos);
+
+    if (index == -1) // Make sure the chunk were loading the mesh for exists
+        return -1;
+
+    if (chunk_status[index] == CHUNK_LOADED_WITH_MESH)
+        return -1; // We already have mesh dont load a new one idot
+
+    // Load texture
+    Image checked = GenImageChecked(2, 2, 1, 1, block_colors[BLOCK_STONE], block_colors[BLOCK_COBBLESTONE]);
+    Texture2D texture = LoadTextureFromImage(checked);
+    UnloadImage(checked);
+
+    // Load mesh and give materials
+    Model model = LoadModelFromMesh(GenChunkMesh(chunk_pos));
+    chunk_models[index] = model;
+    chunk_models[index].materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
+
+    chunk_status[index] = CHUNK_LOADED_WITH_MESH;
+
+    return 0;
+}
+
+int unload_chunk_mesh(vec2i16_t chunk_pos) {
+    uint16_t index = get_chunk_index(chunk_pos);
+
+    if (index == -1) // Make sure the mesh were trying to unload exists
+        return -1;
+
+    chunk_models[index] = (Model) { 0 }; // Empty model
+    chunk_status[index] = CHUNK_LOADED;
+
+    return 0;
+}
+
 // Generate chunk
 Mesh GenChunkMesh(vec2i16_t chunk_pos) {
-
-    printf("\n\nGenerating mesh for chunk %d %d rn.", chunk_pos.x, chunk_pos.y);
 
     // Fill buffer with empty data
     for (uint32_t i = 0; i < chunk_data_size; ++i) {
         mesh_gen_buffer[i] = mesh_sides_empty();
     }
-
-    printf("\nEmptied buffer.");
 
     // Calculate how big mesh will be (Loop through chunk and count and store)
     uint32_t tot_tris = 0;
@@ -67,8 +99,6 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     uint16_t plus_x = 1;
     uint16_t plus_y = chunk_size.x;
     uint16_t plus_z = chunk_size.x * chunk_size.y;
-
-    double start_time = GetTime();
 
     for (uint16_t x = 0; x < chunk_size.x; ++x) {
         for (uint16_t y = 0; y < chunk_size.y; ++y) {
@@ -116,7 +146,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     if (ny.type != BLOCK_UNDEFINED && ny.type != BLOCK_AIR && ny.type != BLOCK_WATER) {
                         tot_tris += 2;
                         mesh_gen_buffer[index].y = ny;
-                        mesh_gen_buffer[index].y_normals = true;
+                        mesh_gen_buffer[index].y_normals = false;
                     }
 
                     if (nz.type != BLOCK_UNDEFINED && nz.type != BLOCK_AIR && nz.type != BLOCK_WATER) {
@@ -135,7 +165,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     if (py.type != BLOCK_UNDEFINED && py.type != BLOCK_AIR && py.type != BLOCK_WATER) {
                         tot_tris += 2;
                         mesh_gen_buffer[index + plus_y].y = py;
-                        mesh_gen_buffer[index + plus_y].y_normals = false;
+                        mesh_gen_buffer[index + plus_y].y_normals = true;
                     }
 
                     if (pz.type != BLOCK_UNDEFINED && pz.type != BLOCK_AIR && pz.type != BLOCK_WATER) {
@@ -157,8 +187,6 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     mesh.vertices = (float*)MemAlloc(mesh.vertexCount * 3 * sizeof(float));
     mesh.texcoords = (float*)MemAlloc(mesh.vertexCount * 2 * sizeof(float));
     mesh.normals = (float*)MemAlloc(mesh.vertexCount * 3 * sizeof(float));
-
-    printf("\nInitiated chunk mesh, with %d triangles and %d verticies.", mesh.triangleCount, mesh.vertexCount);
 
     // Fill in the data
     uint32_t face_ind = 0;
@@ -268,7 +296,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                         x, y, z
                     },                        // OFFSET
                         (vec3i8_t) {
-                        0, sides.y_normals ? 1 : -1, 0
+                        0, sides.y_normals ? -1 : 1, 0
                     }   // DIRECTION (NORMAL)
                     );
 
@@ -450,14 +478,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
         }
     }
 
-    printf("\n\nIt somehow worked, and we are now loading the mesh.");
-    printf("\nLoaded mesh in %.04f seconds.", GetTime() - start_time);
-    printf("\nFace index final: %d", face_ind);
-
-    printf("\nUploading mesh...");
     UploadMesh(&mesh, false);
-
-    printf("\nMesh upload successfull.");
 
     return mesh;
 }

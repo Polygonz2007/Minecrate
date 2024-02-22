@@ -11,6 +11,7 @@
 
 #include "chunk.h"
 #include "block.h"
+#include "mesh.h"
 
 // Memory functions
 int init_chunks() {
@@ -33,6 +34,7 @@ int init_chunks() {
 	printf("\nAllocating memory for chunks...\n");
 
 	chunk_data = malloc(chunk_data_size * num_chunks * sizeof(block_t));
+	chunk_models = malloc(num_chunks * sizeof(Model));
 	chunk_locs = malloc(num_chunks * sizeof(vec2i16_t));
 	chunk_status = malloc(num_chunks * sizeof(uint8_t));
 	chunk_buffer = malloc(chunk_size.x * chunk_size.z * sizeof(uint16_t));
@@ -40,6 +42,7 @@ int init_chunks() {
 	// Track memory
 	chunk_mem_usage = 0;
 	chunk_mem_usage += chunk_data_size * num_chunks * sizeof(block_t);
+	chunk_mem_usage += num_chunks * sizeof(Model);
 	chunk_mem_usage += num_chunks * sizeof(vec2i16_t);
 	chunk_mem_usage += num_chunks * sizeof(uint8_t);
 	chunk_mem_usage += chunk_size.x * chunk_size.z * sizeof(uint16_t);
@@ -57,6 +60,7 @@ int free_chunks() { // WARNING: any chunk functions including load_mesh or load_
 	// Free all allocated memory
 	printf("\n\nFreeing chunk memory...\n");
 	free(chunk_data);
+	free(chunk_models);
 	free(chunk_locs);
 	free(chunk_status);
 	free(chunk_buffer);
@@ -243,7 +247,7 @@ uint16_t get_total_loaded_chunks() {
 	uint16_t tot = 0;
 
 	for (uint16_t i = 0; i < num_chunks; ++i) {
-		if (chunk_status[i] == CHUNK_LOADED)
+		if (chunk_status[i] == CHUNK_LOADED || chunk_status[i] == CHUNK_LOADED_WITH_MESH)
 			++tot;
 	}
 
@@ -255,6 +259,7 @@ int load_bounds(vec2i16_t pos) {
 	for (int16_t x = -render_distance; x <= render_distance; ++x) {
 		for (int16_t y = -render_distance; y <= render_distance; ++y) {
 			load_chunk((vec2i16_t) { x + pos.x, y + pos.y });
+			load_chunk_mesh((vec2i16_t) { x + pos.x, y + pos.y });
 		}
 	}
 
@@ -269,6 +274,7 @@ int unload_bounds(vec2i16_t pos) {
 		if (chunk_status[i] == CHUNK_LOADED && (diff.x > render_distance || diff.y > render_distance)) {
 			// If chunk is loaded, and is outside our renderdistance bounding box, unload it
 			unload_chunk(chunk_pos);
+			unload_chunk_mesh(chunk_pos);
 		}
 	}
 
