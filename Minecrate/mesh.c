@@ -57,13 +57,15 @@ int load_chunk_mesh(vec2i16_t chunk_pos) {
         return -1; // We already have mesh dont load a new one idot
 
     // Load texture
-    //Image checked = GenImageChecked(2, 2, 1, 1, block_colors[BLOCK_STONE], block_colors[BLOCK_COBBLESTONE]);
-    //Texture2D texture = LoadTextureFromImage(checked);
-    //UnloadImage(checked);
+    Image checked = GenImageChecked(2, 2, 1, 1, block_colors[BLOCK_STONE], block_colors[BLOCK_COBBLESTONE]);
+    Texture2D texture = LoadTextureFromImage(checked);
+    UnloadImage(checked);
 
     // Load mesh and give materials
-    chunk_models[index] = LoadModelFromMesh(GenChunkMesh(chunk_pos));
-    //chunk_models[index].materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
+    Mesh mesh = GenChunkMesh(chunk_pos);
+    
+    chunk_models[index] = LoadModelFromMesh(mesh);
+    chunk_models[index].materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
 
     chunk_status[index] = CHUNK_LOADED_WITH_MESH;
 
@@ -93,6 +95,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     // Calculate how big mesh will be (Loop through chunk and count and store)
     uint32_t tot_tris = 0;
     uint32_t chunk_index = get_chunk_index(chunk_pos);
+
     uint32_t cind = chunk_index * chunk_data_size;
 
     // Use to get block above, below, sides, etc of this block

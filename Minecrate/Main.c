@@ -358,8 +358,12 @@ int main() {
 
         if (!vec2i16_t_equals(new_chunk_pos, current_chunk_pos) && !chunk_thread_running && debug.terrain_loading) {
             // Unload chunks and load new ones on another thread, then update chunk pos
-            *lpArgPtr = new_chunk_pos;
-            chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
+            //*lpArgPtr = new_chunk_pos;
+            //chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
+
+            // Test no thread
+            unload_bounds(new_chunk_pos);
+            load_bounds(new_chunk_pos);
 
             current_chunk_pos = new_chunk_pos;
         }
@@ -398,6 +402,14 @@ int main() {
 
                 Model c_chunk_model = chunk_models[i];
                 DrawModel(c_chunk_model, cpos, 1.0f, WHITE);
+
+                Vector3 pos = {
+                    cpos.x + chunk_models[i].meshes[0].vertices[0],
+                    chunk_models[i].meshes[0].vertices[1],
+                    cpos.z + chunk_models[i].meshes[0].vertices[2]
+                };
+
+                place_cube(pos.x, pos.y, pos.z, block_t_new(BLOCK_SAND));
 
                 // Show chunk stat
                 Color col = BLACK;
