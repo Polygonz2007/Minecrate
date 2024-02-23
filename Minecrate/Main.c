@@ -79,13 +79,15 @@ struct debug_settings {
     _Bool display_info;
     _Bool fly_mode;
     _Bool show_chunk_borders;
+    uint8_t chunk_border_range;
 };
 
 struct debug_settings debug = {
     .terrain_loading = true,
     .display_info = true,
     .fly_mode = true,
-    .show_chunk_borders = true
+    .show_chunk_borders = true,
+    .chunk_border_range = render_distance
 };
 
 
@@ -370,17 +372,19 @@ int main() {
         BeginMode3D(camera);
 
         if (debug.show_chunk_borders) { // Chunk borders
-            for (int16_t x = -2; x <= 3; ++x) {
-                for (int16_t y = -2; y <= 3; ++y) {
+            int8_t s = debug.chunk_border_range;
+
+            for (int16_t x = -s; x <= s + 1; ++x) {
+                for (int16_t y = -s; y <= s + 1; ++y) {
                     vec2i16_t local = (vec2i16_t){ (current_chunk_pos.x + x) * chunk_size.x, (current_chunk_pos.y + y) * chunk_size.z };
                     
                     //float ph = position.y;
-                    if (x != 3)
+                    if (x != s + 1)
                         DrawLine3D((Vector3) { local.x, 0, local.y }, (Vector3) { local.x + 16.0f, 0, local.y }, DEBUG_RED);
 
                     DrawLine3D((Vector3) { local.x, 0, local.y }, (Vector3) { local.x, chunk_size.y, local.y }, DEBUG_GREEN);
 
-                    if (y != 3)
+                    if (y != s + 1)
                         DrawLine3D((Vector3) { local.x, 0, local.y }, (Vector3) { local.x, 0, local.y + 16.0f }, DEBUG_BLUE);
                 }
             }
