@@ -430,8 +430,6 @@ int main() {
 
         // INFO
         // Info Strings
-        DrawText("Minecrate v0.3 [MESH UPDATE]", 10, 10, 30, WHITE);
-
         if (debug.display_info) {
             uint16_t tot_loaded_chunks = get_total_loaded_chunks();
 
@@ -451,6 +449,7 @@ int main() {
 
 
             // Draw
+            DrawText("Minecrate v0.3 [MESH UPDATE]", 10, 10, 30, WHITE);
             DrawText("-- performance --", 10, 50, 20, INFO_TITLE_COL);
             DrawText(fps_string, 10, 70, 20, INFO_COL);
 
