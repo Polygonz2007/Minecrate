@@ -400,16 +400,9 @@ int main() {
                 vec2i16_t loc = chunk_locs[i];
                 Vector3 cpos = (Vector3){ (float)loc.x * 16.0f, 0.0f, (float)loc.y * 16.0f };
 
+                // Draw it
                 Model c_chunk_model = chunk_models[i];
                 DrawModel(c_chunk_model, cpos, 1.0f, WHITE);
-
-                Vector3 pos = {
-                    cpos.x + chunk_models[i].meshes[0].vertices[0],
-                    chunk_models[i].meshes[0].vertices[1],
-                    cpos.z + chunk_models[i].meshes[0].vertices[2]
-                };
-
-                place_cube(pos.x, pos.y, pos.z, block_t_new(BLOCK_SAND));
 
                 // Show chunk stat
                 Color col = BLACK;
