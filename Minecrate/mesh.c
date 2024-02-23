@@ -57,7 +57,7 @@ int load_chunk_mesh(vec2i16_t chunk_pos) {
         return -1; // We already have mesh dont load a new one idot
 
     // Load texture
-    Image checked = GenImageChecked(2, 2, 1, 1, block_colors[BLOCK_STONE], block_colors[BLOCK_COBBLESTONE]);
+    Image checked = GenImageChecked(2, 2, 1, 1, block_colors[BLOCK_GRASS], block_colors[BLOCK_SAND]);
     Texture2D texture = LoadTextureFromImage(checked);
     UnloadImage(checked);
 
