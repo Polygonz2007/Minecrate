@@ -410,6 +410,9 @@ int main() {
             }
         }
 
+        // Test
+        DrawPlane((Vector3){position.x, sea_level - 0.2f, position.z}, (Vector2) { 1024, 1024 }, block_colors[BLOCK_WATER]);
+
         EndMode3D();
 
         // Water screen effect (under ui ofc)

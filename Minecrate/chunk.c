@@ -259,7 +259,11 @@ int load_bounds(vec2i16_t pos) {
 	for (int16_t x = -render_distance; x <= render_distance; ++x) {
 		for (int16_t y = -render_distance; y <= render_distance; ++y) {
 			load_chunk((vec2i16_t) { x + pos.x, y + pos.y });
-			load_chunk_mesh((vec2i16_t) { x + pos.x, y + pos.y });
+
+			if ((x > -render_distance && x < render_distance) && (y > -render_distance && y < render_distance)) {
+				// Only load chunk mesh when surrounded by chunks on all sides
+				load_chunk_mesh((vec2i16_t) { x + pos.x, y + pos.y });
+			}
 		}
 	}
 

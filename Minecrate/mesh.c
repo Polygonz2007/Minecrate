@@ -94,9 +94,14 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
 
     // Calculate how big mesh will be (Loop through chunk and count and store)
     uint32_t tot_tris = 0;
-    uint32_t chunk_index = get_chunk_index(chunk_pos);
+    int32_t chunk_index = get_chunk_index(chunk_pos);
+
+    if (chunk_index == -1)
+        return (Mesh) { 0 };    // Cannot load an empty chunk, so return empty mesh >:D
 
     uint32_t cind = chunk_index * chunk_data_size;
+
+    
 
     // Use to get block above, below, sides, etc of this block
     uint16_t plus_x = 1;
