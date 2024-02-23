@@ -401,7 +401,7 @@ int main() {
 
                 // Show chunk stat
                 Color col = BLACK;
-                DrawPlane(Vector3Add(cpos, (Vector3) { 8, -0.1f, 8 }), (Vector2) { 16, 16 }, col);
+                DrawPlane(Vector3Add(cpos, (Vector3) { 8, -1, 8 }), (Vector2) { 16, 16 }, col);
             }
         }
 
