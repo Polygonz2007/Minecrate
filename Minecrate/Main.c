@@ -370,14 +370,18 @@ int main() {
         BeginMode3D(camera);
 
         if (debug.show_chunk_borders) { // Chunk borders
-            for (int16_t x = -1; x <= 2; ++x) {
-                for (int16_t y = -1; y <= 2; ++y) {
+            for (int16_t x = -2; x <= 3; ++x) {
+                for (int16_t y = -2; y <= 3; ++y) {
                     vec2i16_t local = (vec2i16_t){ (current_chunk_pos.x + x) * chunk_size.x, (current_chunk_pos.y + y) * chunk_size.z };
                     
                     //float ph = position.y;
-                    DrawLine3D((Vector3) { local.x, 0, local.y }, (Vector3) { local.x + 16.0f, 0, local.y }, DEBUG_RED);
+                    if (x != 3)
+                        DrawLine3D((Vector3) { local.x, 0, local.y }, (Vector3) { local.x + 16.0f, 0, local.y }, DEBUG_RED);
+
                     DrawLine3D((Vector3) { local.x, 0, local.y }, (Vector3) { local.x, chunk_size.y, local.y }, DEBUG_GREEN);
-                    DrawLine3D((Vector3) { local.x, 0, local.y }, (Vector3) { local.x, 0, local.y + 16.0f }, DEBUG_BLUE);
+
+                    if (y != 3)
+                        DrawLine3D((Vector3) { local.x, 0, local.y }, (Vector3) { local.x, 0, local.y + 16.0f }, DEBUG_BLUE);
                 }
             }
         }
@@ -393,7 +397,7 @@ int main() {
 
                 // Show chunk stat
                 Color col = BLACK;
-                DrawPlane(Vector3Add(cpos, (Vector3) { 8, -0.01f, 8 }), (Vector2) { 16, 16 }, col);
+                DrawPlane(Vector3Add(cpos, (Vector3) { 8, -0.1f, 8 }), (Vector2) { 16, 16 }, col);
             }
         }
 
