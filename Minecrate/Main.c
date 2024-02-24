@@ -370,7 +370,7 @@ int main() {
 
         // DRAW
         BeginDrawing();
-        ClearBackground(NIGHT);
+        ClearBackground(SKYBLUE);
 
         // 3D
         BeginMode3D(camera);
