@@ -100,8 +100,9 @@ int load_chunk(vec2i16_t chunk_pos) {
 
 	for (uint16_t x = 0; x < chunk_size.x; ++x) {
 		for (uint16_t y = 0; y < chunk_size.z; ++y) {
-			int32_t cx = global_cx + (int32_t)x;
-			int32_t cy = global_cy + (int32_t)y;
+			int32_t cx = 1000 + global_cx + (int32_t)x;
+			int32_t cy = 1000 + global_cy + (int32_t)y;
+			// + 1000 to avoid problems temporariy
 
 			chunk_buffer[x + (y * chunk_size.x)] = sea_level + (int16_t)(32.0f * sample_perlin_octaves(
 				cx / 48.0f,                     // X

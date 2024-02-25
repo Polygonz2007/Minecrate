@@ -85,9 +85,9 @@ struct debug_settings {
 struct debug_settings debug = {
     .terrain_loading = true,
     .display_info = true,
-    .fly_mode = true,
+    .fly_mode = false,
     .show_chunk_borders = true,
-    .chunk_border_range = 4
+    .chunk_border_range = 3
 };
 
 
@@ -108,7 +108,7 @@ int main() {
     //SetWindowIcon(Icon);
 
     DisableCursor();
-    SetTargetFPS(1000);
+    SetTargetFPS(144);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
     // CAMERA
@@ -122,18 +122,20 @@ int main() {
 
     // PHYSICS
     const float gravity = -9.81f;
+    _Bool on_ground = false;
 
 
     // PLAYER SETTINGS AND DATA
-    Vector3 position = { 0.5f, 0.0f, 0.5f }; // player position
+    Vector3 player_position = { 0.5f, 0.0f, 0.5f }; // player_position
+    Vector3 player_velocity = { 0, 0, 0 };
     vec3i32_t int_pos = { 0, 0, 0 }; // Floored pos
 
-    Vector2 look = { 0.707f, 0.0f }; // camera rotation in radians
-    float vertical_velo = 0.0f;
+    Vector2 look = { 0.0f, 0.0f }; // camera rotation in radians
 
     float player_height = 1.83f; // y offset of camera relative to player pos
     float player_speed = 3.8f; // unit / second
-    float sprint_multiplier = 2.0f;
+    float player_jump_power = 5.0f;
+    float player_sprint_multiplier = 2.0f;
 
 
     // GAMEPLAY
@@ -267,36 +269,36 @@ int main() {
         d = IsKeyDown(KEY_D);
 
         if ((w && a) || (w && d) || (s && a) || (s && d)) { cs *= 0.707f; }
-        if (IsKeyDown(KEY_LEFT_CONTROL)) { cs *= sprint_multiplier; }
+        if (IsKeyDown(KEY_LEFT_CONTROL)) { cs *= player_sprint_multiplier; }
 
         // sorry kimiz :(
-        if (w) { position.x += cs * dt * xm; position.z += cs * dt * ym; }
-        if (s) { position.x += cs * dt * -xm; position.z += cs * dt * -ym; }
-        if (a) { position.x += cs * dt * ym; position.z += cs * dt * -xm; }
-        if (d) { position.x += cs * dt * -ym; position.z += cs * dt * xm; }
+        if (w) { player_position.x += cs * dt * xm; player_position.z += cs * dt * ym; }
+        if (s) { player_position.x += cs * dt * -xm; player_position.z += cs * dt * -ym; }
+        if (a) { player_position.x += cs * dt * ym; player_position.z += cs * dt * -xm; }
+        if (d) { player_position.x += cs * dt * -ym; player_position.z += cs * dt * xm; }
 
-        int_pos = (vec3i32_t){ position.x, position.y, position.z };
-        if (position.x < 0)
+        int_pos = (vec3i32_t){ player_position.x, player_position.y, player_position.z };
+        if (player_position.x < 0)
             int_pos.x--;
-        if (position.z < 0)
+        if (player_position.z < 0)
             int_pos.z--;
 
         // Creative and survival movement (vertical)
         if (debug.fly_mode) {
             if (IsKeyDown(KEY_SPACE))
-                position.y += 30.0f * dt;
+                player_position.y += 30.0f * dt;
         } else {
             if (IsKeyPressed(KEY_SPACE))
-                vertical_velo += 4.0f;
+                player_velocity.y += player_jump_power;
         }
         
         if (IsKeyDown(KEY_LEFT_SHIFT)) {
             if (debug.fly_mode) {
-                position.y -= 30.0f * dt;
+                player_position.y -= 30.0f * dt;
             }
             else {
-                if (vertical_velo > 0.0f)
-                    vertical_velo *= 0.9f;
+                if (player_velocity.y > 0.0f)
+                    player_velocity.y *= 0.9f;
             }
         }
 
@@ -314,31 +316,34 @@ int main() {
 
         // Gravity
         if (!debug.fly_mode) {
-            const int ix = (int)(position.x);
-            const int iy = (int)(position.z);
+            const int ix = (int)(player_position.x);
+            const int iy = (int)(player_position.z);
 
-            vertical_velo += gravity * dt;
-            position.y += vertical_velo * dt * 2;
+            player_velocity.y += gravity * dt;
+            player_position.y += player_velocity.y * dt;
 
-            block_t block = get_block(int_pos);
-            block_t in_block = get_block((vec3i32_t){int_pos.x, int_pos.y + 1, int_pos.z});
-            if (!(block.type == BLOCK_AIR || block.type == BLOCK_WATER)) {
-                //position.y = (float)int_pos.y;
-                vertical_velo += -gravity * dt;
-
-                if (!(in_block.type == BLOCK_AIR || in_block.type == BLOCK_WATER))
-                    position.y++;
+            block_t standing_on_block = get_block((vec3i32_t){int_pos.x, int_pos.y - 1, int_pos.z});
+            block_t inside_block = get_block((vec3i32_t) { int_pos.x, int_pos.y, int_pos.z });
+            
+            // until i add collision we just teleport up until were not inside block
+            if (!(standing_on_block.type == BLOCK_AIR || standing_on_block.type == BLOCK_WATER) && player_position.y < int_pos.y) {
+                player_velocity.y = 0;
+                player_position.y = int_pos.y;
             }
+
+            if (!(inside_block.type == BLOCK_AIR || inside_block.type == BLOCK_WATER))
+                player_position.y++;
+            
         }
 
         // CAP
-        if (position.y < 0)
-            position.y = 0;
-        if (position.y > chunk_size.y)
-            position.y = chunk_size.y;
+        if (player_position.y < 0)
+            player_position.y = 0;
+        if (player_position.y > chunk_size.y)
+            player_position.y = chunk_size.y;
 
         // CAMERA
-        camera.position = (Vector3){ position.x, position.y + player_height, position.z };
+        camera.position = (Vector3){ player_position.x, player_position.y + player_height, player_position.z };
 
         Vector2 md = GetMouseDelta();
         look.x += md.x / sensitivity;
@@ -354,7 +359,7 @@ int main() {
 
 
         // CHUNKS
-        vec2i16_t new_chunk_pos = (vec2i16_t){ floor(position.x / chunk_size.x), floor(position.z / chunk_size.z) };
+        vec2i16_t new_chunk_pos = (vec2i16_t){ floor(player_position.x / chunk_size.x), floor(player_position.z / chunk_size.z) };
 
         if (!vec2i16_t_equals(new_chunk_pos, current_chunk_pos) && !chunk_thread_running && debug.terrain_loading) {
             // Unload chunks and load new ones on another thread, then update chunk pos
@@ -413,12 +418,12 @@ int main() {
         }
 
         // Test
-        DrawPlane((Vector3){position.x, sea_level - 0.2f, position.z}, (Vector2) { 1024, 1024 }, block_colors[BLOCK_WATER]);
+        DrawPlane((Vector3){player_position.x, sea_level - 0.2f, player_position.z}, (Vector2) { 1024, 1024 }, block_colors[BLOCK_WATER]);
 
         EndMode3D();
 
         // Water screen effect (under ui ofc)
-        if (get_block((vec3i32_t){ int_pos.x, int_pos.y + (uint32_t)player_height, int_pos.z }).type == BLOCK_WATER) {
+        if (get_block((vec3i32_t){ int_pos.x, player_position.y + player_height + 0.2f, int_pos.z }).type == BLOCK_WATER) {
             DrawRectangle(0, 0, window_width, window_height, block_colors[BLOCK_WATER]);
         }
 

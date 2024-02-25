@@ -73,9 +73,13 @@ int load_chunk_model(vec2i16_t chunk_pos) {
 
     if (chunk_status[index] == CHUNK_LOADED_MESH) {
         // Load texture (replace with texture atlas in future
-        Image checked = GenImageChecked(2, 2, 1, 1, block_colors[BLOCK_GRASS], block_colors[BLOCK_SAND]);
-        Texture2D texture = LoadTextureFromImage(checked);
-        UnloadImage(checked);
+        Image img = GenImagePerlinNoise(16, 16, 16, 16, 8.0f);
+
+        ImageColorBrightness(&img, 10.0f);
+        ImageColorTint(&img, block_colors[BLOCK_GRASS]);
+
+        Texture2D texture = LoadTextureFromImage(img);
+        UnloadImage(img);
 
         // Upload mesh and load model
         UploadMesh(&chunk_meshes[index], false);
@@ -127,7 +131,10 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
 
     uint32_t cind = chunk_index * chunk_data_size;
 
-    
+    int32_t chunk_neg_x_index = get_chunk_index((vec2i16_t) { chunk_pos.x - 1, chunk_pos.y });
+    int32_t chunk_neg_z_index = get_chunk_index((vec2i16_t) { chunk_pos.x, chunk_pos.y - 1 });
+    uint32_t cx_ind = chunk_neg_x_index * chunk_data_size;
+    uint32_t cz_ind = chunk_neg_z_index * chunk_data_size;
 
     // Use to get block above, below, sides, etc of this block
     uint16_t plus_x = 1;
@@ -159,6 +166,10 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     block_t nx = block_t_new(BLOCK_UNDEFINED);
                     if (x > 0)
                         nx = chunk_data[cind + index - plus_x];
+                    if (x == 0 && chunk_neg_x_index != -1) {
+                        uint32_t nx_ind = 15 + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
+                        nx = chunk_data[cx_ind + nx_ind];
+                    }
 
                     block_t ny = block_t_new(BLOCK_UNDEFINED);
                     if (y > 0)
@@ -167,6 +178,11 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     block_t nz = block_t_new(BLOCK_UNDEFINED);
                     if (z > 0)
                         nz = chunk_data[cind + index - plus_z];
+                    if (z == 0 && chunk_neg_z_index != -1) {
+                        uint32_t nz_ind = x + (y * chunk_size.x) + (15 * chunk_size.y * chunk_size.x);
+                        nz = chunk_data[cz_ind + nz_ind];
+                    }
+
 
 
 
