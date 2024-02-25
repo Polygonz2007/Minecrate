@@ -121,7 +121,7 @@ int main() {
     float sensitivity = 300.0f; // Higher sensitivity --> Less rotation per px moved
 
     // PHYSICS
-    const float gravity = -9.81f;
+    const float gravity = -21.0f;
     _Bool on_ground = false;
 
 
@@ -134,7 +134,7 @@ int main() {
 
     float player_height = 1.83f; // y offset of camera relative to player pos
     float player_speed = 3.8f; // unit / second
-    float player_jump_power = 5.0f;
+    float player_jump_power = 8.0f;
     float player_sprint_multiplier = 2.0f;
 
 
