@@ -168,6 +168,15 @@ int main() {
     Model modul = { 0 };
     Model* ptr_modul = &modul;
 
+
+
+    // Test
+    Image sand_image = LoadImage("res/block_textures/BLOCK_SAND.png");
+    Texture sand_texture = LoadTextureFromImage(sand_image);
+    UnloadImage(sand_image);
+
+
+
     // Main game loop
     while (!WindowShouldClose())
     {
@@ -438,6 +447,8 @@ int main() {
             DrawRectangle(x + border, window_height - hotbar_item_size + border, hotbar_item_size - 2 * border, hotbar_item_size - 2 * border, hotbar_selected == i ? BLACK : GRAY); // OUTLINE
         }
 
+        DrawTextureEx(sand_texture, (Vector2){100, 100}, 0.0f, 20.0f, WHITE);
+
         // INFO
         // Info Strings
         if (debug.display_info) {
@@ -485,6 +496,8 @@ int main() {
     // Free memory and close.
     free_mesh_gen();
     free_chunks();
+
+    UnloadTexture(sand_texture);
 
     CloseWindow();
 
