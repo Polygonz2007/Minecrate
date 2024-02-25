@@ -47,38 +47,64 @@ int free_mesh_gen() {
     return 0;
 }
 
+// This can be called on thread
 int load_chunk_mesh(vec2i16_t chunk_pos) {
     uint16_t index = get_chunk_index(chunk_pos);
 
     if (index == -1) // Make sure the chunk were loading the mesh for exists
         return -1;
 
-    if (chunk_status[index] == CHUNK_LOADED_WITH_MESH)
+    if (chunk_status[index] == CHUNK_LOADED_MESH || chunk_status[index] == CHUNK_LOADED_MODEL)
         return -1; // We already have mesh dont load a new one idot
 
-    // Load texture
-    Image checked = GenImageChecked(2, 2, 1, 1, block_colors[BLOCK_GRASS], block_colors[BLOCK_SAND]);
-    Texture2D texture = LoadTextureFromImage(checked);
-    UnloadImage(checked);
-
-    // Load mesh and give materials
-    Mesh mesh = GenChunkMesh(chunk_pos);
-    
-    chunk_models[index] = LoadModelFromMesh(mesh);
-    chunk_models[index].materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
-
-    chunk_status[index] = CHUNK_LOADED_WITH_MESH;
+    // Load mesh
+    chunk_meshes[index] = GenChunkMesh(chunk_pos);
+    chunk_status[index] = CHUNK_LOADED_MESH;
 
     return 0;
 }
 
-int unload_chunk_mesh(vec2i16_t chunk_pos) {
+// This needs to be called on main thread, to upload mesh
+int load_chunk_model(vec2i16_t chunk_pos) {
     uint16_t index = get_chunk_index(chunk_pos);
 
-    if (index == -1) // Make sure the mesh were trying to unload exists
+    if (index == -1)
         return -1;
 
-    chunk_models[index] = (Model) { 0 }; // Empty model
+    if (chunk_status[index] == CHUNK_LOADED_MESH) {
+        // Load texture (replace with texture atlas in future
+        Image checked = GenImageChecked(2, 2, 1, 1, block_colors[BLOCK_GRASS], block_colors[BLOCK_SAND]);
+        Texture2D texture = LoadTextureFromImage(checked);
+        UnloadImage(checked);
+
+        // Upload mesh and load model
+        UploadMesh(&chunk_meshes[index], false);
+        chunk_models[index] = LoadModelFromMesh(chunk_meshes[index]);
+
+        // Texture
+        chunk_models[index].materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
+
+        chunk_status[index] = CHUNK_LOADED_MODEL;
+    }
+}
+
+// Call anywhere
+int unload_chunk_model_and_mesh(vec2i16_t chunk_pos) {
+    uint16_t index = get_chunk_index(chunk_pos);
+
+    if (index == -1) // Make sure the mesh and model we're trying to unload exists
+        return -1;
+
+    // Empty model
+    chunk_models[index] = (Model) { 0 };
+
+    // Free the data from mesh and empty mesh
+    //MemFree(&chunk_meshes[index].vertices);
+    //MemFree(&chunk_meshes[index].texcoords);
+    //MemFree(&chunk_meshes[index].normals);
+    chunk_meshes[index] = (Mesh) { 0 };
+
+    // Set status
     chunk_status[index] = CHUNK_LOADED;
 
     return 0;
@@ -211,9 +237,13 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                 if (sides.x.type != BLOCK_UNDEFINED) {
                     // We want a face on this side, so generate blueprint..
                     const struct mesh_base_plane px = gen_plane_blueprint(
-                        (vec3i16_t) { x, y, z },                        // OFFSET
-                        (vec3i8_t) { sides.x_normals ? -1 : 1, 0, 0 }   // DIRECTION (NORMAL)
-                    ); 
+                        (vec3i16_t) {
+                        x, y, z
+                    },                        // OFFSET
+                        (vec3i8_t) {
+                        sides.x_normals ? -1 : 1, 0, 0
+                    }   // DIRECTION (NORMAL)
+                    );
 
                     // ..and add the verticies. (we add 6 verticies, and each uses 3 dimensions...)
                     // and also 6 uvs, but 2 dimensions!
@@ -485,8 +515,6 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
             }
         }
     }
-
-    UploadMesh(&mesh, false);
 
     return mesh;
 }

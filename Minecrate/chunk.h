@@ -9,10 +9,12 @@
 
 // Buffers and data
 block_t* chunk_data;	// Stores every block type, at every X, Y, and Z position, for every chunk.
-Model* chunk_models;	// Each model just stores pointer to data, so always same size. These correspond to data in chunk data
 vec2i16_t* chunk_locs;	// Stores position of chunks in "chunk_data". Allows for 2 million chunks in each direction, including negative.
 uint8_t* chunk_status;	// 0: Empty, 1: Loading, 2: Ready (blocks are filled and correct)
 int16_t* chunk_buffer;	// Used for storing 2d heights when calculating blocks within chunk
+
+Model* chunk_models;	// Each model just stores pointer to data, so always same size. These correspond to data in chunk data
+Mesh* chunk_meshes;		// The mesh in each model, this data in written in another thread and models are generated in main
 
 
 // CHUNK SETTINGS (cannot change at runtime! (yet))
@@ -35,7 +37,8 @@ static enum chunk_status {
 	CHUNK_UNLOADED,
 	CHUNK_LOADING,
 	CHUNK_LOADED,
-	CHUNK_LOADED_WITH_MESH
+	CHUNK_LOADED_MESH,
+	CHUNK_LOADED_MODEL
 };
 
 // CHUNK FUNCTION PROTOTYPES

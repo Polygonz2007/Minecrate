@@ -108,7 +108,7 @@ int main() {
     //SetWindowIcon(Icon);
 
     DisableCursor();
-    SetTargetFPS(144);
+    SetTargetFPS(1000);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
     // CAMERA
@@ -358,12 +358,8 @@ int main() {
 
         if (!vec2i16_t_equals(new_chunk_pos, current_chunk_pos) && !chunk_thread_running && debug.terrain_loading) {
             // Unload chunks and load new ones on another thread, then update chunk pos
-            //*lpArgPtr = new_chunk_pos;
-            //chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
-
-            // Test no thread
-            unload_bounds(new_chunk_pos);
-            load_bounds(new_chunk_pos);
+            *lpArgPtr = new_chunk_pos;
+            chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
 
             current_chunk_pos = new_chunk_pos;
         }
@@ -394,9 +390,15 @@ int main() {
             }
         }
 
-        //  Chunk mesh
+        // Load models from meshes (has to be done on main thread)
         for (uint16_t i = 0; i < num_chunks; ++i) {
-            if (chunk_status[i] == CHUNK_LOADED_WITH_MESH) {
+            // Checks if it has mesh but no model so we dont need to
+            load_chunk_model(chunk_locs[i]);
+        }
+
+        // Draw chunk models
+        for (uint16_t i = 0; i < num_chunks; ++i) {
+            if (chunk_status[i] == CHUNK_LOADED_MODEL) {
                 vec2i16_t loc = chunk_locs[i];
                 Vector3 cpos = (Vector3){ (float)loc.x * 16.0f, 0.0f, (float)loc.y * 16.0f };
 

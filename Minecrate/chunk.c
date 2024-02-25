@@ -34,18 +34,22 @@ int init_chunks() {
 	printf("\nAllocating memory for chunks...\n");
 
 	chunk_data = malloc(chunk_data_size * num_chunks * sizeof(block_t));
-	chunk_models = malloc(num_chunks * sizeof(Model));
 	chunk_locs = malloc(num_chunks * sizeof(vec2i16_t));
 	chunk_status = malloc(num_chunks * sizeof(uint8_t));
 	chunk_buffer = malloc(chunk_size.x * chunk_size.z * sizeof(uint16_t));
 
+	chunk_meshes = malloc(num_chunks * sizeof(Mesh));
+	chunk_models = malloc(num_chunks * sizeof(Model));
+
 	// Track memory
 	chunk_mem_usage = 0;
 	chunk_mem_usage += chunk_data_size * num_chunks * sizeof(block_t);
-	chunk_mem_usage += num_chunks * sizeof(Model);
 	chunk_mem_usage += num_chunks * sizeof(vec2i16_t);
 	chunk_mem_usage += num_chunks * sizeof(uint8_t);
 	chunk_mem_usage += chunk_size.x * chunk_size.z * sizeof(uint16_t);
+
+	chunk_mem_usage += num_chunks * sizeof(Mesh);
+	chunk_mem_usage += num_chunks * sizeof(Model);
 
 
 	// Initialize all chunks as unloaded
@@ -60,10 +64,13 @@ int free_chunks() { // WARNING: any chunk functions including load_mesh or load_
 	// Free all allocated memory
 	printf("\n\nFreeing chunk memory...\n");
 	free(chunk_data);
-	free(chunk_models);
 	free(chunk_locs);
 	free(chunk_status);
 	free(chunk_buffer);
+
+	free(chunk_meshes);
+	free(chunk_models);
+
 	printf("Finished freeing chunks.\n");
 }
 
@@ -247,7 +254,7 @@ uint16_t get_total_loaded_chunks() {
 	uint16_t tot = 0;
 
 	for (uint16_t i = 0; i < num_chunks; ++i) {
-		if (chunk_status[i] == CHUNK_LOADED || chunk_status[i] == CHUNK_LOADED_WITH_MESH)
+		if (chunk_status[i] == CHUNK_LOADED || chunk_status[i] == CHUNK_LOADED_MESH)
 			++tot;
 	}
 
@@ -281,7 +288,7 @@ int unload_bounds(vec2i16_t pos) {
 		vec2i16_t diff = { abs(pos.x - chunk_pos.x), abs(pos.y - chunk_pos.y) };
 
 		if (diff.x > render_distance || diff.y > render_distance) {
-			unload_chunk_mesh(chunk_pos);
+			unload_chunk_model_and_mesh(chunk_pos);
 			unload_chunk(chunk_pos);
 		}
 	}

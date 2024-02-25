@@ -35,9 +35,9 @@ struct mesh_sides {
 };
 
 
-
 int load_chunk_mesh(vec2i16_t chunk_pos);
-int unload_chunk_mesh(vec2i16_t chunk_pos);
+int load_chunk_model(vec2i16_t chunk_pos);
+int unload_chunk_model_and_mesh(vec2i16_t chunk_pos);
 
 struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, vec3i8_t dir);
 Mesh GenChunkMesh(vec2i16_t chunk_pos);
