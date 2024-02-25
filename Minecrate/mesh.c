@@ -73,10 +73,7 @@ int load_chunk_model(vec2i16_t chunk_pos) {
 
     if (chunk_status[index] == CHUNK_LOADED_MESH) {
         // Load texture (replace with texture atlas in future
-        Image img = GenImagePerlinNoise(16, 16, 16, 16, 8.0f);
-
-        ImageColorBrightness(&img, 10.0f);
-        ImageColorTint(&img, block_colors[BLOCK_GRASS]);
+        Image img = GenImageChecked(4, 4, 2, 1, block_colors[BLOCK_SAND], block_colors[BLOCK_GRASS]);
 
         Texture2D texture = LoadTextureFromImage(img);
         UnloadImage(img);

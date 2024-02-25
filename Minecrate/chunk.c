@@ -255,7 +255,7 @@ uint16_t get_total_loaded_chunks() {
 	uint16_t tot = 0;
 
 	for (uint16_t i = 0; i < num_chunks; ++i) {
-		if (chunk_status[i] == CHUNK_LOADED || chunk_status[i] == CHUNK_LOADED_MESH)
+		if (chunk_status[i] >= CHUNK_LOADED)
 			++tot;
 	}
 

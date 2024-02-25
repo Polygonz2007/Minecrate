@@ -87,7 +87,7 @@ struct debug_settings debug = {
     .display_info = true,
     .fly_mode = false,
     .show_chunk_borders = true,
-    .chunk_border_range = 3
+    .chunk_border_range = 2
 };
 
 
