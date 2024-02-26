@@ -222,10 +222,12 @@ int main() {
             char s[64];
             uint16_t tot_loaded_chunks = get_total_loaded_chunks();
             float loaded = ((float)tot_loaded_chunks / (float)num_chunks);
-            snprintf(s, 63, "Loading world... (%.01f%%)", loaded * 100.0f);
+            snprintf(s, 63, "Loading world... [%.01f%%]", loaded * 100.0f);
 
-            DrawRectangle(0, 0, loaded * window_width, window_height, RED);
-            DrawText(s, 200, (window_height - 24) * 0.5f, 24, RAYWHITE);
+            DrawText(s, (window_width - MeasureText(s, 38)) * 0.5f, (window_height - 38 - 24) * 0.5f, 38, RAYWHITE);
+
+            DrawRectangle((window_width * 0.5f) - 300.0f, (window_height * 0.5f) + 24.0f, 600.0f, 24, DARKBLUE);
+            DrawRectangle((window_width * 0.5f) - 300.0f, (window_height * 0.5f) + 24.0f, loaded * 600.0f, 24, RED);
 
             EndDrawing();
 
