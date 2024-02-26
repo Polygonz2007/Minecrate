@@ -100,9 +100,9 @@ int unload_chunk_model_and_mesh(vec2i16_t chunk_pos) {
     chunk_models[index] = (Model) { 0 };
 
     // Free the data from mesh and empty mesh
-    //MemFree(&chunk_meshes[index].vertices);
-    //MemFree(&chunk_meshes[index].texcoords);
-    //MemFree(&chunk_meshes[index].normals);
+    //MemFree(chunk_meshes[index].vertices);
+    //MemFree(chunk_meshes[index].texcoords);
+    //MemFree(chunk_meshes[index].normals);
     chunk_meshes[index] = (Mesh) { 0 };
 
     // Set status

@@ -132,7 +132,7 @@ int main() {
 
     Vector2 look = { 0.0f, 0.0f }; // camera rotation in radians
 
-    float player_height = 1.83f; // y offset of camera relative to player pos
+    float player_height = 1.77f; // y offset of camera relative to player pos
     float player_speed = 3.8f; // unit / second
     float player_jump_power = 8.0f;
     float player_sprint_multiplier = 2.0f;
@@ -163,10 +163,6 @@ int main() {
     // Performance
     _Bool start_loading_finished = false;
     const long start_time = time(NULL);
-
-    _Bool test_model_bool = false;
-    Model modul = { 0 };
-    Model* ptr_modul = &modul;
 
 
     // Main game loop
@@ -210,10 +206,6 @@ int main() {
         // End Window and Keys
         //
 
-        if (start_loading_finished && !test_model_bool) {
-            modul = LoadModelFromMesh(GenChunkMesh((vec2i16_t) { 0, 0 }));
-            test_model_bool = true;
-        }
 
         //
         // Terrain
@@ -338,10 +330,13 @@ int main() {
         }
 
         // CAP
-        if (player_position.y < 0)
-            player_position.y = 0;
-        if (player_position.y > chunk_size.y)
-            player_position.y = chunk_size.y;
+        if (player_position.y < 0.0f) {
+            player_position.y = 0.0f;
+            player_velocity.y = 0.0f;
+        } else if (player_position.y > 255.0f) {
+            player_position.y = 255.0f;
+            player_velocity.y = 0.0f;
+        }
 
         // CAMERA
         camera.position = (Vector3){ player_position.x, player_position.y + player_height, player_position.z };
@@ -363,7 +358,7 @@ int main() {
         vec2i16_t new_chunk_pos = (vec2i16_t){ floor(player_position.x / chunk_size.x), floor(player_position.z / chunk_size.z) };
 
         if (!vec2i16_t_equals(new_chunk_pos, current_chunk_pos) && !chunk_thread_running && debug.terrain_loading) {
-            // Unload chunks and load new ones on another thread, then update chunk pos
+            // Load new ones on another thread, then update chunk pos
             *lpArgPtr = new_chunk_pos;
             chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
 
@@ -397,9 +392,16 @@ int main() {
         }
 
         // Load models from meshes (has to be done on main thread)
+        // Load max (renderdistance) new models per frame
+        uint8_t models_loaded = 0;
+
         for (uint16_t i = 0; i < num_chunks; ++i) {
-            // Checks if it has mesh but no model so we dont need to
-            load_chunk_model(chunk_locs[i]);
+            if (models_loaded >= 2)
+                break;
+
+            int did = load_chunk_model(chunk_locs[i]);
+            if (did == 0)
+                models_loaded++;
         }
 
         // Draw chunk models
