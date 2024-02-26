@@ -149,6 +149,7 @@
     <Image Include="res\block_textures\BLOCK_COBBLESTONE.png" />
     <Image Include="res\block_textures\BLOCK_GRASS.png" />
     <Image Include="res\block_textures\BLOCK_SAND.png" />
+    <Image Include="res\block_textures\TEST_ATLAS.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

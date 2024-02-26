@@ -70,5 +70,8 @@
     <Image Include="res\block_textures\BLOCK_COBBLESTONE.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\block_textures\TEST_ATLAS.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
