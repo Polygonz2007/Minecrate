@@ -109,7 +109,8 @@ int load_chunk(vec2i16_t chunk_pos) {
 				cy / 48.0f,                     // Y
 				5,                              // OCTAVES
 				2.0f,                           // LACUNARITY
-				0.47f) - 16.0f);                        // PERSISTANCE
+				0.47f) - 16.0f)                 // PERSISTANCE
+				- (10.0f + sample_perlin_octaves(cx / 1024.0f, cy / 1024.0f, 2, 1.7f, 0.6f) * 40.0f);
 		}
 	}
 

@@ -115,7 +115,7 @@ int main() {
     Camera camera = { 0 };
     camera.position = (Vector3){ 2.0f, 1.83f, 2.0f };
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-    camera.fovy = 80.0f;
+    camera.fovy = 90.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 
     float sensitivity = 300.0f; // Higher sensitivity --> Less rotation per px moved
