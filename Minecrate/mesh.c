@@ -73,7 +73,7 @@ int load_chunk_model(vec2i16_t chunk_pos) {
 
     if (chunk_status[index] == CHUNK_LOADED_MESH) {
         // Load texture (replace with texture atlas in future
-        Image img = LoadImage("res/block_textures/BLOCK_GRASS.png");
+        Image img = LoadImage("res/block_textures/BLOCK_SAND.png");
 
         Texture2D texture = LoadTextureFromImage(img);
         UnloadImage(img);
