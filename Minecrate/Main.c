@@ -83,9 +83,9 @@ struct debug_settings {
 };
 
 struct debug_settings debug = {
-    .terrain_loading = true,
+    .terrain_loading = false,
     .display_info = true,
-    .fly_mode = false,
+    .fly_mode = true,
     .show_chunk_borders = true,
     .chunk_border_range = 2
 };
@@ -100,7 +100,7 @@ int main() {
     int window_width = default_window_width;
     int window_height = default_window_height;
     bool last_fullscreen = false;
-    bool is_fullscreen = false;
+    bool is_fullscreen = true;
 
     //Image Icon = LoadImage("./"); // add minecraftlogo av ael.com
 
@@ -163,6 +163,18 @@ int main() {
     // Performance
     _Bool start_loading_finished = false;
     const long start_time = time(NULL);
+
+
+
+
+    // test
+    init_chunks();
+    init_mesh_gen();
+
+    load_chunk((vec2i16_t) { 0, 0 });
+    load_chunk_mesh((vec2i16_t) { 0, 0 });
+    load_chunk_model((vec2i16_t) { 0, 0 });
+
 
 
     // Main game loop
@@ -415,10 +427,6 @@ int main() {
                 // Draw it
                 Model c_chunk_model = chunk_models[i];
                 DrawModel(c_chunk_model, cpos, 1.0f, WHITE);
-
-                // Show chunk stat
-                Color col = BLACK;
-                DrawPlane(Vector3Add(cpos, (Vector3) { 8, -1, 8 }), (Vector2) { 16, 16 }, col);
             }
         }
 

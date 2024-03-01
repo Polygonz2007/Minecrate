@@ -152,6 +152,7 @@
     <Image Include="res\block_textures\TEST_ATLAS.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\shaders\base.fs" />
     <None Include="res\shaders\base.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
