@@ -15,15 +15,15 @@ uint16_t num_block_types;
 
 // DEFINE BLOCK NAMES FOR EACH TYPE
 static const char block_names[9][16] = {
-	"Undefined",
-	"Air",
-	"Bedrock",
-	"Water",
-	"Grass",
-	"Dirt",
-	"Stone",
-	"Cobblestone",
-	"Sand"
+	"UNDEFINED",
+	"AIR",
+	"BEDROCK",
+	"WATER",
+	"GRASS",
+	"DIRT",
+	"STONE",
+	"COBBLESTONE",
+	"SAND"
 };
 
 static enum block_type {

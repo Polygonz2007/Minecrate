@@ -9,6 +9,7 @@
 #include "mesh.h"
 #include "block.h"
 #include "chunk.h"
+#include "texture.h"
 
 static struct mesh_sides* mesh_gen_buffer;	// Used for storing sides to load in a mesh
 
@@ -73,7 +74,7 @@ int load_chunk_model(vec2i16_t chunk_pos) {
 
     if (chunk_status[index] == CHUNK_LOADED_MESH) {
         // Load texture (replace with texture atlas in future
-        Image img = LoadImage("res/block_textures/BLOCK_SAND.png");
+        Image img = GenImageColor(16, 16, RED);//LoadImage("res/block_textures/BLOCK_SAND.png");
 
         Texture2D texture = LoadTextureFromImage(img);
         UnloadImage(img);
@@ -97,14 +98,12 @@ int unload_chunk_model_and_mesh(vec2i16_t chunk_pos) {
         return -1;
 
     // Empty model
-    //chunk_models[index] = (Model) { 0 };
+    UnloadModel(chunk_models[index]);
+    chunk_models[index] = (Model) { 0 };
 
     // TODO: fix lol
     // Free the data from mesh and empty mesh
-    //MemFree(chunk_meshes[index].vertices);
-    //MemFree(chunk_meshes[index].texcoords);
-    //MemFree(chunk_meshes[index].normals);
-    //chunk_meshes[index] = (Mesh) { 0 };
+    chunk_meshes[index] = (Mesh) { 0 };
 
     // Set status
     chunk_status[index] = CHUNK_LOADED;

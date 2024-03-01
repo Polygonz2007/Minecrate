@@ -43,6 +43,7 @@
 #include "block.h" // tres mimires
 #include "chunk.h" // finalmente mimir
 #include "mesh.h" // dos mimires
+#include "texture.h"
 
 
 // COLORS
@@ -174,6 +175,10 @@ int main() {
     load_chunk((vec2i16_t) { 0, 0 });
     load_chunk_mesh((vec2i16_t) { 0, 0 });
     load_chunk_model((vec2i16_t) { 0, 0 });
+
+
+    init_texture_atlas();
+    generate_texture_atlas();
 
 
 
@@ -435,6 +440,14 @@ int main() {
 
         EndMode3D();
 
+
+        // Draw test image
+        DrawTextureEx(texture_atlas, (Vector2) { 0, 0 }, 0.0f, 4.0f, WHITE);
+
+
+
+
+
         // Water screen effect (under ui ofc)
         if (get_block((vec3i32_t){ int_pos.x, player_position.y + player_height + 0.2f, int_pos.z }).type == BLOCK_WATER) {
             DrawRectangle(0, 0, window_width, window_height, block_colors[BLOCK_WATER]);
@@ -498,6 +511,8 @@ int main() {
     // Free memory and close.
     free_mesh_gen();
     free_chunks();
+
+    free_texture_atlas();
 
     CloseWindow();
 

@@ -36,6 +36,9 @@
     <ClCompile Include="block.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="texture.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="perlin_noise.h">
@@ -64,16 +67,16 @@
     <Image Include="res\block_textures\BLOCK_SAND.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\block_textures\BLOCK_BEDROCK.png">
+      <Filter>Resource Files</Filter>
+    </Image>
     <Image Include="res\block_textures\BLOCK_COBBLESTONE.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\block_textures\TEST_ATLAS.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="res\block_textures\BLOCK_GRASS.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="res\block_textures\BLOCK_DIRT.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\block_textures\BLOCK_STONE.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

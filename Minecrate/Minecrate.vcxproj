@@ -129,6 +129,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="block.c" />
+    <ClCompile Include="texture.c" />
     <ClCompile Include="vec2.c" />
     <ClCompile Include="vec3.c" />
     <ClCompile Include="chunk.c" />
@@ -146,11 +147,11 @@
     <ClInclude Include="vec3.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\block_textures\BLOCK_BEDROCK.png" />
     <Image Include="res\block_textures\BLOCK_COBBLESTONE.png" />
     <Image Include="res\block_textures\BLOCK_DIRT.png" />
-    <Image Include="res\block_textures\BLOCK_GRASS.png" />
     <Image Include="res\block_textures\BLOCK_SAND.png" />
-    <Image Include="res\block_textures\TEST_ATLAS.png" />
+    <Image Include="res\block_textures\BLOCK_STONE.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\base.fs" />
