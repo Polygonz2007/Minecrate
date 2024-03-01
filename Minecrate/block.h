@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 #include <raylib.h>
+#include "vec2.h"
+#include "vec3.h"
 
 // DEFINE BLOCK STRUCT
 typedef struct {
@@ -61,6 +63,21 @@ static const Color block_colors[9] = {
 	{ 180, 180, 180, 255 },
 	{ 120, 120, 120, 255 },
 	{ 240, 220, 170, 255 }
+};
+
+
+// define "side" struct, for the different faces of the blocks
+typedef struct {
+	vec3u8_t normal;
+} side_t;
+
+enum block_side {
+	SIDE_LEFT,
+	SIDE_RIGHT,
+	SIDE_UP,
+	SIDE_DOWN,
+	SIDE_FORWARD,
+	SIDE_BACK
 };
 
 #endif

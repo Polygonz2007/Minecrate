@@ -101,7 +101,7 @@ int main() {
     int window_width = default_window_width;
     int window_height = default_window_height;
     bool last_fullscreen = false;
-    bool is_fullscreen = true;
+    bool is_fullscreen = false;
 
     //Image Icon = LoadImage("./"); // add minecraftlogo av ael.com
 
@@ -179,7 +179,6 @@ int main() {
 
     init_texture_atlas();
     generate_texture_atlas();
-
 
 
     // Main game loop
@@ -439,11 +438,6 @@ int main() {
         DrawPlane((Vector3){player_position.x, sea_level - 0.2f, player_position.z}, (Vector2) { 1024, 1024 }, block_colors[BLOCK_WATER]);
 
         EndMode3D();
-
-
-        // Draw test image
-        DrawTextureEx(texture_atlas, (Vector2) { 0, 0 }, 0.0f, 4.0f, WHITE);
-
 
 
 

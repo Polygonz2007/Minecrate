@@ -24,7 +24,6 @@ int generate_texture_atlas() {
 			snprintf(dir, 47, "%s/BLOCK_%s.png", block_textures_dir, block_names[block]); // change to /BLOCK_%s_%s when add sides
 
 			// Get
-			printf("\n%s\n", dir);
 			const Image img = LoadImage(dir);
 			const Rectangle destination = { side * 16, block * 16, 16, 16 };
 			const Rectangle textureRes = { 0, 0, 16, 16 };
@@ -34,6 +33,8 @@ int generate_texture_atlas() {
 	}
 
 	texture_atlas = LoadTextureFromImage(texture_atlas_img);
+
+	printf("\n\nLoaded texture atlas successfully.\n");
 
 	return 0;
 }

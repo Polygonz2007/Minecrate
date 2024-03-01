@@ -7,8 +7,8 @@
 static const char block_textures_dir[32] = "res/block_textures";
 
 
-Image texture_atlas_img;
-Texture texture_atlas;
+static Image texture_atlas_img;
+static Texture texture_atlas;
 
 // Allocate memory
 int init_texture_atlas();

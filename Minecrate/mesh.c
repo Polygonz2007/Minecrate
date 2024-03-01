@@ -73,18 +73,13 @@ int load_chunk_model(vec2i16_t chunk_pos) {
         return -1;
 
     if (chunk_status[index] == CHUNK_LOADED_MESH) {
-        // Load texture (replace with texture atlas in future
-        Image img = GenImageColor(16, 16, RED);//LoadImage("res/block_textures/BLOCK_SAND.png");
-
-        Texture2D texture = LoadTextureFromImage(img);
-        UnloadImage(img);
-
         // Upload mesh and load model
         UploadMesh(&chunk_meshes[index], false);
         chunk_models[index] = LoadModelFromMesh(chunk_meshes[index]);
 
         // Texture
-        chunk_models[index].materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
+        Texture tex = texture_atlas;
+        chunk_models[index].materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = tex;
 
         chunk_status[index] = CHUNK_LOADED_MODEL;
     }
