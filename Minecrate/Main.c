@@ -439,7 +439,7 @@ int main() {
 
         EndMode3D();
 
-
+        DrawTextureEx(texture_atlas, (Vector2) { 0, 0 }, 0.0f, 10.0f, WHITE);
 
 
         // Water screen effect (under ui ofc)
