@@ -78,8 +78,7 @@ int load_chunk_model(vec2i16_t chunk_pos) {
         chunk_models[index] = LoadModelFromMesh(chunk_meshes[index]);
 
         // Texture
-        Texture tex = texture_atlas;
-        chunk_models[index].materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = tex;
+        chunk_models[index].materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture_atlas;
 
         chunk_status[index] = CHUNK_LOADED_MODEL;
     }

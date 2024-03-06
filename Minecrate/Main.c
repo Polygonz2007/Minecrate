@@ -172,14 +172,14 @@ int main() {
     init_chunks();
     init_mesh_gen();
 
-    load_chunk((vec2i16_t) { 0, 0 });
-    load_chunk_mesh((vec2i16_t) { 0, 0 });
-    load_chunk_model((vec2i16_t) { 0, 0 });
-
 
     init_texture_atlas();
     generate_texture_atlas();
 
+
+    load_chunk((vec2i16_t) { 0, 0 });
+    load_chunk_mesh((vec2i16_t) { 0, 0 });
+    load_chunk_model((vec2i16_t) { 0, 0 });
 
     // Main game loop
     while (!WindowShouldClose())
@@ -439,7 +439,7 @@ int main() {
 
         EndMode3D();
 
-        DrawTextureEx(texture_atlas, (Vector2) { 0, 0 }, 0.0f, 10.0f, WHITE);
+        DrawTextureEx(texture_atlas, (Vector2) { 0, 0 }, 0.0f, 4.0f, WHITE);
 
 
         // Water screen effect (under ui ofc)
