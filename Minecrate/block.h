@@ -68,7 +68,7 @@ static const Color block_colors[9] = {
 
 // define "side" struct, for the different faces of the blocks
 typedef struct {
-	vec3u8_t normal;
+	uint8_t i;
 } side_t;
 
 enum block_side {
@@ -78,6 +78,15 @@ enum block_side {
 	SIDE_DOWN,
 	SIDE_FORWARD,
 	SIDE_BACK
+};
+
+static const vec3u8_t side_normals[6] = {
+	{  1, 0, 0 },
+	{ -1, 0, 0 },
+	{ 0,  1, 0 },
+	{ 0, -1, 0 },
+	{ 0, 0,  1 },
+	{ 0, 0, -1 }
 };
 
 #endif
