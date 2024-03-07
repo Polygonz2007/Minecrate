@@ -4,7 +4,7 @@
 #include <raylib.h>
 #include "block.h"
 
-static const char block_textures_dir[32] = "res/block_textures";
+static const char block_textures_dir[32] = "assets/block_textures";
 
 
 Image texture_atlas_img;

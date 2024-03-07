@@ -105,6 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>C:\Users\Polygonz\source\repos\Polygonz2007\Minecrate\Minecrate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,34 +129,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="block.c" />
-    <ClCompile Include="texture.c" />
-    <ClCompile Include="vec2.c" />
-    <ClCompile Include="vec3.c" />
-    <ClCompile Include="chunk.c" />
-    <ClCompile Include="main.c" />
-    <ClCompile Include="mesh.c" />
-    <ClCompile Include="perlin_noise.c" />
+    <ClCompile Include="src\terrain\block.c" />
+    <ClCompile Include="src\terrain\texture.c" />
+    <ClCompile Include="src\vector_math\vec2.c" />
+    <ClCompile Include="src\vector_math\vec3.c" />
+    <ClCompile Include="src\terrain\chunk.c" />
+    <ClCompile Include="src\main.c" />
+    <ClCompile Include="src\terrain\mesh.c" />
+    <ClCompile Include="src\terrain\perlin_noise.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="block.h" />
-    <ClInclude Include="chunk.h" />
-    <ClInclude Include="mesh.h" />
-    <ClInclude Include="perlin_noise.h" />
-    <ClInclude Include="texture.h" />
-    <ClInclude Include="vec2.h" />
-    <ClInclude Include="vec3.h" />
+    <ClInclude Include="include\block.h" />
+    <ClInclude Include="include\chunk.h" />
+    <ClInclude Include="include\mesh.h" />
+    <ClInclude Include="include\perlin_noise.h" />
+    <ClInclude Include="include\texture.h" />
+    <ClInclude Include="include\vec2.h" />
+    <ClInclude Include="include\vec3.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\block_textures\BLOCK_BEDROCK.png" />
-    <Image Include="res\block_textures\BLOCK_COBBLESTONE.png" />
-    <Image Include="res\block_textures\BLOCK_DIRT.png" />
-    <Image Include="res\block_textures\BLOCK_SAND.png" />
-    <Image Include="res\block_textures\BLOCK_STONE.png" />
+    <Image Include="assets\block_textures\BLOCK_BEDROCK.png" />
+    <Image Include="assets\block_textures\BLOCK_COBBLESTONE.png" />
+    <Image Include="assets\block_textures\BLOCK_DIRT.png" />
+    <Image Include="assets\block_textures\BLOCK_SAND.png" />
+    <Image Include="assets\block_textures\BLOCK_STONE.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\base.fs" />
-    <None Include="res\shaders\base.vs" />
+    <None Include="assets\shaders\base.fs" />
+    <None Include="assets\shaders\base.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

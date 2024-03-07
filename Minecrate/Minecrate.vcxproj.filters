@@ -15,73 +15,73 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.c">
+    <ClCompile Include="src\main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="perlin_noise.c">
+    <ClCompile Include="src\terrain\perlin_noise.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mesh.c">
+    <ClCompile Include="src\terrain\mesh.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="chunk.c">
+    <ClCompile Include="src\terrain\chunk.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vec2.c">
+    <ClCompile Include="src\vector_math\vec2.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vec3.c">
+    <ClCompile Include="src\vector_math\vec3.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="block.c">
+    <ClCompile Include="src\terrain\block.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="texture.c">
+    <ClCompile Include="src\terrain\texture.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="perlin_noise.h">
+    <ClInclude Include="include\perlin_noise.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mesh.h">
+    <ClInclude Include="include\mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="block.h">
+    <ClInclude Include="include\block.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="chunk.h">
+    <ClInclude Include="include\chunk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vec3.h">
+    <ClInclude Include="include\vec3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vec2.h">
+    <ClInclude Include="include\vec2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="texture.h">
+    <ClInclude Include="include\texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\block_textures\BLOCK_SAND.png">
+    <Image Include="assets\block_textures\BLOCK_SAND.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\block_textures\BLOCK_BEDROCK.png">
+    <Image Include="assets\block_textures\BLOCK_BEDROCK.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\block_textures\BLOCK_COBBLESTONE.png">
+    <Image Include="assets\block_textures\BLOCK_COBBLESTONE.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\block_textures\BLOCK_DIRT.png">
+    <Image Include="assets\block_textures\BLOCK_DIRT.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\block_textures\BLOCK_STONE.png">
+    <Image Include="assets\block_textures\BLOCK_STONE.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\base.vs" />
-    <None Include="res\shaders\base.fs" />
+    <None Include="assets\shaders\base.vs" />
+    <None Include="assets\shaders\base.fs" />
   </ItemGroup>
 </Project>
