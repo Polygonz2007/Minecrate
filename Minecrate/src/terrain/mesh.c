@@ -564,7 +564,7 @@ struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, vec3i8_t dir, uint8
     plane.pos4 = add_vector3(basePos, add_vector3(tan1, tan2));
 
     Vector2 start = get_texcoords_atlas(block_t_new(block));
-    Vector2 end =   Vector2Add(start, get_texcoord_block_size());
+    Vector2 end = Vector2Add(start, get_texcoord_block_size());
 
     // randomize
     uint8_t flip = rand();
@@ -581,10 +581,10 @@ struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, vec3i8_t dir, uint8
         end.y = temp.y;
     }
 
-    plane.uv1 = (Vector2){ start.x, start.y };
-    plane.uv2 = (Vector2){   end.x, start.y };
-    plane.uv3 = (Vector2){ start.x,   end.y };
-    plane.uv4 = (Vector2){   end.x,   end.y };
+    plane.uv1 = (Vector2) { start.x, start.y };
+    plane.uv2 = (Vector2) {   end.x, start.y };
+    plane.uv3 = (Vector2) { start.x,   end.y };
+    plane.uv4 = (Vector2) {   end.x,   end.y };
 
     plane.normal = normal;
 

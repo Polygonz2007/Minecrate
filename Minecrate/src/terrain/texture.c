@@ -68,7 +68,7 @@ Vector2 get_texcoords_atlas(block_t block) {
 Vector2 get_texcoord_block_size() {
 	// Return it
 	return (Vector2) {
-		0.1666667f,
+		0.1666f,
 		1 / (double)num_block_types
 	};
 }
