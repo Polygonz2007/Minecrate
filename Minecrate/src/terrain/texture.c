@@ -8,6 +8,7 @@
 // Calculate size and generate
 int init_texture_atlas() {
 	// Init as blank image
+	
 	texture_atlas_img = GenImageColor(16 * 6, num_block_types * 16, BLANK);
 	texture_atlas = LoadTextureFromImage(texture_atlas_img);
 
