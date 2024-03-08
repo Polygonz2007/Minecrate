@@ -500,7 +500,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     mesh.vertices[ind3 + 17] = px.pos4.z;
 
                     mesh.texcoords[ind2 + 10] = px.uv4.x;
-                    mesh.texcoords[ind2 + 11] = px.uv4.x;
+                    mesh.texcoords[ind2 + 11] = px.uv4.y;
 
                     mesh.normals[ind3 + 15] = px.normal.x;
                     mesh.normals[ind3 + 16] = px.normal.y;

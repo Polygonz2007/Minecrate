@@ -55,8 +55,8 @@ Vector2 get_texcoords_atlas(block_t block) {
 	uint16_t id = block.type;
 
 	Vector2 vec = { 
-		id / (double)num_block_types,
-		0 // replace 0 with something else when add sides
+		0, // replace 0 with something else when add sides
+		id / (double)num_block_types 
 	};
 
 	return vec;

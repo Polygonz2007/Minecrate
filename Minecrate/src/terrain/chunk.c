@@ -121,7 +121,7 @@ int load_chunk(vec2i16_t chunk_pos) {
 	for (uint16_t x = 0; x < chunk_size.x; ++x) {
 		for (uint16_t z = 0; z < chunk_size.z; ++z) {
 			// STore the same height for all y levels on same block in 2d
-			uint16_t h = 1;// chunk_buffer[x + (z * chunk_size.x)];
+			uint16_t h = chunk_buffer[x + (z * chunk_size.x)];
 
 			for (uint16_t y = 0; y < chunk_size.y; ++y) {
 				vec3u16_t block_pos = { x, y, z };
@@ -142,8 +142,8 @@ int load_chunk(vec2i16_t chunk_pos) {
 				}
 
 				// OCEAN
-				//if (h < sea_level + 3 && (cb == BLOCK_GRASS || cb == BLOCK_DIRT))
-				//	cb = BLOCK_SAND; // Sand at shore
+				if (h < sea_level + 3 && (cb == BLOCK_GRASS || cb == BLOCK_DIRT))
+					cb = BLOCK_SAND; // Sand at shore
 
 				//if (y < sea_level && cb == BLOCK_AIR)
 				//	cb = BLOCK_WATER;
