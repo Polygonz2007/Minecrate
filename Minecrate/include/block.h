@@ -16,7 +16,7 @@ block_t block_t_new(uint8_t type);
 uint16_t num_block_types;
 
 // DEFINE BLOCK NAMES FOR EACH TYPE
-static const char block_names[9][16] = {
+static const char block_names[10][16] = {
 	"UNDEFINED",
 	"AIR",
 	"BEDROCK",
@@ -25,7 +25,8 @@ static const char block_names[9][16] = {
 	"DIRT",
 	"STONE",
 	"COBBLESTONE",
-	"SAND"
+	"SAND",
+	"LEAVES"
 };
 
 static enum block_type {
@@ -37,32 +38,22 @@ static enum block_type {
 	BLOCK_DIRT,
 	BLOCK_STONE,
 	BLOCK_COBBLESTONE,
-	BLOCK_SAND
+	BLOCK_SAND,
+	BLOCK_LEAVES
 };
 
 // DEFINE BLOCK HARDNESS(ES)
-static const uint8_t block_hardness[9] = { // max block hardness can be 255, and lowest 0. (0 cannot be broken)
+static const uint8_t block_hardness[10] = { // max block hardness can be 255, and lowest 0. (0 cannot be broken)
 	0,	// UNDEFINED
 	0,	// AIR
 	0,	// BEDROCK
 	0,	// WATER
-	3,	// GRASS
-	2,	// DIRT
-	5,	// STONE
-	5,	// COBBLESTONE
-	2	// SAND
-};
-
-static const Color block_colors[9] = {
-	{ 255, 0, 0, 255 },
-	{ 255, 255, 255, 0 },
-	{ 0, 0, 0, 255 },
-	{ 0, 100, 255, 100 },
-	{ 60, 200, 30, 255 },
-	{ 180, 127, 0, 255 },
-	{ 180, 180, 180, 255 },
-	{ 120, 120, 120, 255 },
-	{ 240, 220, 170, 255 }
+	4,	// GRASS
+	3,	// DIRT
+	6,	// STONE
+	6,	// COBBLESTONE
+	3,	// SAND
+	1	// LEAVES
 };
 
 

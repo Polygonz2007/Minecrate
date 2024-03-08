@@ -8,8 +8,14 @@
 // Calculate size and generate
 int init_texture_atlas() {
 	// Init as blank image
-	
-	texture_atlas_img = GenImageColor(16 * 6, num_block_types * 16, BLANK);
+	texture_atlas_img = GenImageChecked(
+		texture_resolution * 6,
+		num_block_types * texture_resolution,
+		8, 8,
+		BLACK,
+		(Color){255, 0, 255, 255}
+	);
+
 	texture_atlas = LoadTextureFromImage(texture_atlas_img);
 
 	return 0;
@@ -26,8 +32,11 @@ int generate_texture_atlas() {
 
 			// Get
 			const Image img = LoadImage(dir);
-			const Rectangle destination = { side * 16, block * 16, 16, 16 };
-			const Rectangle textureRes = { 0, 0, 16, 16 };
+			const Rectangle destination = {
+				side * texture_resolution, block * texture_resolution,
+				texture_resolution, texture_resolution };
+
+			const Rectangle textureRes = { 0, 0, texture_resolution, texture_resolution };
 
 			ImageDraw(&texture_atlas_img, img, textureRes, destination, WHITE);
 		}

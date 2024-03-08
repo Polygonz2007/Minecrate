@@ -4,6 +4,7 @@
 #include <raylib.h>
 #include "block.h"
 
+static uint16_t texture_resolution = 16;
 static const char block_textures_dir[32] = "assets/block_textures";
 
 

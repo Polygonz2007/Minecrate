@@ -68,7 +68,6 @@ static int clampint(int d, int min, int max) {
 }
 
 // Prototypes
-void place_cube(int x, int y, int z, block_t block);
 DWORD WINAPI update_chunks(LPVOID lpParameter);
 _Bool is_thread_running(HANDLE hThread);
 
@@ -435,7 +434,7 @@ int main() {
         }
 
         // Test
-        DrawPlane((Vector3){player_position.x, sea_level - 0.2f, player_position.z}, (Vector2) { 1024, 1024 }, block_colors[BLOCK_WATER]);
+        DrawPlane((Vector3){player_position.x, sea_level - 0.2f, player_position.z}, (Vector2) { 1024, 1024 }, DEBUG_BLUE);
 
         EndMode3D();
 
@@ -444,7 +443,7 @@ int main() {
 
         // Water screen effect (under ui ofc)
         if (get_block((vec3i32_t){ int_pos.x, player_position.y + player_height + 0.2f, int_pos.z }).type == BLOCK_WATER) {
-            DrawRectangle(0, 0, window_width, window_height, block_colors[BLOCK_WATER]);
+            DrawRectangle(0, 0, window_width, window_height, DEBUG_BLUE);
         }
 
         // --  UI  --
@@ -511,17 +510,6 @@ int main() {
     CloseWindow();
 
     return 0;
-}
-
-void place_cube(int x, int y, int z, block_t block) {
-    Color col = block_colors[block.type];
-
-    DrawCube((Vector3) { x + 0.5f, y + 0.5f, z + 0.5f }, 1.0f, 1.0f, 1.0f, (Color) {
-        clampint(col.r + rand() / 128 / 32, 0, 255),
-        clampint(col.g + rand() / 128 / 32, 0, 255),
-        clampint(col.b + rand() / 128 / 32, 0, 255),
-        block.type == BLOCK_WATER ? 127 : 255
-    });
 }
 
 DWORD WINAPI update_chunks(LPVOID lpParameter) {
