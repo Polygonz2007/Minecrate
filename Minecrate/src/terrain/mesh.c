@@ -568,7 +568,6 @@ struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, vec3i8_t dir, uint8
 
     // randomize
     uint8_t flip = rand();
-    printf("\n%d", flip);
 
     if (flip > 127) {
         Vector2 temp = start;
