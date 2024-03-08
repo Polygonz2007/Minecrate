@@ -93,11 +93,11 @@ int unload_chunk_model_and_mesh(vec2i16_t chunk_pos) {
 
     // Empty model
     UnloadModel(chunk_models[index]);
-    chunk_models[index] = (Model) { 0 };
+    //chunk_models[index] = (Model) { 0 };
 
     // TODO: fix lol
     // Free the data from mesh and empty mesh
-    chunk_meshes[index] = (Mesh) { 0 };
+    //chunk_meshes[index] = (Mesh) { 0 };
 
     // Set status
     chunk_status[index] = CHUNK_LOADED;

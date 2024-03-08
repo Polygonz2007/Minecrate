@@ -83,9 +83,9 @@ struct debug_settings {
 };
 
 struct debug_settings debug = {
-    .terrain_loading = false,
+    .terrain_loading = true,
     .display_info = true,
-    .fly_mode = true,
+    .fly_mode = false,
     .show_chunk_borders = true,
     .chunk_border_range = 2
 };
@@ -156,6 +156,9 @@ int main() {
         init_chunks();
         init_mesh_gen();
 
+        init_texture_atlas();
+        generate_texture_atlas();
+
         // Load starting chunks, on different thread
         chunk_h_thread = CreateThread(NULL, 0, update_chunks, lpArgPtr, 0, &chunk_dw_thread_id);
     }
@@ -166,19 +169,6 @@ int main() {
 
 
 
-
-    // test
-    init_chunks();
-    init_mesh_gen();
-
-
-    init_texture_atlas();
-    generate_texture_atlas();
-
-
-    load_chunk((vec2i16_t) { 0, 0 });
-    load_chunk_mesh((vec2i16_t) { 0, 0 });
-    load_chunk_model((vec2i16_t) { 0, 0 });
 
     // Main game loop
     while (!WindowShouldClose())
