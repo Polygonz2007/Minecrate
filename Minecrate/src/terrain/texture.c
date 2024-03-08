@@ -8,12 +8,10 @@
 // Calculate size and generate
 int init_texture_atlas() {
 	// Init as blank image
-	texture_atlas_img = GenImageChecked(
+	texture_atlas_img = GenImageColor(
 		texture_resolution * 6,
 		num_block_types * texture_resolution,
-		8, 8,
-		BLACK,
-		(Color){255, 0, 255, 255}
+		BLANK
 	);
 
 	texture_atlas = LoadTextureFromImage(texture_atlas_img);
@@ -31,12 +29,15 @@ int generate_texture_atlas() {
 			snprintf(dir, 47, "%s/BLOCK_%s.png", block_textures_dir, block_names[block]); // change to /BLOCK_%s_%s when add sides
 
 			// Get
-			const Image img = LoadImage(dir);
+			Image img = LoadImage(dir);
 			const Rectangle destination = {
 				side * texture_resolution, block * texture_resolution,
 				texture_resolution, texture_resolution };
 
 			const Rectangle textureRes = { 0, 0, texture_resolution, texture_resolution };
+
+			if (img.width == 0)
+				img = GenImageChecked(texture_resolution, texture_resolution, 8, 8, BLACK, (Color) { 255, 0, 255, 255 });
 
 			ImageDraw(&texture_atlas_img, img, textureRes, destination, WHITE);
 		}
