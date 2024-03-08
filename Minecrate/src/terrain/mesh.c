@@ -92,12 +92,12 @@ int unload_chunk_model_and_mesh(vec2i16_t chunk_pos) {
         return -1;
 
     // Empty model
-    UnloadModel(chunk_models[index]);
-    //chunk_models[index] = (Model) { 0 };
+    //UnloadModel(chunk_models[index]);
+    chunk_models[index] = (Model) { 0 };
 
     // TODO: fix lol
     // Free the data from mesh and empty mesh
-    //chunk_meshes[index] = (Mesh) { 0 };
+    chunk_meshes[index] = (Mesh) { 0 };
 
     // Set status
     chunk_status[index] = CHUNK_LOADED;
@@ -565,6 +565,22 @@ struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, vec3i8_t dir, uint8
 
     Vector2 start = get_texcoords_atlas(block_t_new(block));
     Vector2 end =   Vector2Add(start, get_texcoord_block_size());
+
+    // randomize
+    uint8_t flip = rand();
+    printf("\n%d", flip);
+
+    if (flip > 127) {
+        Vector2 temp = start;
+        start.x = end.x;
+        end.x = temp.x;
+    }
+
+    if (flip % 127 > 63) {
+        Vector2 temp = start;
+        start.y = end.y;
+        end.y = temp.y;
+    }
 
     plane.uv1 = (Vector2){ start.x, start.y };
     plane.uv2 = (Vector2){   end.x, start.y };

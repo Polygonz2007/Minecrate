@@ -16,7 +16,7 @@ block_t block_t_new(uint8_t type);
 uint16_t num_block_types;
 
 // DEFINE BLOCK NAMES FOR EACH TYPE
-static const char block_names[10][16] = {
+static const char block_names[11][16] = {
 	"UNDEFINED",
 	"AIR",
 	"BEDROCK",
@@ -26,6 +26,7 @@ static const char block_names[10][16] = {
 	"STONE",
 	"COBBLESTONE",
 	"SAND",
+	"OAK LOG",
 	"LEAVES"
 };
 
@@ -39,11 +40,12 @@ static enum block_type {
 	BLOCK_STONE,
 	BLOCK_COBBLESTONE,
 	BLOCK_SAND,
+	BLOCK_OAK_LOG,
 	BLOCK_LEAVES
 };
 
 // DEFINE BLOCK HARDNESS(ES)
-static const uint8_t block_hardness[10] = { // max block hardness can be 255, and lowest 0. (0 cannot be broken)
+static const uint8_t block_hardness[11] = { // max block hardness can be 255, and lowest 0. (0 cannot be broken)
 	0,	// UNDEFINED
 	0,	// AIR
 	0,	// BEDROCK
@@ -53,6 +55,7 @@ static const uint8_t block_hardness[10] = { // max block hardness can be 255, an
 	6,	// STONE
 	6,	// COBBLESTONE
 	3,	// SAND
+	4,	// OAK LOG
 	1	// LEAVES
 };
 
