@@ -51,10 +51,25 @@ int generate_texture_atlas() {
 }
 
 // Get texcords in atlas
-//Vector2 get_texcoords_atlas(block_t block);
+Vector2 get_texcoords_atlas(block_t block) {
+	uint16_t id = block.type;
+
+	Vector2 vec = { 
+		id / (double)num_block_types,
+		0 // replace 0 with something else when add sides
+	};
+
+	return vec;
+}
 
 // Get size of one block in texture atlas, in coordinate units
-//Vector2 get_texcoord_block_size();
+Vector2 get_texcoord_block_size() {
+	// Return it
+	return (Vector2) {
+		0.1666667f,
+		1 / (double)num_block_types
+	};
+}
 
 // Deallocate
 int free_texture_atlas() {

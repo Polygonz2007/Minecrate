@@ -18,10 +18,10 @@ int init_texture_atlas();
 int generate_texture_atlas();
 
 // Get texcords in atlas
-//Vector2 get_texcoords_atlas(block_t block);
+Vector2 get_texcoords_atlas(block_t block);
 
 // Get size of one block in texture atlas, in coordinate units
-//Vector2 get_texcoord_block_size();
+Vector2 get_texcoord_block_size();
 
 // Deallocate
 int free_texture_atlas();

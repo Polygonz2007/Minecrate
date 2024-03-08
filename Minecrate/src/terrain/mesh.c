@@ -244,12 +244,9 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                 if (sides.x.type != BLOCK_UNDEFINED) {
                     // We want a face on this side, so generate blueprint..
                     const struct mesh_base_plane px = gen_plane_blueprint(
-                        (vec3i16_t) {
-                        x, y, z
-                    },                        // OFFSET
-                        (vec3i8_t) {
-                        sides.x_normals ? -1 : 1, 0, 0
-                    }   // DIRECTION (NORMAL)
+                        (vec3i16_t) { x, y, z },                        // OFFSET
+                        (vec3i8_t) { sides.x_normals ? -1 : 1, 0, 0 },   // DIRECTION (NORMAL)
+                        sides.x.type
                     );
 
                     // ..and add the verticies. (we add 6 verticies, and each uses 3 dimensions...)
@@ -337,12 +334,9 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                 if (sides.y.type != BLOCK_UNDEFINED) {
                     // We want a face on this side, so generate blueprint..
                     const struct mesh_base_plane px = gen_plane_blueprint(
-                        (vec3i16_t) {
-                        x, y, z
-                    },                        // OFFSET
-                        (vec3i8_t) {
-                        0, sides.y_normals ? -1 : 1, 0
-                    }   // DIRECTION (NORMAL)
+                        (vec3i16_t) { x, y, z },                        // OFFSET
+                        (vec3i8_t) { 0, sides.y_normals ? -1 : 1, 0 },   // DIRECTION (NORMAL)
+                        sides.y.type
                     );
 
                     // ..and add the verticies. (we add 6 verticies, and each uses 3 dimensions...)
@@ -430,12 +424,9 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                 if (sides.z.type != BLOCK_UNDEFINED) {
                     // We want a face on this side, so generate blueprint..
                     const struct mesh_base_plane px = gen_plane_blueprint(
-                        (vec3i16_t) {
-                        x, y, z
-                    },                        // OFFSET
-                        (vec3i8_t) {
-                        0, 0, sides.z_normals ? -1 : 1
-                    }   // DIRECTION (NORMAL)
+                        (vec3i16_t) { x, y, z },                        // OFFSET
+                        (vec3i8_t) { 0, 0, sides.z_normals ? -1 : 1 },   // DIRECTION (NORMAL)
+                        sides.z.type
                     );
 
                     // ..and add the verticies. (we add 6 verticies, and each uses 3 dimensions...)
@@ -532,7 +523,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
 
 
 // Dir should be either positive 1 or negative 1 in only one of the axis.
-struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, vec3i8_t dir) {
+struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, vec3i8_t dir, uint8_t block) {
     // Set up variables to generate plane
     Vector3 normal = { (float)dir.x, (float)dir.y, (float)dir.z };
 
@@ -572,10 +563,13 @@ struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, vec3i8_t dir) {
     plane.pos3 = add_vector3(basePos, tan2);
     plane.pos4 = add_vector3(basePos, add_vector3(tan1, tan2));
 
-    plane.uv1 = (Vector2){ 0, 0 };
-    plane.uv2 = (Vector2){ 1, 0 };
-    plane.uv3 = (Vector2){ 0, 1 };
-    plane.uv4 = (Vector2){ 1, 1 };
+    Vector2 start = get_texcoords_atlas(block);
+    Vector2 end =   Vector2Add(start, get_texcoord_block_size());
+
+    plane.uv1 = (Vector2){ start.x, start.y };
+    plane.uv2 = (Vector2){   end.x, start.y };
+    plane.uv3 = (Vector2){ start.x,   end.y };
+    plane.uv4 = (Vector2){   end.x,   end.y };
 
     plane.normal = normal;
 
