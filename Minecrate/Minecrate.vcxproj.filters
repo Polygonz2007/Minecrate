@@ -82,6 +82,9 @@
     <Image Include="assets\block_textures\BLOCK_LEAVES.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\block_textures\BLOCK_GRASS.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\base.vs" />

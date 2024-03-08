@@ -36,6 +36,8 @@ int generate_texture_atlas() {
 
 			const Rectangle textureRes = { 0, 0, texture_resolution, texture_resolution };
 
+			// when adding sides, if you cant find BLOCK_NAME_SIDE, use BLOCK_NAME instead
+			// (use this for blocks that have all same sides too)
 			if (img.width == 0)
 				img = GenImageChecked(texture_resolution, texture_resolution, 8, 8, BLACK, (Color) { 255, 0, 255, 255 });
 
