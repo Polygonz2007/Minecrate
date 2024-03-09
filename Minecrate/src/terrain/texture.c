@@ -25,8 +25,9 @@ int generate_texture_atlas() {
 	for (uint8_t block = 0; block < num_block_types; ++block) {
 		for (uint8_t side = 0; side < 6; ++side) {
 			// Find texture for this side on this block and paste to atlas
-			const char dir[48];
+			char dir[48];
 			snprintf(dir, 47, "%s/BLOCK_%s_%s.png", block_textures_dir, block_names[block], side_names[side]);
+			printf("%s\n", dir);
 
 			// Get
 			Image img = LoadImage(dir);

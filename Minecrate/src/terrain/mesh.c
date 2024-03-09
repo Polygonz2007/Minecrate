@@ -547,7 +547,7 @@ struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, side_t dir, uint8_t
     }
 
     if (dir.i == SIDE_RIGHT || dir.i == SIDE_BOTTOM || dir.i == SIDE_FRONT) {
-        Vector3 temp = tan1;
+        const Vector3 temp = tan1;
         tan1 = tan2;
         tan2 = temp; // Flip order of tangents, so face is on other side
 
@@ -564,29 +564,23 @@ struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, side_t dir, uint8_t
     plane.pos3 = add_vector3(basePos, tan2);
     plane.pos4 = add_vector3(basePos, add_vector3(tan1, tan2));
 
-    Vector2 start = get_texcoords_atlas(block_t_new(block), side_t_new(dir.i));
+
+    // UVS
+    // Since the plane starts at 0, which is below 1, and the uvs start at 0 ABOVE 1, we flip that axis
+    Vector2 start = get_texcoords_atlas(block_t_new(block), side_t_new(dir.i + 1)); // -1 bc of none
     Vector2 end = Vector2Add(start, get_texcoord_block_size());
 
-    // randomize
-    /*uint8_t flip = rand();
+    plane.uv1 = (Vector2) { start.x,   end.y };
+    plane.uv2 = (Vector2) {   end.x,   end.y };
+    plane.uv3 = (Vector2) { start.x, start.y };
+    plane.uv4 = (Vector2) {   end.x, start.y };
 
-    if (flip > 127) {
-        Vector2 temp = start;
-        start.x = end.x;
-        end.x = temp.x;
+    // Swap around uvs if flipped
+    if (dir.i == SIDE_RIGHT || dir.i == SIDE_BOTTOM || dir.i == SIDE_FRONT) {
+        // TODO: fix rotated uvs
     }
 
-    if (flip % 127 > 63) {
-        Vector2 temp = start;
-        start.y = end.y;
-        end.y = temp.y;
-    }*/
-
-    plane.uv1 = (Vector2) { start.x, start.y };
-    plane.uv2 = (Vector2) {   end.x, start.y };
-    plane.uv3 = (Vector2) { start.x,   end.y };
-    plane.uv4 = (Vector2) {   end.x,   end.y };
-
+    // Normal.
     plane.normal = normal;
 
     // Return it
