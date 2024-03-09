@@ -58,6 +58,7 @@ int generate_texture_atlas() {
 	}
 
 	texture_atlas = LoadTextureFromImage(texture_atlas_img);
+	SetTextureFilter(texture_atlas, TEXTURE_FILTER_POINT);
 
 	printf("\n\nLoaded texture atlas successfully.\n");
 
