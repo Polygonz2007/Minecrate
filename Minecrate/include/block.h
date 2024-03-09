@@ -15,8 +15,9 @@ typedef struct {
 block_t block_t_new(uint8_t type);
 uint16_t num_block_types;
 
+
 // DEFINE BLOCK NAMES FOR EACH TYPE
-static const char block_names[32][16] = {
+static const char block_names[16][16] = {
 	"UNDEFINED",
 	"AIR",
 	"BEDROCK",
@@ -47,7 +48,7 @@ static enum block_type {
 };
 
 // DEFINE BLOCK HARDNESS(ES)
-static const uint8_t block_hardness[32] = { // max block hardness can be 255, and lowest 0. (0 cannot be broken)
+static const uint8_t block_hardness[16] = { // max block hardness can be 255, and lowest 0. (0 cannot be broken)
 	0,	// UNDEFINED
 	0,	// AIR
 	0,	// BEDROCK
@@ -64,20 +65,28 @@ static const uint8_t block_hardness[32] = { // max block hardness can be 255, an
 
 
 // define "side" struct, for the different faces of the blocks
+// prototype!
 typedef struct {
 	uint8_t i;
 } side_t;
 
+side_t side_t_new(uint8_t side);
+side_t side_t_new_from_normal(vec3i8_t normal);
+
+static uint8_t num_sides = 7; // all 6 sides, and none
+
 enum block_side {
+	SIDE_NONE,
 	SIDE_LEFT,
 	SIDE_RIGHT,
 	SIDE_TOP,
 	SIDE_BOTTOM,
-	SIDE_FRONT,
-	SIDE_BACK
+	SIDE_BACK,
+	SIDE_FRONT
 };
 
-static const vec3u8_t side_normals[6] = {
+static const vec3i8_t side_normals[7] = {
+	{ 0, 0, 0},
 	{  1, 0, 0 },
 	{ -1, 0, 0 },
 	{ 0,  1, 0 },
@@ -86,13 +95,14 @@ static const vec3u8_t side_normals[6] = {
 	{ 0, 0, -1 }
 };
 
-static const char side_names[6][8] = {
+static const char side_names[7][8] = {
+	"NONE",
 	"LEFT",
 	"RIGHT",
 	"TOP",
 	"BOTTOM",
-	"FRONT",
-	"BACK"
+	"BACK",
+	"FRONT"
 };
 
 #endif

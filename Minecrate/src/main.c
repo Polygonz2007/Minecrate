@@ -428,7 +428,7 @@ int main() {
 
         EndMode3D();
 
-
+        DrawTextureEx(texture_atlas, (Vector2) { 0, 0 }, 0.0f, 2.0f, WHITE);
 
         // Water screen effect (under ui ofc)
         if (get_block((vec3i32_t){ int_pos.x, player_position.y + player_height + 0.2f, int_pos.z }).type == BLOCK_WATER) {

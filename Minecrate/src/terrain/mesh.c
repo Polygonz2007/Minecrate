@@ -181,7 +181,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     if (nx.type != BLOCK_UNDEFINED && nx.type != BLOCK_AIR && nx.type != BLOCK_WATER) {
                         tot_tris += 2;
                         mesh_gen_buffer[index].x = nx;
-                        mesh_gen_buffer[index].x_normals = true;
+                        mesh_gen_buffer[index].x_normals = false;
                     }
 
                     if (ny.type != BLOCK_UNDEFINED && ny.type != BLOCK_AIR && ny.type != BLOCK_WATER) {
@@ -193,14 +193,14 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     if (nz.type != BLOCK_UNDEFINED && nz.type != BLOCK_AIR && nz.type != BLOCK_WATER) {
                         tot_tris += 2;
                         mesh_gen_buffer[index].z = nz;
-                        mesh_gen_buffer[index].z_normals = true;
+                        mesh_gen_buffer[index].z_normals = false;
                     }
 
                     // Edit values for blocks with OFFSET!!! (wow, so cool!) bc 1, with offset! (and positive)
                     if (px.type != BLOCK_UNDEFINED && px.type != BLOCK_AIR && px.type != BLOCK_WATER) {
                         tot_tris += 2;
                         mesh_gen_buffer[index + plus_x].x = px;
-                        mesh_gen_buffer[index + plus_x].x_normals = false;
+                        mesh_gen_buffer[index + plus_x].x_normals = true;
                     }
 
                     if (py.type != BLOCK_UNDEFINED && py.type != BLOCK_AIR && py.type != BLOCK_WATER) {
@@ -212,7 +212,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     if (pz.type != BLOCK_UNDEFINED && pz.type != BLOCK_AIR && pz.type != BLOCK_WATER) {
                         tot_tris += 2;
                         mesh_gen_buffer[index + plus_z].z = pz;
-                        mesh_gen_buffer[index + plus_z].z_normals = false;
+                        mesh_gen_buffer[index + plus_z].z_normals = true;
                     }
 
                     // gaah, now go to next and after fill in the data...
@@ -245,7 +245,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     // We want a face on this side, so generate blueprint..
                     const struct mesh_base_plane px = gen_plane_blueprint(
                         (vec3i16_t) { x, y, z },                        // OFFSET
-                        (vec3i8_t) { sides.x_normals ? -1 : 1, 0, 0 },   // DIRECTION (NORMAL)
+                        side_t_new(sides.x_normals ? SIDE_LEFT : SIDE_RIGHT),   // DIRECTION (NORMAL)
                         sides.x.type
                     );
 
@@ -335,7 +335,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     // We want a face on this side, so generate blueprint..
                     const struct mesh_base_plane px = gen_plane_blueprint(
                         (vec3i16_t) { x, y, z },                        // OFFSET
-                        (vec3i8_t) { 0, sides.y_normals ? -1 : 1, 0 },   // DIRECTION (NORMAL)
+                        side_t_new(sides.y_normals ? SIDE_BOTTOM : SIDE_TOP),   // DIRECTION (NORMAL)
                         sides.y.type
                     );
 
@@ -425,7 +425,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     // We want a face on this side, so generate blueprint..
                     const struct mesh_base_plane px = gen_plane_blueprint(
                         (vec3i16_t) { x, y, z },                        // OFFSET
-                        (vec3i8_t) { 0, 0, sides.z_normals ? -1 : 1 },   // DIRECTION (NORMAL)
+                        side_t_new(sides.z_normals ? SIDE_BACK : SIDE_FRONT),   // DIRECTION (NORMAL)
                         sides.z.type
                     );
 
@@ -523,29 +523,30 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
 
 
 // Dir should be either positive 1 or negative 1 in only one of the axis.
-struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, vec3i8_t dir, uint8_t block) {
+struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, side_t dir, uint8_t block) {
     // Set up variables to generate plane
-    Vector3 normal = { (float)dir.x, (float)dir.y, (float)dir.z };
+    vec3i8_t normal8 = side_normals[dir.i];
+    Vector3 normal = { normal8.x, normal8.y, normal8.z };
 
     Vector3 basePos = { (float)offset.x, (float)offset.y, (float)offset.z };
     Vector3 tan1 = { 0, 0, 0 };
     Vector3 tan2 = { 0, 0, 0 };
 
     // Find tangents (should always be positive)
-    if (dir.x != 0) {
+    if (dir.i == SIDE_LEFT || dir.i == SIDE_RIGHT) {
         tan1 = (Vector3) { 0, 1, 0 };
         tan2 = (Vector3) { 0, 0, 1 };
     }
-    else if (dir.y != 0) {
+    else if (dir.i == SIDE_TOP || dir.i == SIDE_BOTTOM) {
         tan1 = (Vector3){ 1, 0, 0 };
         tan2 = (Vector3){ 0, 0, 1 };
     }
-    else if (dir.z != 0) {
+    else if (dir.i == SIDE_BACK || dir.i == SIDE_FRONT) {
         tan1 = (Vector3){ 1, 0, 0 };
         tan2 = (Vector3){ 0, 1, 0 };
     }
 
-    if (dir.x + dir.y + dir.z < 0) {
+    if (dir.i == SIDE_RIGHT || dir.i == SIDE_BOTTOM || dir.i == SIDE_FRONT) {
         Vector3 temp = tan1;
         tan1 = tan2;
         tan2 = temp; // Flip order of tangents, so face is on other side
@@ -563,11 +564,11 @@ struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, vec3i8_t dir, uint8
     plane.pos3 = add_vector3(basePos, tan2);
     plane.pos4 = add_vector3(basePos, add_vector3(tan1, tan2));
 
-    Vector2 start = get_texcoords_atlas(block_t_new(block));
+    Vector2 start = get_texcoords_atlas(block_t_new(block), side_t_new(dir.i));
     Vector2 end = Vector2Add(start, get_texcoord_block_size());
 
     // randomize
-    uint8_t flip = rand();
+    /*uint8_t flip = rand();
 
     if (flip > 127) {
         Vector2 temp = start;
@@ -579,7 +580,7 @@ struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, vec3i8_t dir, uint8
         Vector2 temp = start;
         start.y = end.y;
         end.y = temp.y;
-    }
+    }*/
 
     plane.uv1 = (Vector2) { start.x, start.y };
     plane.uv2 = (Vector2) {   end.x, start.y };

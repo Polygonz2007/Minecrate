@@ -64,11 +64,11 @@ int generate_texture_atlas() {
 }
 
 // Get texcords in atlas
-Vector2 get_texcoords_atlas(block_t block) {
+Vector2 get_texcoords_atlas(block_t block, side_t side) {
 	uint16_t id = block.type;
 
 	Vector2 vec = { 
-		0, // replace 0 with something else when add sides
+		(side.i - 1) / 6.0f, // 6 sides total
 		id / (double)num_block_types 
 	};
 
