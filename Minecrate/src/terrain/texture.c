@@ -26,7 +26,7 @@ int generate_texture_atlas() {
 		for (uint8_t side = 0; side < 6; ++side) {
 			// Find texture for this side on this block and paste to atlas
 			const char dir[48];
-			snprintf(dir, 47, "%s/BLOCK_%s.png", block_textures_dir, block_names[block]); // change to /BLOCK_%s_%s when add sides
+			snprintf(dir, 47, "%s/BLOCK_%s_%s.png", block_textures_dir, block_names[block], side_names[side]);
 
 			// Get
 			Image img = LoadImage(dir);
@@ -36,10 +36,21 @@ int generate_texture_atlas() {
 
 			const Rectangle textureRes = { 0, 0, texture_resolution, texture_resolution };
 
-			// when adding sides, if you cant find BLOCK_NAME_SIDE, use BLOCK_NAME instead
-			// (use this for blocks that have all same sides too)
-			if (img.width == 0)
-				img = GenImageChecked(texture_resolution, texture_resolution, 8, 8, BLACK, (Color) { 255, 0, 255, 255 });
+			// If we cant load the one with side, try one for all sides
+			if (img.width == 0) {
+				snprintf(dir, 47, "%s/BLOCK_%s.png", block_textures_dir, block_names[block]);
+				img = LoadImage(dir);
+			}
+
+			// If this doesnt load either, make empty texture
+			if (img.width == 0) {
+				img = GenImageChecked(
+					texture_resolution,
+					texture_resolution,
+					8, 8,
+					BLACK,
+					(Color) { 255, 0, 255, 255 });
+			}
 
 			ImageDraw(&texture_atlas_img, img, textureRes, destination, WHITE);
 		}

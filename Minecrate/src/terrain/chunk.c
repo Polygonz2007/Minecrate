@@ -104,10 +104,10 @@ int load_chunk(vec2i16_t chunk_pos) {
 			int32_t cy = 1000 + global_cy + (int32_t)y;
 			// + 1000 to avoid problems temporariy
 
-			chunk_buffer[x + (y * chunk_size.x)] = sea_level + (int16_t)(42.0f * sample_perlin_octaves(
-				cx / 48.0f,                     // X
-				cy / 48.0f,                     // Y
-				4,                              // OCTAVES
+			chunk_buffer[x + (y * chunk_size.x)] = (uint16_t)sea_level + (uint16_t)(70.0f * sample_perlin_octaves(
+				cx / 128.0f,                     // X
+				cy / 128.0f,                     // Y
+				6,                              // OCTAVES
 				2.0f,                           // LACUNARITY
 				0.47f) - 48.0f)                 // PERSISTANCE
 				- (-40.0f + sample_perlin_octaves(cx / 756.0f, cy / 756.0f, 2, 1.7f, 0.6f) * 90.0f);

@@ -16,17 +16,18 @@ block_t block_t_new(uint8_t type);
 uint16_t num_block_types;
 
 // DEFINE BLOCK NAMES FOR EACH TYPE
-static const char block_names[11][16] = {
+static const char block_names[32][16] = {
 	"UNDEFINED",
 	"AIR",
 	"BEDROCK",
 	"WATER",
 	"GRASS",
 	"DIRT",
+	"COARSE DIRT"
 	"STONE",
 	"COBBLESTONE",
 	"SAND",
-	"OAK LOG",
+	"GRAVEL",
 	"LEAVES"
 };
 
@@ -37,25 +38,27 @@ static enum block_type {
 	BLOCK_WATER,
 	BLOCK_GRASS,
 	BLOCK_DIRT,
+	BLOCK_COARSE_DIRT,
 	BLOCK_STONE,
 	BLOCK_COBBLESTONE,
 	BLOCK_SAND,
-	BLOCK_OAK_LOG,
+	BLOCK_GRAVEL,
 	BLOCK_LEAVES
 };
 
 // DEFINE BLOCK HARDNESS(ES)
-static const uint8_t block_hardness[11] = { // max block hardness can be 255, and lowest 0. (0 cannot be broken)
+static const uint8_t block_hardness[32] = { // max block hardness can be 255, and lowest 0. (0 cannot be broken)
 	0,	// UNDEFINED
 	0,	// AIR
 	0,	// BEDROCK
 	0,	// WATER
 	4,	// GRASS
 	3,	// DIRT
+	3,	// COARSE DIRT
 	6,	// STONE
 	6,	// COBBLESTONE
 	3,	// SAND
-	4,	// OAK LOG
+	3,	// GRAVEL
 	1	// LEAVES
 };
 
@@ -68,9 +71,9 @@ typedef struct {
 enum block_side {
 	SIDE_LEFT,
 	SIDE_RIGHT,
-	SIDE_UP,
-	SIDE_DOWN,
-	SIDE_FORWARD,
+	SIDE_TOP,
+	SIDE_BOTTOM,
+	SIDE_FRONT,
 	SIDE_BACK
 };
 
@@ -81,6 +84,15 @@ static const vec3u8_t side_normals[6] = {
 	{ 0, -1, 0 },
 	{ 0, 0,  1 },
 	{ 0, 0, -1 }
+};
+
+static const char side_names[6][8] = {
+	"LEFT",
+	"RIGHT",
+	"TOP",
+	"BOTTOM",
+	"FRONT",
+	"BACK"
 };
 
 #endif
