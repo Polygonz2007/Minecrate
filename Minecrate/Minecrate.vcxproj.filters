@@ -94,7 +94,7 @@
     <Image Include="assets\block_textures\BLOCK_GRASS_BOTTOM.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\block_textures\BLOCK_COARSE DIRT.png">
+    <Image Include="assets\block_textures\BLOCK_COARSE_DIRT.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

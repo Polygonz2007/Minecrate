@@ -110,11 +110,12 @@ int main() {
     DisableCursor();
     SetTargetFPS(144);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
+    SetConfigFlags(FLAG_VSYNC_HINT);
 
     // CAMERA
     Camera camera = { 0 };
-    camera.position = (Vector3){ 2.0f, 1.83f, 2.0f };
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
+    camera.position = (Vector3){ 0.0f, 0.0f, 0.0f };
+    camera.up = (Vector3){ 0.01f, 1.0f, 0.01f };
     camera.fovy = 90.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 
@@ -222,7 +223,7 @@ int main() {
         if (!start_loading_finished && chunk_thread_running && debug.terrain_loading) {
             // Render loading screen
             BeginDrawing();
-            ClearBackground(BLACK);
+            ClearBackground(DARKBLUE);
 
             char s[64];
             uint16_t tot_loaded_chunks = get_total_loaded_chunks();
@@ -231,7 +232,7 @@ int main() {
 
             DrawText(s, (window_width - MeasureText(s, 38)) * 0.5f, (window_height - 38 - 24) * 0.5f, 38, RAYWHITE);
 
-            DrawRectangle((window_width * 0.5f) - 300.0f, (window_height * 0.5f) + 24.0f, 600.0f, 24, DARKBLUE);
+            DrawRectangle((window_width * 0.5f) - 300.0f, (window_height * 0.5f) + 24.0f, 600.0f, 24, BLACK);
             DrawRectangle((window_width * 0.5f) - 300.0f, (window_height * 0.5f) + 24.0f, loaded * 600.0f, 24, RED);
 
             EndDrawing();
@@ -403,7 +404,7 @@ int main() {
         uint8_t models_loaded = 0;
 
         for (uint16_t i = 0; i < num_chunks; ++i) {
-            if (models_loaded >= 2)
+            if (models_loaded > 2)
                 break;
 
             int did = load_chunk_model(chunk_locs[i]);
@@ -463,7 +464,6 @@ int main() {
             snprintf(render_dist_s, 31, "Render distance: %d", render_distance);
             snprintf(position_string, 63, "Position: %d, %d, %d", int_pos.x, int_pos.y, int_pos.z);
             snprintf(c_position_string, 63, "Chunk Position: %d, %d", new_chunk_pos.x, new_chunk_pos.y);
-            snprintf(current_block_string, 31, "Standing on %s", block_names[get_block(int_pos).type]);
 
 
             // Draw
@@ -478,10 +478,9 @@ int main() {
             DrawText("-- terrain --", 10, 190, 20, INFO_TITLE_COL);
             DrawText(render_dist_s, 10, 210, 20, INFO_COL);
             DrawText(chunk_num_s, 10, 250, 20, INFO_COL);
-            DrawText(current_block_string, 10, 270, 20, INFO_COL);
 
-            DrawText("-- memory --", 10, 310, 20, INFO_TITLE_COL);
-            DrawText(memory_s, 10, 330, 20, INFO_COL);
+            DrawText("-- memory --", 10, 290, 20, INFO_TITLE_COL);
+            DrawText(memory_s, 10, 310, 20, INFO_COL);
 
             if (chunk_thread_running)
                 DrawText("Updating chunks...", 10, window_height - 40, 30, RED);

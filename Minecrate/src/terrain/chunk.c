@@ -143,10 +143,10 @@ int load_chunk(vec2i16_t chunk_pos) {
 
 				// OCEAN
 				if (h < sea_level + 3 && (cb == BLOCK_GRASS || cb == BLOCK_DIRT))
-					cb = BLOCK_SAND; // Sand at shore
+					cb = BLOCK_COBBLESTONE; // Sand at shore
 
-				//if (y < sea_level && cb == BLOCK_AIR)
-				//	cb = BLOCK_WATER;
+				if (y < sea_level && cb == BLOCK_AIR)
+					cb = BLOCK_WATER;
 
 				// CAVES
 

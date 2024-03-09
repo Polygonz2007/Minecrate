@@ -149,7 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\block_textures\BLOCK_BEDROCK.png" />
-    <Image Include="assets\block_textures\BLOCK_COARSE DIRT.png" />
+    <Image Include="assets\block_textures\BLOCK_COARSE_DIRT.png" />
     <Image Include="assets\block_textures\BLOCK_COBBLESTONE.png" />
     <Image Include="assets\block_textures\BLOCK_DIRT.png" />
     <Image Include="assets\block_textures\BLOCK_GRASS.png" />

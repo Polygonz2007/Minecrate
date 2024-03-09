@@ -22,11 +22,12 @@ int init_texture_atlas() {
 // Fill in with blocks
 int generate_texture_atlas() {
 	// Fill in image with blocks
+	printf("Block types: %d", num_block_types);
 	for (uint8_t block = 0; block < num_block_types; ++block) {
 		for (uint8_t side = 0; side < 6; ++side) {
 			// Find texture for this side on this block and paste to atlas
 			char dir[48];
-			snprintf(dir, 47, "%s/BLOCK_%s_%s.png", block_textures_dir, block_names[block], side_names[side]);
+			snprintf(dir, 47, "%s/BLOCK_%s_%s.png", block_textures_dir, block_names[block], side_names[side + 1]);
 			printf("%s\n", dir);
 
 			// Get
@@ -58,7 +59,10 @@ int generate_texture_atlas() {
 	}
 
 	texture_atlas = LoadTextureFromImage(texture_atlas_img);
+
+	GenTextureMipmaps(&texture_atlas);
 	SetTextureFilter(texture_atlas, TEXTURE_FILTER_POINT);
+	SetTextureWrap(texture_atlas, TEXTURE_WRAP_CLAMP);
 
 	printf("\n\nLoaded texture atlas successfully.\n");
 
@@ -82,7 +86,7 @@ Vector2 get_texcoord_block_size() {
 	// Return it
 	return (Vector2) {
 		0.1666f,
-		1 / (double)num_block_types
+		1.0f / (double)num_block_types
 	};
 }
 

@@ -567,7 +567,7 @@ struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, side_t dir, uint8_t
 
     // UVS
     // Since the plane starts at 0, which is below 1, and the uvs start at 0 ABOVE 1, we flip that axis
-    Vector2 start = get_texcoords_atlas(block_t_new(block), side_t_new(dir.i + 1)); // -1 bc of none
+    Vector2 start = get_texcoords_atlas(block_t_new(block), side_t_new(dir.i)); // -1 bc of none
     Vector2 end = Vector2Add(start, get_texcoord_block_size());
 
     plane.uv1 = (Vector2) { start.x,   end.y };

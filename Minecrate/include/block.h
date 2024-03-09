@@ -24,7 +24,7 @@ static const char block_names[16][16] = {
 	"WATER",
 	"GRASS",
 	"DIRT",
-	"COARSE DIRT"
+	"COARSE_DIRT"
 	"STONE",
 	"COBBLESTONE",
 	"SAND",
