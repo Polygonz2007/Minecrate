@@ -157,6 +157,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     block_t nx = block_t_new(BLOCK_UNDEFINED);
                     if (x > 0)
                         nx = chunk_data[cind + index - plus_x];
+                    
                     if (x == 0 && chunk_neg_x_index != -1) {
                         uint32_t nx_ind = 15 + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
                         nx = chunk_data[cx_ind + nx_ind];
@@ -169,6 +170,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     block_t nz = block_t_new(BLOCK_UNDEFINED);
                     if (z > 0)
                         nz = chunk_data[cind + index - plus_z];
+                    
                     if (z == 0 && chunk_neg_z_index != -1) {
                         uint32_t nz_ind = x + (y * chunk_size.x) + (15 * chunk_size.y * chunk_size.x);
                         nz = chunk_data[cz_ind + nz_ind];
@@ -576,14 +578,11 @@ struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, side_t dir, uint8_t
     plane.uv4 = (Vector2) {   end.x, start.y };
 
     // Swap around uvs if flipped
-    if (dir.i == SIDE_RIGHT || dir.i == SIDE_BOTTOM || dir.i == SIDE_FRONT) {
-        // TODO: fix rotated uvs
-        Vector2 temp = plane.uv1;
-
-        plane.uv1 = plane.uv4;
+    if (dir.i == SIDE_LEFT || dir.i == SIDE_BOTTOM || dir.i == SIDE_FRONT) {
+        // Since we flipped order of tangents, we need to flip the two only-one-axis uvs
+        Vector2 temp = plane.uv2;
         plane.uv2 = plane.uv3;
-        plane.uv3 = plane.uv2;
-        plane.uv4 = temp;
+        plane.uv3 = temp;
     }
 
     // Normal.
