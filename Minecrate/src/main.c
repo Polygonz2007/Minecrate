@@ -49,6 +49,7 @@
 // COLORS
 #define INFO_TITLE_COL (Color){ 255, 255, 255, 215 }
 #define INFO_COL (Color){ 255, 255, 255, 175 }
+#define INFO_COL_DARK (Color){ 0, 0, 0, 175 }
 #define NIGHT (Color) { 0, 20, 80, 255 }
 
 // DEBUG COLORS
@@ -375,7 +376,7 @@ int main() {
 
         // DRAW
         BeginDrawing();
-        ClearBackground(SKYBLUE);
+        ClearBackground(NIGHT);
 
         // 3D
         BeginMode3D(camera);
@@ -429,7 +430,7 @@ int main() {
 
         EndMode3D();
 
-        DrawTextureEx(texture_atlas, (Vector2) { 0, 0 }, 0.0f, 2.0f, WHITE);
+        DrawTextureEx(texture_atlas, (Vector2) { window_width - 96 * 2, 0 }, 0.0f, 2.0f, WHITE);
 
         // Water screen effect (under ui ofc)
         if (get_block((vec3i32_t){ int_pos.x, player_position.y + player_height + 0.2f, int_pos.z }).type == BLOCK_WATER) {
@@ -467,6 +468,8 @@ int main() {
 
 
             // Draw
+            //DrawRectangle(0, 0, 400, 340, INFO_COL_DARK);
+
             DrawText("Minecrate v0.3 [MESH UPDATE]", 10, 10, 30, WHITE);
             DrawText("-- performance --", 10, 50, 20, INFO_TITLE_COL);
             DrawText(fps_string, 10, 70, 20, INFO_COL);

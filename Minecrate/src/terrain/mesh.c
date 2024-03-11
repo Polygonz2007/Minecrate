@@ -578,6 +578,12 @@ struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, side_t dir, uint8_t
     // Swap around uvs if flipped
     if (dir.i == SIDE_RIGHT || dir.i == SIDE_BOTTOM || dir.i == SIDE_FRONT) {
         // TODO: fix rotated uvs
+        Vector2 temp = plane.uv1;
+
+        plane.uv1 = plane.uv4;
+        plane.uv2 = plane.uv3;
+        plane.uv3 = plane.uv2;
+        plane.uv4 = temp;
     }
 
     // Normal.

@@ -76,9 +76,6 @@
     <Image Include="assets\block_textures\BLOCK_DIRT.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\block_textures\BLOCK_STONE.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="assets\block_textures\BLOCK_LEAVES.png">
       <Filter>Resource Files</Filter>
     </Image>
@@ -92,9 +89,6 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="assets\block_textures\BLOCK_GRASS_BOTTOM.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\block_textures\BLOCK_COARSE_DIRT.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
