@@ -405,7 +405,7 @@ int main() {
         uint8_t models_loaded = 0;
 
         for (uint16_t i = 0; i < num_chunks; ++i) {
-            if (models_loaded > 2)
+            if (models_loaded > 1)
                 break;
 
             int did = load_chunk_model(chunk_locs[i]);
