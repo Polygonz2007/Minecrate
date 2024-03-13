@@ -109,7 +109,7 @@ int main() {
     //SetWindowIcon(Icon);
 
     DisableCursor();
-    SetTargetFPS(144);
+    SetTargetFPS(240);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     SetConfigFlags(FLAG_VSYNC_HINT);
 
@@ -495,7 +495,6 @@ int main() {
     // Free memory and close.
     free_mesh_gen();
     free_chunks();
-
     free_texture_atlas();
 
     CloseWindow();

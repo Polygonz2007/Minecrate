@@ -35,7 +35,7 @@ int init_chunks() {
 
 	chunk_data = malloc(chunk_data_size * num_chunks * sizeof(block_t));
 	chunk_locs = malloc(num_chunks * sizeof(vec2i16_t));
-	chunk_status = malloc(num_chunks * sizeof(uint8_t));
+	chunk_status = calloc(num_chunks, sizeof(uint8_t));	// calloc bc all chunks unloaded
 	chunk_buffer = malloc(chunk_size.x * chunk_size.z * sizeof(uint16_t));
 
 	chunk_meshes = malloc(num_chunks * sizeof(Mesh));
@@ -50,12 +50,6 @@ int init_chunks() {
 
 	chunk_mem_usage += num_chunks * sizeof(Mesh);
 	chunk_mem_usage += num_chunks * sizeof(Model);
-
-
-	// Initialize all chunks as unloaded
-	for (uint16_t i = 0; i < num_chunks; ++i) {
-		chunk_status[i] = CHUNK_UNLOADED;
-	}
 
 	printf("Memory allocated.\nChunk data size: %d\nTotal memory usage: %d\n", chunk_data_size, chunk_mem_usage);
 }
@@ -100,17 +94,18 @@ int load_chunk(vec2i16_t chunk_pos) {
 
 	for (uint16_t x = 0; x < chunk_size.x; ++x) {
 		for (uint16_t y = 0; y < chunk_size.z; ++y) {
-			int32_t cx = 7000 + global_cx + (int32_t)x;
-			int32_t cy = 5000 + global_cy + (int32_t)y;
+			int32_t cx = 1000 + global_cx + (int32_t)x;
+			int32_t cy = 1000 + global_cy + (int32_t)y;
 			// + 1000 to avoid problems temporariy
 
-			chunk_buffer[x + (y * chunk_size.x)] = (uint16_t)sea_level + (uint16_t)(70.0f * sample_perlin_octaves(
-				cx / 128.0f,                     // X
-				cy / 128.0f,                     // Y
-				6,                              // OCTAVES
-				2.0f,                           // LACUNARITY
-				0.47f) - 48.0f)                 // PERSISTANCE
-				- (-40.0f + sample_perlin_octaves(cx / 756.0f, cy / 756.0f, 2, 1.7f, 0.6f) * 90.0f);
+			// TERRAIN
+			double main = sample_perlin_octaves(cx / 196.0f, cy / 196.0f, 9, 2.0f, 0.47f);
+			double ocean = (-40.0f + sample_perlin_octaves(cx / 756.0f, cy / 756.0f, 2, 1.7f, 0.6f) * 90.0f);
+
+			main = 1.0f - pow(main, 0.7f);
+			main = (96.0f * main - 40.0f);
+
+			chunk_buffer[x + (y * chunk_size.x)] = (uint16_t)(sea_level + main - ocean);
 		}
 	}
 

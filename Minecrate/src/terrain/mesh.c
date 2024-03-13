@@ -11,6 +11,7 @@
 #include "chunk.h"
 #include "texture.h"
 
+static uint32_t mesh_gen_buffer_size;
 static struct mesh_sides* mesh_gen_buffer;	// Used for storing sides to load in a mesh
 
 
@@ -32,8 +33,10 @@ static inline struct mesh_sides mesh_sides_empty() {
 
 // INIT MESH GEN
 int init_mesh_gen() {
-    mesh_gen_buffer = malloc(chunk_data_size * sizeof(struct mesh_sides));
-    chunk_mem_usage += chunk_data_size * sizeof(struct mesh_sides);
+    mesh_gen_buffer_size = (chunk_size.x + 1) * chunk_size.y * (chunk_size.z + 1);
+
+    mesh_gen_buffer = malloc(mesh_gen_buffer_size * sizeof(struct mesh_sides));
+    chunk_mem_usage += mesh_gen_buffer_size * sizeof(struct mesh_sides);
 
     printf("\nInitiated mesh gen buffer.");
     return 0;
