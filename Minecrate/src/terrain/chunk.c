@@ -99,6 +99,8 @@ int load_chunk(vec2i16_t chunk_pos) {
 			// + 1000 to avoid problems temporariy
 
 			// TERRAIN
+			double erosion = 0.5f + sample_perlin_octaves(cx / 256.0f, cy / 256.0f, 3, 1.5f, 0.75f) * 0.5f;
+
 			double main = sample_perlin_octaves(cx / 128.0f, cy / 128.0f, 9, 2.0f, 0.47f);
 			double detail = sample_perlin_octaves(cx / 16.0f, cy / 16.0f, 4, 2.0f, 0.5f);
 			double ocean = (-40.0f + sample_perlin_octaves(cx / 756.0f, cy / 756.0f, 2, 1.7f, 0.6f) * 90.0f);
@@ -106,7 +108,7 @@ int load_chunk(vec2i16_t chunk_pos) {
 			main = 1.0f - pow(main, 0.7f);
 			main = (96.0f * main - 40.0f);
 
-			detail *= 2.0f;
+			detail *= 8.0f * erosion;
 
 			chunk_buffer[x + (y * chunk_size.x)] = (uint16_t)(sea_level + main - ocean + detail);
 		}
@@ -140,7 +142,7 @@ int load_chunk(vec2i16_t chunk_pos) {
 				}
 
 				// OCEAN
-				if (h < sea_level + 3 && (cb == BLOCK_GRASS || cb == BLOCK_DIRT))
+				if (h < sea_level + 2 && (cb == BLOCK_GRASS || cb == BLOCK_DIRT))
 					cb = BLOCK_COBBLESTONE; // Sand at shore
 
 				if (y < sea_level && cb == BLOCK_AIR)
