@@ -34,6 +34,7 @@ static inline struct mesh_sides mesh_sides_empty() {
 // INIT MESH GEN
 int init_mesh_gen() {
     mesh_gen_buffer_size = (chunk_size.x + 1) * chunk_size.y * (chunk_size.z + 1);
+    mesh_gen_buffer_size -= chunk_size.y; // remove last bit we dont need
 
     mesh_gen_buffer = malloc(mesh_gen_buffer_size * sizeof(struct mesh_sides));
     chunk_mem_usage += mesh_gen_buffer_size * sizeof(struct mesh_sides);
@@ -84,7 +85,10 @@ int load_chunk_model(vec2i16_t chunk_pos) {
         chunk_models[index].materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture_atlas;
 
         chunk_status[index] = CHUNK_LOADED_MODEL;
+        return 0;
     }
+
+    return -1;
 }
 
 // Call anywhere
@@ -125,19 +129,27 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
 
     uint32_t cind = chunk_index * chunk_data_size;
 
-    int32_t chunk_neg_x_index = get_chunk_index((vec2i16_t) { chunk_pos.x - 1, chunk_pos.y });
-    int32_t chunk_neg_z_index = get_chunk_index((vec2i16_t) { chunk_pos.x, chunk_pos.y - 1 });
-    uint32_t cx_ind = chunk_neg_x_index * chunk_data_size;
-    uint32_t cz_ind = chunk_neg_z_index * chunk_data_size;
+    int32_t chunk_pos_x_index = get_chunk_index((vec2i16_t) { chunk_pos.x + 1, chunk_pos.y });
+    int32_t chunk_pos_z_index = get_chunk_index((vec2i16_t) { chunk_pos.x, chunk_pos.y + 1 });
+    uint32_t cx_ind = chunk_pos_x_index * chunk_data_size;
+    uint32_t cz_ind = chunk_pos_z_index * chunk_data_size;
 
     // Use to get block above, below, sides, etc of this block
     uint16_t plus_x = 1;
     uint16_t plus_y = chunk_size.x;
     uint16_t plus_z = chunk_size.x * chunk_size.y;
 
-    for (uint16_t x = 0; x < chunk_size.x; ++x) {
+    printf("We got past the fist part atleast...\n");
+
+    for (uint16_t x = 0; x <= chunk_size.x; ++x) {
         for (uint16_t y = 0; y < chunk_size.y; ++y) {
-            for (uint16_t z = 0; z < chunk_size.z; ++z) {
+            for (uint16_t z = 0; z <= chunk_size.z; ++z) {
+                // If we are edging the chunk, abort gyatt.
+                if (x == chunk_size.x && z == chunk_size.z)
+                    continue;
+
+
+                // Get index, and start moving data
                 uint32_t index = x + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
                 block_t cb = chunk_data[cind + index];
 
@@ -161,7 +173,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     if (x > 0)
                         nx = chunk_data[cind + index - plus_x];
                     
-                    if (x == 0 && chunk_neg_x_index != -1) {
+                    if (x == chunk_size.x && chunk_pos_x_index != -1) {
                         uint32_t nx_ind = 15 + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
                         nx = chunk_data[cx_ind + nx_ind];
                     }
@@ -174,7 +186,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     if (z > 0)
                         nz = chunk_data[cind + index - plus_z];
                     
-                    if (z == 0 && chunk_neg_z_index != -1) {
+                    if (z == chunk_size.z && chunk_pos_z_index != -1) {
                         uint32_t nz_ind = x + (y * chunk_size.x) + (15 * chunk_size.y * chunk_size.x);
                         nz = chunk_data[cz_ind + nz_ind];
                     }
@@ -237,12 +249,17 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     // Fill in the data
     uint32_t face_ind = 0;
 
-    for (uint16_t x = 0; x < chunk_size.x; ++x) {
-        for (uint16_t y = 0; y < chunk_size.y; ++y) {
-            for (uint16_t z = 0; z < chunk_size.z; ++z) {
-                const uint32_t index = x + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
+    printf("Omg maybe!??!\n");
 
-                // todo: generate the things and put into the verticices and stuff
+    for (uint16_t x = 0; x <= chunk_size.x; ++x) {
+        for (uint16_t y = 0; y < chunk_size.y; ++y) {
+            for (uint16_t z = 0; z <= chunk_size.z; ++z) {
+                // If we are edging the chunk, abort gyatt.
+                if (x == chunk_size.x && z == chunk_size.z)
+                    continue;
+
+                // Get index and make mesh_sides for this block
+                const uint32_t index = x + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
                 const struct mesh_sides sides = mesh_gen_buffer[index];
 
                 // X FACE
@@ -519,6 +536,9 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
         }
     }
 
+    printf("YEEEEES!\n");
+
+    // We upload mesh on main thread, so do nothing here :)
     return mesh;
 }
 
