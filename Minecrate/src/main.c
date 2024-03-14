@@ -338,14 +338,6 @@ int main() {
             
         }
 
-        // CAP
-        if (player_position.y < 0.0f) {
-            player_position.y = 0.0f;
-            player_velocity.y = 0.0f;
-        } else if (player_position.y > 255.0f) {
-            player_position.y = 255.0f;
-            player_velocity.y = 0.0f;
-        }
 
         // CAMERA
         camera.position = (Vector3){ player_position.x, player_position.y + player_height, player_position.z };

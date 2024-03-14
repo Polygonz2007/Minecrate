@@ -150,6 +150,11 @@ int load_chunk(vec2i16_t chunk_pos) {
 
 				// CAVES
 
+
+				// TEST
+				if (x == 0)
+					cb = BLOCK_BEDROCK;
+
 				chunk_data[i] = block_t_new(cb);
 			}
 		}
