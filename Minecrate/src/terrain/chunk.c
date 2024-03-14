@@ -152,7 +152,7 @@ int load_chunk(vec2i16_t chunk_pos) {
 
 
 				// TEST
-				if (x == 0)
+				if (x == 0 && z == 0)
 					cb = BLOCK_BEDROCK;
 
 				chunk_data[i] = block_t_new(cb);
@@ -214,7 +214,7 @@ int32_t get_block_index(vec3u16_t c_block_pos) {
 
 
 block_t get_block(vec3i32_t block_pos) {
-	if (block_pos.y < 0)
+	if (block_pos.y < 0 || block_pos.y > chunk_size.y)
 		return block_t_new(BLOCK_UNDEFINED);
 
 	int32_t chunk_index = get_chunk_index(get_chunk_pos(block_pos));

@@ -328,12 +328,15 @@ int main() {
             block_t inside_block = get_block((vec3i32_t) { int_pos.x, int_pos.y, int_pos.z });
             
             // until i add collision we just teleport up until were not inside block
-            if (!(standing_on_block.type == BLOCK_AIR || standing_on_block.type == BLOCK_WATER) && player_position.y < int_pos.y) {
+            _Bool in_block = !(inside_block.type == BLOCK_AIR || inside_block.type == BLOCK_WATER || inside_block.type == BLOCK_UNDEFINED);
+            _Bool standing_block = !(standing_on_block.type == BLOCK_AIR || standing_on_block.type == BLOCK_WATER || standing_on_block.type == BLOCK_UNDEFINED);
+            
+            if (standing_block && player_position.y < int_pos.y) {
                 player_velocity.y = 0;
                 player_position.y = int_pos.y;
             }
 
-            if (!(inside_block.type == BLOCK_AIR || inside_block.type == BLOCK_WATER))
+            if (in_block)
                 player_position.y++;
             
         }
