@@ -34,7 +34,7 @@ static inline struct mesh_sides mesh_sides_empty() {
 // INIT MESH GEN
 int init_mesh_gen() {
     mesh_gen_buffer_size = (chunk_size.x + 1) * chunk_size.y * (chunk_size.z + 1);
-    mesh_gen_buffer_size -= chunk_size.y; // remove last bit we dont need
+    //mesh_gen_buffer_size -= chunk_size.y; // remove last bit we dont need
 
     mesh_gen_buffer = malloc(mesh_gen_buffer_size * sizeof(struct mesh_sides));
     chunk_mem_usage += mesh_gen_buffer_size * sizeof(struct mesh_sides);
@@ -248,21 +248,32 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
 
     // Fill in the data
     uint32_t face_ind = 0;
+    _Bool end = false;
 
     printf("Omg maybe!??!\n");
 
     for (uint16_t x = 0; x <= chunk_size.x; ++x) {
         for (uint16_t y = 0; y < chunk_size.y; ++y) {
             for (uint16_t z = 0; z <= chunk_size.z; ++z) {
-                // If we are edging the chunk, abort gyatt.
-                if (x == chunk_size.x && z == chunk_size.z)
+                printf("\ncheck!?!? %d %d %d\n", x, y, z);
+
+                // If we are edging the chunk, abort
+                if (x == chunk_size.x && z == chunk_size.z) {
+                    printf("#skippipng");
                     continue;
+                }
+
+                printf("yessir\n");
 
                 // Get index and make mesh_sides for this block
                 const uint32_t index = x + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
+                printf("tot ind %d, max %d\n", index, mesh_gen_buffer_size);
                 const struct mesh_sides sides = mesh_gen_buffer[index];
 
+                printf("indexed\n");
+
                 // X FACE
+                printf("side x\n");
                 if (sides.x.type != BLOCK_UNDEFINED) {
                     // We want a face on this side, so generate blueprint..
                     const struct mesh_base_plane px = gen_plane_blueprint(
@@ -353,6 +364,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                 }
 
                 // Y FACE
+                printf("side y\n");
                 if (sides.y.type != BLOCK_UNDEFINED) {
                     // We want a face on this side, so generate blueprint..
                     const struct mesh_base_plane px = gen_plane_blueprint(
@@ -443,6 +455,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                 }
 
                 // Z FACE
+                printf("side z\n");
                 if (sides.z.type != BLOCK_UNDEFINED) {
                     // We want a face on this side, so generate blueprint..
                     const struct mesh_base_plane px = gen_plane_blueprint(
@@ -531,6 +544,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     // Finally, increment face_ind so we dont overwrite this face!
                     face_ind++;
                 }
+
+                printf("find\n");
 
             }
         }
