@@ -114,11 +114,7 @@ int unload_chunk_model_and_mesh(vec2i16_t chunk_pos) {
 
 // Generate chunk
 Mesh GenChunkMesh(vec2i16_t chunk_pos) {
-
-    // Fill buffer with empty data
-    for (uint32_t i = 0; i < chunk_data_size; ++i) {
-        mesh_gen_buffer[i] = mesh_sides_empty();
-    }
+    // Buffer fills with empty where it needs to already!!!
 
     // Calculate how big mesh will be (Loop through chunk and count and store)
     uint32_t tot_tris = 0;
@@ -144,7 +140,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     for (uint16_t x = 0; x <= chunk_size.x; ++x) {
         for (uint16_t y = 0; y < chunk_size.y; ++y) {
             for (uint16_t z = 0; z <= chunk_size.z; ++z) {
-                // If we are edging the chunk, abort gyatt.
+                // If we are edging the chunk, abort.
                 if (x == chunk_size.x && z == chunk_size.z)
                     continue;
 
