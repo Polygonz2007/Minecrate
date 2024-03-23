@@ -371,7 +371,7 @@ int main() {
 
         // DRAW
         BeginDrawing();
-        ClearBackground(NIGHT);
+        ClearBackground(SKYBLUE);
 
         // 3D
         BeginMode3D(camera);
@@ -396,16 +396,11 @@ int main() {
         }
 
         // Load models from meshes (has to be done on main thread)
-        // Load max (renderdistance) new models per frame
-        uint8_t models_loaded = 0;
-
+        // We find closest to load first (should be optimized)
         for (uint16_t i = 0; i < num_chunks; ++i) {
-            if (models_loaded > 1)
-                break;
-
             int did = load_chunk_model(chunk_locs[i]);
             if (did == 0)
-                models_loaded++;
+                break;
         }
 
         // Draw chunk models

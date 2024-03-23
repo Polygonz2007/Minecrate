@@ -13,6 +13,7 @@
 
 uint32_t mesh_gen_buffer_size;
 struct mesh_sides* mesh_gen_buffer;	// Used for storing sides to load in a mesh
+block_t mesh_gen_blocks_buffer;
 
 // for mesh gen
 float *verts_p;
@@ -37,9 +38,8 @@ static inline struct mesh_sides mesh_sides_empty() {
 
 // INIT MESH GEN
 int init_mesh_gen() {
-    //mesh_gen_buffer_size = (chunk_size.x + 1) * chunk_size.y * (chunk_size.z + 1);
-    //mesh_gen_buffer_size -= chunk_size.y; // remove last bit we dont need
-    mesh_gen_buffer_size = chunk_data_size;
+    mesh_gen_buffer_size = (chunk_size.x + 1) * chunk_size.y * (chunk_size.z + 1);
+    mesh_gen_buffer_size -= chunk_size.y; // remove last bit we dont need
 
     mesh_gen_buffer = malloc(mesh_gen_buffer_size * sizeof(struct mesh_sides));
     chunk_mem_usage += mesh_gen_buffer_size * sizeof(struct mesh_sides);
@@ -130,20 +130,32 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     if (chunk_index == -1)
         return (Mesh) { 0 };    // Cannot load an empty chunk, so return empty mesh >:D
 
+    // Chunk index offsets
     uint32_t cind = chunk_index * chunk_data_size;
+    uint16_t chunk_plus_x = get_chunk_index((vec2i16_t) { chunk_pos.x + 1, chunk_pos.y });
+    uint16_t chunk_plus_z = get_chunk_index((vec2i16_t) { chunk_pos.x, chunk_pos.y + 1 });
 
     // Use to get block above, below, sides, etc of this block
     uint16_t plus_x = 1;
     uint16_t plus_y = chunk_size.x;
     uint16_t plus_z = chunk_size.x * chunk_size.y;
 
-    // Calculate all blocks where a face is needed. Add to the total.
-    for (uint16_t x = 0; x < chunk_size.x; ++x) {
-        for (uint16_t y = 0; y < chunk_size.y; ++y) {
-            for (uint16_t z = 0; z < chunk_size.z; ++z) {
+    // Fill buffer for blocks needed for THIS chunk.
 
+    // Calculate all blocks where a face is needed. Add to the total.
+    for (uint16_t x = 0; x <= chunk_size.x; ++x) {
+        if (x == 16 && chunk_plus_x == -1)
+            break;
+
+        for (uint16_t z = 0; z < chunk_size.z; ++z) {
+            if (z == 16 && chunk_plus_z == -1)
+                continue;
+
+            for (uint16_t y = 0; y <= chunk_size.y; ++y) {
                 // Get index, and start moving data
                 uint32_t index = x + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
+                uint32_t write_index = x + (y * (chunk_size.x + 1)) + (z * (chunk_size.y + 1) * (chunk_size.x + 1));
+
                 block_t cb = chunk_data[cind + index];
 
                 if (cb.type == BLOCK_AIR || cb.type == BLOCK_WATER) {
@@ -236,9 +248,9 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     uint32_t face_ind = 0;
 
     // Loop trough all blocks, and add faces where it is nessecarry
-    for (uint16_t x = 0; x < chunk_size.x; ++x) {
+    for (uint16_t x = 0; x <= chunk_size.x; ++x) {
         for (uint16_t y = 0; y < chunk_size.y; ++y) {
-            for (uint16_t z = 0; z < chunk_size.z; ++z) {
+            for (uint16_t z = 0; z <= chunk_size.z; ++z) {
 
                 // Get index and make mesh_sides for this block
                 const uint32_t index = x + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
