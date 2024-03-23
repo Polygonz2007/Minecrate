@@ -149,11 +149,7 @@ int load_chunk(vec2i16_t chunk_pos) {
 					cb = BLOCK_WATER;
 
 				// CAVES
-
-
-				// TEST
-				if (x == 0 && z == 0)
-					cb = BLOCK_BEDROCK;
+				// 3d noise, abs(noise - 1.0f) > 0.05f
 
 				chunk_data[i] = block_t_new(cb);
 			}

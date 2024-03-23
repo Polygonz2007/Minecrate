@@ -11,9 +11,13 @@
 #include "chunk.h"
 #include "texture.h"
 
-static uint32_t mesh_gen_buffer_size;
-static struct mesh_sides* mesh_gen_buffer;	// Used for storing sides to load in a mesh
+uint32_t mesh_gen_buffer_size;
+struct mesh_sides* mesh_gen_buffer;	// Used for storing sides to load in a mesh
 
+// for mesh gen
+float *verts_p;
+float *uvs_p;
+float *norms_p;
 
 
 // graaah
@@ -33,8 +37,9 @@ static inline struct mesh_sides mesh_sides_empty() {
 
 // INIT MESH GEN
 int init_mesh_gen() {
-    mesh_gen_buffer_size = (chunk_size.x + 1) * chunk_size.y * (chunk_size.z + 1);
+    //mesh_gen_buffer_size = (chunk_size.x + 1) * chunk_size.y * (chunk_size.z + 1);
     //mesh_gen_buffer_size -= chunk_size.y; // remove last bit we dont need
+    mesh_gen_buffer_size = chunk_data_size;
 
     mesh_gen_buffer = malloc(mesh_gen_buffer_size * sizeof(struct mesh_sides));
     chunk_mem_usage += mesh_gen_buffer_size * sizeof(struct mesh_sides);
@@ -91,7 +96,7 @@ int load_chunk_model(vec2i16_t chunk_pos) {
     return -1;
 }
 
-// Call anywhere
+// Call anywhere you go!
 int unload_chunk_model_and_mesh(vec2i16_t chunk_pos) {
     uint16_t index = get_chunk_index(chunk_pos);
 
@@ -114,7 +119,9 @@ int unload_chunk_model_and_mesh(vec2i16_t chunk_pos) {
 
 // Generate chunk
 Mesh GenChunkMesh(vec2i16_t chunk_pos) {
-    // Buffer fills with empty where it needs to already!!!
+    for (uint32_t i = 0; i < mesh_gen_buffer_size; ++i) {
+        mesh_gen_buffer[i] = mesh_sides_empty();
+    }
 
     // Calculate how big mesh will be (Loop through chunk and count and store)
     uint32_t tot_tris = 0;
@@ -125,25 +132,15 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
 
     uint32_t cind = chunk_index * chunk_data_size;
 
-    int32_t chunk_pos_x_index = get_chunk_index((vec2i16_t) { chunk_pos.x + 1, chunk_pos.y });
-    int32_t chunk_pos_z_index = get_chunk_index((vec2i16_t) { chunk_pos.x, chunk_pos.y + 1 });
-    uint32_t cx_ind = chunk_pos_x_index * chunk_data_size;
-    uint32_t cz_ind = chunk_pos_z_index * chunk_data_size;
-
     // Use to get block above, below, sides, etc of this block
     uint16_t plus_x = 1;
     uint16_t plus_y = chunk_size.x;
     uint16_t plus_z = chunk_size.x * chunk_size.y;
 
-    printf("We got past the fist part atleast...\n");
-
-    for (uint16_t x = 0; x <= chunk_size.x; ++x) {
+    // Calculate all blocks where a face is needed. Add to the total.
+    for (uint16_t x = 0; x < chunk_size.x; ++x) {
         for (uint16_t y = 0; y < chunk_size.y; ++y) {
-            for (uint16_t z = 0; z <= chunk_size.z; ++z) {
-                // If we are edging the chunk, abort.
-                if (x == chunk_size.x && z == chunk_size.z)
-                    continue;
-
+            for (uint16_t z = 0; z < chunk_size.z; ++z) {
 
                 // Get index, and start moving data
                 uint32_t index = x + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
@@ -164,15 +161,12 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     if (z + 1 < chunk_size.z)
                         pz = chunk_data[cind + index + plus_z];
 
+
+
                     // Negative, so make sure more than 0
                     block_t nx = block_t_new(BLOCK_UNDEFINED);
                     if (x > 0)
                         nx = chunk_data[cind + index - plus_x];
-                    
-                    if (x == chunk_size.x && chunk_pos_x_index != -1) {
-                        uint32_t nx_ind = 15 + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
-                        nx = chunk_data[cx_ind + nx_ind];
-                    }
 
                     block_t ny = block_t_new(BLOCK_UNDEFINED);
                     if (y > 0)
@@ -181,11 +175,6 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     block_t nz = block_t_new(BLOCK_UNDEFINED);
                     if (z > 0)
                         nz = chunk_data[cind + index - plus_z];
-                    
-                    if (z == chunk_size.z && chunk_pos_z_index != -1) {
-                        uint32_t nz_ind = x + (y * chunk_size.x) + (15 * chunk_size.y * chunk_size.x);
-                        nz = chunk_data[cz_ind + nz_ind];
-                    }
 
 
 
@@ -227,8 +216,6 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                         mesh_gen_buffer[index + plus_z].z = pz;
                         mesh_gen_buffer[index + plus_z].z_normals = true;
                     }
-
-                    // gaah, now go to next and after fill in the data...
                 }
             }
         }
@@ -236,323 +223,113 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
 
     // Init mesh object
     Mesh mesh = { 0 };
-    mesh.triangleCount = tot_tris;
+    mesh.triangleCount = (int)tot_tris;
     mesh.vertexCount = mesh.triangleCount * 3;
     mesh.vertices = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float));
     mesh.texcoords = (float *)MemAlloc(mesh.vertexCount * 2 * sizeof(float));
     mesh.normals = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float));
 
-    // Fill in the data
+    // Giddy up
+    verts_p = mesh.vertices;
+    uvs_p = mesh.texcoords;
+    norms_p = mesh.normals;
     uint32_t face_ind = 0;
-    _Bool end = false;
 
-    printf("Omg maybe!??!\n");
-
-    for (uint16_t x = 0; x <= chunk_size.x; ++x) {
+    // Loop trough all blocks, and add faces where it is nessecarry
+    for (uint16_t x = 0; x < chunk_size.x; ++x) {
         for (uint16_t y = 0; y < chunk_size.y; ++y) {
-            for (uint16_t z = 0; z <= chunk_size.z; ++z) {
-                printf("\ncheck!?!? %d %d %d\n", x, y, z);
-
-                // If we are edging the chunk, abort
-                if (x == chunk_size.x && z == chunk_size.z) {
-                    printf("#skippipng");
-                    continue;
-                }
-
-                printf("yessir\n");
+            for (uint16_t z = 0; z < chunk_size.z; ++z) {
 
                 // Get index and make mesh_sides for this block
                 const uint32_t index = x + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
-                printf("tot ind %d, max %d\n", index, mesh_gen_buffer_size);
                 const struct mesh_sides sides = mesh_gen_buffer[index];
 
-                printf("indexed\n");
-
                 // X FACE
-                printf("side x\n");
                 if (sides.x.type != BLOCK_UNDEFINED) {
+
                     // We want a face on this side, so generate blueprint..
-                    const struct mesh_base_plane px = gen_plane_blueprint(
-                        (vec3i16_t) { x, y, z },                        // OFFSET
-                        side_t_new(sides.x_normals ? SIDE_LEFT : SIDE_RIGHT),   // DIRECTION (NORMAL)
-                        sides.x.type
+                    const struct mesh_base_plane bp = gen_plane_blueprint(
+                        (vec3i16_t) { x, y, z }, // offset
+                        side_t_new(sides.x_normals ? SIDE_LEFT : SIDE_RIGHT), // direction (normal)
+                        sides.x.type // block type (for uvs)
                     );
 
-                    // ..and add the verticies. (we add 6 verticies, and each uses 3 dimensions...)
-                    // and also 6 uvs, but 2 dimensions!
-                    const ind3 = face_ind * 18; // current index
-                    const ind2 = face_ind * 12; // current index for texcoords (4, because
-
-                    // VERT 0 0
-                    mesh.vertices[ind3 + 0] = px.pos1.x;
-                    mesh.vertices[ind3 + 1] = px.pos1.y;
-                    mesh.vertices[ind3 + 2] = px.pos1.z;
-
-                    mesh.texcoords[ind2 + 0] = px.uv1.x;
-                    mesh.texcoords[ind2 + 1] = px.uv1.y;
-
-                    mesh.normals[ind3 + 0] = px.normal.x;
-                    mesh.normals[ind3 + 1] = px.normal.y;
-                    mesh.normals[ind3 + 2] = px.normal.z;
-
-                    // VERT 0 1
-                    mesh.vertices[ind3 + 3] = px.pos3.x;
-                    mesh.vertices[ind3 + 4] = px.pos3.y;
-                    mesh.vertices[ind3 + 5] = px.pos3.z;
-
-                    mesh.texcoords[ind2 + 2] = px.uv3.x;
-                    mesh.texcoords[ind2 + 3] = px.uv3.y;
-
-                    mesh.normals[ind3 + 3] = px.normal.x;
-                    mesh.normals[ind3 + 4] = px.normal.y;
-                    mesh.normals[ind3 + 5] = px.normal.z;
-
-                    // VERT 1 0
-                    mesh.vertices[ind3 + 6] = px.pos2.x;
-                    mesh.vertices[ind3 + 7] = px.pos2.y;
-                    mesh.vertices[ind3 + 8] = px.pos2.z;
-
-                    mesh.texcoords[ind2 + 4] = px.uv2.x;
-                    mesh.texcoords[ind2 + 5] = px.uv2.y;
-
-                    mesh.normals[ind3 + 6] = px.normal.x;
-                    mesh.normals[ind3 + 7] = px.normal.y;
-                    mesh.normals[ind3 + 8] = px.normal.z;
-
-                    // VERT 1 0
-                    mesh.vertices[ind3 + 9] = px.pos2.x;
-                    mesh.vertices[ind3 + 10] = px.pos2.y;
-                    mesh.vertices[ind3 + 11] = px.pos2.z;
-
-                    mesh.texcoords[ind2 + 6] = px.uv2.x;
-                    mesh.texcoords[ind2 + 7] = px.uv2.y;
-
-                    mesh.normals[ind3 + 9] = px.normal.x;
-                    mesh.normals[ind3 + 10] = px.normal.y;
-                    mesh.normals[ind3 + 11] = px.normal.z;
-
-                    // VERT 0 1
-                    mesh.vertices[ind3 + 12] = px.pos3.x;
-                    mesh.vertices[ind3 + 13] = px.pos3.y;
-                    mesh.vertices[ind3 + 14] = px.pos3.z;
-
-                    mesh.texcoords[ind2 + 8] = px.uv3.x;
-                    mesh.texcoords[ind2 + 9] = px.uv3.y;
-
-                    mesh.normals[ind3 + 12] = px.normal.x;
-                    mesh.normals[ind3 + 13] = px.normal.y;
-                    mesh.normals[ind3 + 14] = px.normal.z;
-
-                    // VERT 1 1
-                    mesh.vertices[ind3 + 15] = px.pos4.x;
-                    mesh.vertices[ind3 + 16] = px.pos4.y;
-                    mesh.vertices[ind3 + 17] = px.pos4.z;
-
-                    mesh.texcoords[ind2 + 10] = px.uv4.x;
-                    mesh.texcoords[ind2 + 11] = px.uv4.y;
-
-                    mesh.normals[ind3 + 15] = px.normal.x;
-                    mesh.normals[ind3 + 16] = px.normal.y;
-                    mesh.normals[ind3 + 17] = px.normal.z;
-
-                    // Finally, increment face_ind so we dont overwrite this face!
-                    face_ind++;
+                    // .. and add the verts!
+                    add_vert(bp.pos1, bp.uv1, bp.normal, &face_ind);
+                    add_vert(bp.pos3, bp.uv3, bp.normal, &face_ind);
+                    add_vert(bp.pos2, bp.uv2, bp.normal, &face_ind);
+                    add_vert(bp.pos2, bp.uv2, bp.normal, &face_ind);
+                    add_vert(bp.pos3, bp.uv3, bp.normal, &face_ind);
+                    add_vert(bp.pos4, bp.uv4, bp.normal, &face_ind);
                 }
 
                 // Y FACE
-                printf("side y\n");
                 if (sides.y.type != BLOCK_UNDEFINED) {
                     // We want a face on this side, so generate blueprint..
-                    const struct mesh_base_plane px = gen_plane_blueprint(
+                    const struct mesh_base_plane bp = gen_plane_blueprint(
                         (vec3i16_t) { x, y, z },                        // OFFSET
                         side_t_new(sides.y_normals ? SIDE_BOTTOM : SIDE_TOP),   // DIRECTION (NORMAL)
                         sides.y.type
                     );
 
-                    // ..and add the verticies. (we add 6 verticies, and each uses 3 dimensions...)
-                    // and also 6 uvs, but 2 dimensions!
-                    const ind3 = face_ind * 18; // current index
-                    const ind2 = face_ind * 12; // current index for texcoords (4, because
-
-                    // VERT 0 0
-                    mesh.vertices[ind3 + 0] = px.pos1.x;
-                    mesh.vertices[ind3 + 1] = px.pos1.y;
-                    mesh.vertices[ind3 + 2] = px.pos1.z;
-
-                    mesh.texcoords[ind2 + 0] = px.uv1.x;
-                    mesh.texcoords[ind2 + 1] = px.uv1.y;
-
-                    mesh.normals[ind3 + 0] = px.normal.x;
-                    mesh.normals[ind3 + 1] = px.normal.y;
-                    mesh.normals[ind3 + 2] = px.normal.z;
-
-                    // VERT 0 1
-                    mesh.vertices[ind3 + 3] = px.pos3.x;
-                    mesh.vertices[ind3 + 4] = px.pos3.y;
-                    mesh.vertices[ind3 + 5] = px.pos3.z;
-
-                    mesh.texcoords[ind2 + 2] = px.uv3.x;
-                    mesh.texcoords[ind2 + 3] = px.uv3.y;
-
-                    mesh.normals[ind3 + 3] = px.normal.x;
-                    mesh.normals[ind3 + 4] = px.normal.y;
-                    mesh.normals[ind3 + 5] = px.normal.z;
-
-                    // VERT 1 0
-                    mesh.vertices[ind3 + 6] = px.pos2.x;
-                    mesh.vertices[ind3 + 7] = px.pos2.y;
-                    mesh.vertices[ind3 + 8] = px.pos2.z;
-
-                    mesh.texcoords[ind2 + 4] = px.uv2.x;
-                    mesh.texcoords[ind2 + 5] = px.uv2.y;
-
-                    mesh.normals[ind3 + 6] = px.normal.x;
-                    mesh.normals[ind3 + 7] = px.normal.y;
-                    mesh.normals[ind3 + 8] = px.normal.z;
-
-                    // VERT 1 0
-                    mesh.vertices[ind3 + 9] = px.pos2.x;
-                    mesh.vertices[ind3 + 10] = px.pos2.y;
-                    mesh.vertices[ind3 + 11] = px.pos2.z;
-
-                    mesh.texcoords[ind2 + 6] = px.uv2.x;
-                    mesh.texcoords[ind2 + 7] = px.uv2.y;
-
-                    mesh.normals[ind3 + 9] = px.normal.x;
-                    mesh.normals[ind3 + 10] = px.normal.y;
-                    mesh.normals[ind3 + 11] = px.normal.z;
-
-                    // VERT 0 1
-                    mesh.vertices[ind3 + 12] = px.pos3.x;
-                    mesh.vertices[ind3 + 13] = px.pos3.y;
-                    mesh.vertices[ind3 + 14] = px.pos3.z;
-
-                    mesh.texcoords[ind2 + 8] = px.uv3.x;
-                    mesh.texcoords[ind2 + 9] = px.uv3.y;
-
-                    mesh.normals[ind3 + 12] = px.normal.x;
-                    mesh.normals[ind3 + 13] = px.normal.y;
-                    mesh.normals[ind3 + 14] = px.normal.z;
-
-                    // VERT 1 1
-                    mesh.vertices[ind3 + 15] = px.pos4.x;
-                    mesh.vertices[ind3 + 16] = px.pos4.y;
-                    mesh.vertices[ind3 + 17] = px.pos4.z;
-
-                    mesh.texcoords[ind2 + 10] = px.uv4.x;
-                    mesh.texcoords[ind2 + 11] = px.uv4.y;
-
-                    mesh.normals[ind3 + 15] = px.normal.x;
-                    mesh.normals[ind3 + 16] = px.normal.y;
-                    mesh.normals[ind3 + 17] = px.normal.z;
-
-                    // Finally, increment face_ind so we dont overwrite this face!
-                    face_ind++;
+                    // .. and add the verts!
+                    add_vert(bp.pos1, bp.uv1, bp.normal, &face_ind);
+                    add_vert(bp.pos3, bp.uv3, bp.normal, &face_ind);
+                    add_vert(bp.pos2, bp.uv2, bp.normal, &face_ind);
+                    add_vert(bp.pos2, bp.uv2, bp.normal, &face_ind);
+                    add_vert(bp.pos3, bp.uv3, bp.normal, &face_ind);
+                    add_vert(bp.pos4, bp.uv4, bp.normal, &face_ind);
                 }
 
                 // Z FACE
-                printf("side z\n");
                 if (sides.z.type != BLOCK_UNDEFINED) {
                     // We want a face on this side, so generate blueprint..
-                    const struct mesh_base_plane px = gen_plane_blueprint(
+                    const struct mesh_base_plane bp = gen_plane_blueprint(
                         (vec3i16_t) { x, y, z },                        // OFFSET
                         side_t_new(sides.z_normals ? SIDE_BACK : SIDE_FRONT),   // DIRECTION (NORMAL)
                         sides.z.type
                     );
 
-                    // ..and add the verticies. (we add 6 verticies, and each uses 3 dimensions...)
-                    // and also 6 uvs, but 2 dimensions!
-                    const ind3 = face_ind * 18; // current index
-                    const ind2 = face_ind * 12; // current index for texcoords (4, because
-
-                    // VERT 0 0
-                    mesh.vertices[ind3 + 0] = px.pos1.x;
-                    mesh.vertices[ind3 + 1] = px.pos1.y;
-                    mesh.vertices[ind3 + 2] = px.pos1.z;
-
-                    mesh.texcoords[ind2 + 0] = px.uv1.x;
-                    mesh.texcoords[ind2 + 1] = px.uv1.y;
-
-                    mesh.normals[ind3 + 0] = px.normal.x;
-                    mesh.normals[ind3 + 1] = px.normal.y;
-                    mesh.normals[ind3 + 2] = px.normal.z;
-
-                    // VERT 0 1
-                    mesh.vertices[ind3 + 3] = px.pos3.x;
-                    mesh.vertices[ind3 + 4] = px.pos3.y;
-                    mesh.vertices[ind3 + 5] = px.pos3.z;
-
-                    mesh.texcoords[ind2 + 2] = px.uv3.x;
-                    mesh.texcoords[ind2 + 3] = px.uv3.y;
-
-                    mesh.normals[ind3 + 3] = px.normal.x;
-                    mesh.normals[ind3 + 4] = px.normal.y;
-                    mesh.normals[ind3 + 5] = px.normal.z;
-
-                    // VERT 1 0
-                    mesh.vertices[ind3 + 6] = px.pos2.x;
-                    mesh.vertices[ind3 + 7] = px.pos2.y;
-                    mesh.vertices[ind3 + 8] = px.pos2.z;
-
-                    mesh.texcoords[ind2 + 4] = px.uv2.x;
-                    mesh.texcoords[ind2 + 5] = px.uv2.y;
-
-                    mesh.normals[ind3 + 6] = px.normal.x;
-                    mesh.normals[ind3 + 7] = px.normal.y;
-                    mesh.normals[ind3 + 8] = px.normal.z;
-
-                    // VERT 1 0
-                    mesh.vertices[ind3 + 9] = px.pos2.x;
-                    mesh.vertices[ind3 + 10] = px.pos2.y;
-                    mesh.vertices[ind3 + 11] = px.pos2.z;
-
-                    mesh.texcoords[ind2 + 6] = px.uv2.x;
-                    mesh.texcoords[ind2 + 7] = px.uv2.y;
-
-                    mesh.normals[ind3 + 9] = px.normal.x;
-                    mesh.normals[ind3 + 10] = px.normal.y;
-                    mesh.normals[ind3 + 11] = px.normal.z;
-
-                    // VERT 0 1
-                    mesh.vertices[ind3 + 12] = px.pos3.x;
-                    mesh.vertices[ind3 + 13] = px.pos3.y;
-                    mesh.vertices[ind3 + 14] = px.pos3.z;
-
-                    mesh.texcoords[ind2 + 8] = px.uv3.x;
-                    mesh.texcoords[ind2 + 9] = px.uv3.y;
-
-                    mesh.normals[ind3 + 12] = px.normal.x;
-                    mesh.normals[ind3 + 13] = px.normal.y;
-                    mesh.normals[ind3 + 14] = px.normal.z;
-
-                    // VERT 1 1
-                    mesh.vertices[ind3 + 15] = px.pos4.x;
-                    mesh.vertices[ind3 + 16] = px.pos4.y;
-                    mesh.vertices[ind3 + 17] = px.pos4.z;
-
-                    mesh.texcoords[ind2 + 10] = px.uv4.x;
-                    mesh.texcoords[ind2 + 11] = px.uv4.y;
-
-                    mesh.normals[ind3 + 15] = px.normal.x;
-                    mesh.normals[ind3 + 16] = px.normal.y;
-                    mesh.normals[ind3 + 17] = px.normal.z;
-
-                    // Finally, increment face_ind so we dont overwrite this face!
-                    face_ind++;
+                    // .. and add the verts!
+                    add_vert(bp.pos1, bp.uv1, bp.normal, &face_ind);
+                    add_vert(bp.pos3, bp.uv3, bp.normal, &face_ind);
+                    add_vert(bp.pos2, bp.uv2, bp.normal, &face_ind);
+                    add_vert(bp.pos2, bp.uv2, bp.normal, &face_ind);
+                    add_vert(bp.pos3, bp.uv3, bp.normal, &face_ind);
+                    add_vert(bp.pos4, bp.uv4, bp.normal, &face_ind);
                 }
-
-                printf("find\n");
 
             }
         }
     }
 
-    printf("YEEEEES!\n");
-
     // We upload mesh on main thread, so do nothing here :)
     return mesh;
 }
 
+
+
+static int add_vert(Vector3 pos, Vector2 uv, Vector3 normal, uint32_t* index) {
+    // Calculate indexes
+    uint32_t ind3 = *index * 3;
+    uint32_t ind2 = *index * 2;
+
+    // Set data
+    verts_p[ind3 + 0] = pos.x;
+    verts_p[ind3 + 1] = pos.y;
+    verts_p[ind3 + 2] = pos.z;
+
+    uvs_p[ind2 + 0] = uv.x;
+    uvs_p[ind2 + 1] = uv.y;
+
+    norms_p[ind3 + 0] = normal.x;
+    norms_p[ind3 + 1] = normal.y;
+    norms_p[ind3 + 2] = normal.z;
+
+    // Increment and return
+    ++(*index);
+    return 0;
+}
 
 
 

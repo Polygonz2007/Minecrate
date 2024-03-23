@@ -28,31 +28,41 @@ int generate_texture_atlas() {
 			// Find texture for this side on this block and paste to atlas
 			char dir[48];
 			snprintf(dir, 47, "%s/BLOCK_%s_%s.png", block_textures_dir, block_names[block], side_names[side + 1]);
-			printf("%s\n", dir);
 
 			// Get
-			Image img = LoadImage(dir);
-			const Rectangle destination = {
-				side * texture_resolution, block * texture_resolution,
-				texture_resolution, texture_resolution };
+			Image img;
+			_Bool found = false;
 
-			const Rectangle textureRes = { 0, 0, texture_resolution, texture_resolution };
-
-			// If we cant load the one with side, try one for all sides
-			if (img.width == 0) {
-				snprintf(dir, 47, "%s/BLOCK_%s.png", block_textures_dir, block_names[block]);
+			if (FileExists(dir)) {
 				img = LoadImage(dir);
+				found = true;
+			} else {
+				snprintf(dir, 47, "%s/BLOCK_%s.png", block_textures_dir, block_names[block]);
 			}
 
-			// If this doesnt load either, make empty texture
-			if (img.width == 0) {
+			// If we cant load the one with side, try one for all sides
+			if (!found && FileExists(dir)) {
+				img = LoadImage(dir);
+				found = true;
+			}
+			
+			if (!found) {
+				// If this doesnt exit either, make check textuere
 				img = GenImageChecked(
 					texture_resolution,
 					texture_resolution,
 					8, 8,
 					BLACK,
-					(Color) { 255, 0, 255, 255 });
+					(Color) {
+					255, 0, 255, 255
+				});
 			}
+
+			// Draw to atlas
+			const Rectangle textureRes = { 0, 0, texture_resolution, texture_resolution };
+			const Rectangle destination = {
+				side * texture_resolution, block * texture_resolution,
+				texture_resolution, texture_resolution };
 
 			ImageDraw(&texture_atlas_img, img, textureRes, destination, WHITE);
 		}
