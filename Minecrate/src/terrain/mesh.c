@@ -136,25 +136,33 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     uint16_t chunk_plus_z = get_chunk_index((vec2i16_t) { chunk_pos.x, chunk_pos.y + 1 });
 
     // Use to get block above, below, sides, etc of this block
-    uint16_t plus_x = 1;
-    uint16_t plus_y = chunk_size.x;
-    uint16_t plus_z = chunk_size.x * chunk_size.y;
+    const uint16_t plus_x = 1;
+    const uint16_t plus_y = chunk_size.x;
+    const uint16_t plus_z = chunk_size.x * chunk_size.y;
 
     // Fill buffer for blocks needed for THIS chunk.
 
     // Calculate all blocks where a face is needed. Add to the total.
     for (uint16_t x = 0; x <= chunk_size.x; ++x) {
-        if (x == 16 && chunk_plus_x == -1)
+        if (x == chunk_size.x && chunk_plus_x == -1)
             break;
 
         for (uint16_t z = 0; z < chunk_size.z; ++z) {
-            if (z == 16 && chunk_plus_z == -1)
+            if (z == chunk_size.z && chunk_plus_z == -1)
                 continue;
 
             for (uint16_t y = 0; y <= chunk_size.y; ++y) {
                 // Get index, and start moving data
-                uint32_t index = x + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
-                uint32_t write_index = x + (y * (chunk_size.x + 1)) + (z * (chunk_size.y + 1) * (chunk_size.x + 1));
+                uint32_t index = x + (y * plus_y) + (z * plus_z);
+                const uint32_t write_index = x + (y * (chunk_size.x + 1)) + (z * (chunk_size.y + 1) * (chunk_size.x + 1));
+
+                // If we are on the edge (another chunk) update the index we read from.
+                if (x == chunk_size.x && chunk_plus_x != -1) {
+                    index = (chunk_plus_x * chunk_data_size) + 0 + (y * chunk_size.x) + (z * chunk_size.z * chunk_size.y);
+                }
+                else if (z == chunk_size.z && chunk_plus_z != -1) {
+                    index = (chunk_plus_z * chunk_data_size) + x + (y * chunk_size.x) + 0;
+                }
 
                 block_t cb = chunk_data[cind + index];
 
@@ -194,44 +202,46 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
                     // Edit values for blocks, this block bc negative bc 0
                     if (nx.type != BLOCK_UNDEFINED && nx.type != BLOCK_AIR && nx.type != BLOCK_WATER) {
                         tot_tris += 2;
-                        mesh_gen_buffer[index].x = nx;
-                        mesh_gen_buffer[index].x_normals = false;
+                        mesh_gen_buffer[write_index].x = nx;
+                        mesh_gen_buffer[write_index].x_normals = false;
                     }
 
                     if (ny.type != BLOCK_UNDEFINED && ny.type != BLOCK_AIR && ny.type != BLOCK_WATER) {
                         tot_tris += 2;
-                        mesh_gen_buffer[index].y = ny;
-                        mesh_gen_buffer[index].y_normals = false;
+                        mesh_gen_buffer[write_index].y = ny;
+                        mesh_gen_buffer[write_index].y_normals = false;
                     }
 
                     if (nz.type != BLOCK_UNDEFINED && nz.type != BLOCK_AIR && nz.type != BLOCK_WATER) {
                         tot_tris += 2;
-                        mesh_gen_buffer[index].z = nz;
-                        mesh_gen_buffer[index].z_normals = false;
+                        mesh_gen_buffer[write_index].z = nz;
+                        mesh_gen_buffer[write_index].z_normals = false;
                     }
 
                     // Edit values for blocks with OFFSET!!! (wow, so cool!) bc 1, with offset! (and positive)
                     if (px.type != BLOCK_UNDEFINED && px.type != BLOCK_AIR && px.type != BLOCK_WATER) {
                         tot_tris += 2;
-                        mesh_gen_buffer[index + plus_x].x = px;
-                        mesh_gen_buffer[index + plus_x].x_normals = true;
+                        mesh_gen_buffer[write_index + plus_x].x = px;
+                        mesh_gen_buffer[write_index + plus_x].x_normals = true;
                     }
 
                     if (py.type != BLOCK_UNDEFINED && py.type != BLOCK_AIR && py.type != BLOCK_WATER) {
                         tot_tris += 2;
-                        mesh_gen_buffer[index + plus_y].y = py;
-                        mesh_gen_buffer[index + plus_y].y_normals = true;
+                        mesh_gen_buffer[write_index + plus_y].y = py;
+                        mesh_gen_buffer[write_index + plus_y].y_normals = true;
                     }
 
                     if (pz.type != BLOCK_UNDEFINED && pz.type != BLOCK_AIR && pz.type != BLOCK_WATER) {
                         tot_tris += 2;
-                        mesh_gen_buffer[index + plus_z].z = pz;
-                        mesh_gen_buffer[index + plus_z].z_normals = true;
+                        mesh_gen_buffer[write_index + plus_z].z = pz;
+                        mesh_gen_buffer[write_index + plus_z].z_normals = true;
                     }
                 }
             }
         }
     }
+
+    printf("past\n");
 
     // Init mesh object
     Mesh mesh = { 0 };
