@@ -263,7 +263,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
             for (uint16_t z = 0; z <= chunk_size.z; ++z) {
 
                 // Get index and make mesh_sides for this block
-                const uint32_t index = x + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x);
+                const uint32_t index = x + (y * (chunk_size.x + 1)) + (z * (chunk_size.y + 1) * (chunk_size.x + 1));
                 const struct mesh_sides sides = mesh_gen_buffer[index];
 
                 // X FACE
