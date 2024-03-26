@@ -204,8 +204,6 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
         }
     }
 
-    printf("past\n");
-
     // Init mesh object
     Mesh mesh = { 0 };
 
@@ -293,8 +291,6 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
             }
         }
     }
-
-    printf("dipped\n");
 
     // We upload mesh on main thread, so do nothing here :)
     return mesh;
