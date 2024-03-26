@@ -38,8 +38,8 @@ static inline struct mesh_sides mesh_sides_empty() {
 
 // INIT MESH GEN
 int init_mesh_gen() {
-    mesh_gen_buffer_size = (chunk_size.x + 1) * chunk_size.y * (chunk_size.z + 1);
-    mesh_gen_buffer_size -= chunk_size.y; // remove last bit we dont need
+    mesh_gen_buffer_size = chunk_size.x * chunk_size.y * chunk_size.z;
+    //mesh_gen_buffer_size -= chunk_size.y; // remove last bit we dont need
 
     mesh_gen_buffer = malloc(mesh_gen_buffer_size * sizeof(struct mesh_sides));
     chunk_mem_usage += mesh_gen_buffer_size * sizeof(struct mesh_sides);
@@ -132,8 +132,11 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
 
     // Chunk index offsets
     uint32_t cind = chunk_index * chunk_data_size;
-    uint16_t chunk_plus_x = get_chunk_index((vec2i16_t) { chunk_pos.x + 1, chunk_pos.y });
-    uint16_t chunk_plus_z = get_chunk_index((vec2i16_t) { chunk_pos.x, chunk_pos.y + 1 });
+    int16_t chunk_neg_x = get_chunk_index((vec2i16_t) { chunk_pos.x - 1, chunk_pos.y });
+    int16_t chunk_neg_z = get_chunk_index((vec2i16_t) { chunk_pos.x, chunk_pos.y - 1 });
+
+    uint32_t cnxind = chunk_neg_x * chunk_data_size;
+    uint32_t cnzind = chunk_neg_z * chunk_data_size;
 
     // Use to get block above, below, sides, etc of this block
     const uint16_t plus_x = 1;
@@ -141,101 +144,61 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     const uint16_t plus_z = chunk_size.x * chunk_size.y;
 
     // Fill buffer for blocks needed for THIS chunk.
+    vec3u16_t sides_size = { chunk_size.x, chunk_size.y, chunk_size.z };
 
     // Calculate all blocks where a face is needed. Add to the total.
-    for (uint16_t x = 0; x <= chunk_size.x; ++x) {
-        if (x == chunk_size.x && chunk_plus_x == -1)
-            break;
+    for (uint16_t x = 0; x < chunk_size.x; ++x) {
+        for (uint16_t y = 0; y < chunk_size.y; ++y) {
+            for (uint16_t z = 0; z < chunk_size.z; ++z) {
 
-        for (uint16_t z = 0; z < chunk_size.z; ++z) {
-            if (z == chunk_size.z && chunk_plus_z == -1)
-                continue;
-
-            for (uint16_t y = 0; y <= chunk_size.y; ++y) {
                 // Get index, and start moving data
-                uint32_t index = x + (y * plus_y) + (z * plus_z);
-                const uint32_t write_index = x + (y * (chunk_size.x + 1)) + (z * (chunk_size.y + 1) * (chunk_size.x + 1));
+                uint32_t block_index = x + (y * chunk_size.x) + (z * chunk_size.x * chunk_size.y) + cind;
+                uint32_t write_index = x + (y * sides_size.x) + (z * sides_size.x * sides_size.y);
 
-                // If we are on the edge (another chunk) update the index we read from.
-                if (x == chunk_size.x && chunk_plus_x != -1) {
-                    index = (chunk_plus_x * chunk_data_size) + 0 + (y * chunk_size.x) + (z * chunk_size.z * chunk_size.y);
+                // Check blocks
+                block_t cb = chunk_data[block_index]; //chunk_data[cind + index];
+
+                // Get block here - 1x, if we are at 0 check next chunk.
+                block_t nx = block_t_new(BLOCK_UNDEFINED);
+                if (x != 0) {
+                    nx = chunk_data[block_index - plus_x];
+                } else if (chunk_neg_x != -1) {
+                    nx = chunk_data[cnxind + 15 + (y * chunk_size.x) + (z * chunk_size.y * chunk_size.x)];
                 }
-                else if (z == chunk_size.z && chunk_plus_z != -1) {
-                    index = (chunk_plus_z * chunk_data_size) + x + (y * chunk_size.x) + 0;
+
+                // Get block here - 1y, if at 0 return undefined.
+                block_t ny = block_t_new(BLOCK_UNDEFINED);
+                if (y != 0) {
+                    ny = chunk_data[block_index - plus_y];
                 }
 
-                block_t cb = chunk_data[cind + index];
-
-                if (cb.type == BLOCK_AIR || cb.type == BLOCK_WATER) {
-                    // We are in a transparent block, so check all sides and add to buffer if we need plane
-                    // Make sure its not outside of chunk
-                    block_t px = block_t_new(BLOCK_UNDEFINED);
-                    if (x + 1 < chunk_size.x)
-                        px = chunk_data[cind + index + plus_x];
-
-                    block_t py = block_t_new(BLOCK_UNDEFINED);
-                    if (y + 1 < chunk_size.y)
-                        py = chunk_data[cind + index + plus_y];
-
-                    block_t pz = block_t_new(BLOCK_UNDEFINED);
-                    if (z + 1 < chunk_size.z)
-                        pz = chunk_data[cind + index + plus_z];
+                // Get block here - 1z, if we are at 0 check next chunk.
+                block_t nz = block_t_new(BLOCK_UNDEFINED);
+                if (z != 0) {
+                    nz = chunk_data[block_index - plus_z];
+                } else if (chunk_neg_z != -1) {
+                    nz = chunk_data[cnzind + x + (y * chunk_size.x) + (15 * chunk_size.y * chunk_size.x)];
+                }
 
 
 
-                    // Negative, so make sure more than 0
-                    block_t nx = block_t_new(BLOCK_UNDEFINED);
-                    if (x > 0)
-                        nx = chunk_data[cind + index - plus_x];
+                // Edit values for blocks ON THIS BLOCK (no offset)
+                if (block_is_clear[cb.type] != block_is_clear[nx.type] && nx.type != BLOCK_UNDEFINED) {
+                    tot_tris += 2;
+                    mesh_gen_buffer[write_index].x = block_is_clear[nx.type] ? cb : nx;
+                    mesh_gen_buffer[write_index].x_normals = block_is_clear[nx.type];
+                }
 
-                    block_t ny = block_t_new(BLOCK_UNDEFINED);
-                    if (y > 0)
-                        ny = chunk_data[cind + index - plus_y];
+                if (block_is_clear[cb.type] != block_is_clear[ny.type] && ny.type != BLOCK_UNDEFINED) {
+                    tot_tris += 2;
+                    mesh_gen_buffer[write_index].y = block_is_clear[ny.type] ? cb : ny;
+                    mesh_gen_buffer[write_index].y_normals = block_is_clear[ny.type];
+                }
 
-                    block_t nz = block_t_new(BLOCK_UNDEFINED);
-                    if (z > 0)
-                        nz = chunk_data[cind + index - plus_z];
-
-
-
-
-                    // Edit values for blocks, this block bc negative bc 0
-                    if (nx.type != BLOCK_UNDEFINED && nx.type != BLOCK_AIR && nx.type != BLOCK_WATER) {
-                        tot_tris += 2;
-                        mesh_gen_buffer[write_index].x = nx;
-                        mesh_gen_buffer[write_index].x_normals = false;
-                    }
-
-                    if (ny.type != BLOCK_UNDEFINED && ny.type != BLOCK_AIR && ny.type != BLOCK_WATER) {
-                        tot_tris += 2;
-                        mesh_gen_buffer[write_index].y = ny;
-                        mesh_gen_buffer[write_index].y_normals = false;
-                    }
-
-                    if (nz.type != BLOCK_UNDEFINED && nz.type != BLOCK_AIR && nz.type != BLOCK_WATER) {
-                        tot_tris += 2;
-                        mesh_gen_buffer[write_index].z = nz;
-                        mesh_gen_buffer[write_index].z_normals = false;
-                    }
-
-                    // Edit values for blocks with OFFSET!!! (wow, so cool!) bc 1, with offset! (and positive)
-                    if (px.type != BLOCK_UNDEFINED && px.type != BLOCK_AIR && px.type != BLOCK_WATER) {
-                        tot_tris += 2;
-                        mesh_gen_buffer[write_index + plus_x].x = px;
-                        mesh_gen_buffer[write_index + plus_x].x_normals = true;
-                    }
-
-                    if (py.type != BLOCK_UNDEFINED && py.type != BLOCK_AIR && py.type != BLOCK_WATER) {
-                        tot_tris += 2;
-                        mesh_gen_buffer[write_index + plus_y].y = py;
-                        mesh_gen_buffer[write_index + plus_y].y_normals = true;
-                    }
-
-                    if (pz.type != BLOCK_UNDEFINED && pz.type != BLOCK_AIR && pz.type != BLOCK_WATER) {
-                        tot_tris += 2;
-                        mesh_gen_buffer[write_index + plus_z].z = pz;
-                        mesh_gen_buffer[write_index + plus_z].z_normals = true;
-                    }
+                if (block_is_clear[cb.type] != block_is_clear[nz.type] && nz.type != BLOCK_UNDEFINED) {
+                    tot_tris += 2;
+                    mesh_gen_buffer[write_index].z = block_is_clear[nz.type] ? cb : nz;
+                    mesh_gen_buffer[write_index].z_normals = block_is_clear[nz.type];
                 }
             }
         }
@@ -245,6 +208,12 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
 
     // Init mesh object
     Mesh mesh = { 0 };
+
+    // Return empty if no faces
+    if (tot_tris == 0)
+        return mesh;
+
+    // Use total triangle number to calculate mesh size!
     mesh.triangleCount = (int)tot_tris;
     mesh.vertexCount = mesh.triangleCount * 3;
     mesh.vertices = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float));
@@ -258,12 +227,12 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     uint32_t face_ind = 0;
 
     // Loop trough all blocks, and add faces where it is nessecarry
-    for (uint16_t x = 0; x <= chunk_size.x; ++x) {
+    for (uint16_t x = 0; x < chunk_size.x; ++x) {
         for (uint16_t y = 0; y < chunk_size.y; ++y) {
-            for (uint16_t z = 0; z <= chunk_size.z; ++z) {
+            for (uint16_t z = 0; z < chunk_size.z; ++z) {
 
                 // Get index and make mesh_sides for this block
-                const uint32_t index = x + (y * (chunk_size.x + 1)) + (z * (chunk_size.y + 1) * (chunk_size.x + 1));
+                const uint32_t index = x + (y * sides_size.x) + (z * sides_size.x * sides_size.y);
                 const struct mesh_sides sides = mesh_gen_buffer[index];
 
                 // X FACE
@@ -324,6 +293,8 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
             }
         }
     }
+
+    printf("dipped\n");
 
     // We upload mesh on main thread, so do nothing here :)
     return mesh;

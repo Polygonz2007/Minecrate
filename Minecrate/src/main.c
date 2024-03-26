@@ -407,7 +407,7 @@ int main() {
         for (uint16_t i = 0; i < num_chunks; ++i) {
             if (chunk_status[i] == CHUNK_LOADED_MODEL) {
                 vec2i16_t loc = chunk_locs[i];
-                Vector3 cpos = (Vector3){ (float)loc.x * 16.0f, 0.0f, (float)loc.y * 16.0f };
+                Vector3 cpos = (Vector3){ (float)loc.x * chunk_size.x, 0.0f, (float)loc.y * chunk_size.z };
 
                 // Draw it
                 Model c_chunk_model = chunk_models[i];

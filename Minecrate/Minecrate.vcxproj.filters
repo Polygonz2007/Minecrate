@@ -91,6 +91,12 @@
     <Image Include="assets\block_textures\BLOCK_GRASS_BOTTOM.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\block_textures\BLOCK_AIR.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\block_textures\BLOCK_WATER.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\base.vs" />

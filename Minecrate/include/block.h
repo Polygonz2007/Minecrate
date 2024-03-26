@@ -63,6 +63,21 @@ static const uint8_t block_hardness[16] = { // max block hardness can be 255, an
 	1	// LEAVES
 };
 
+static const _Bool block_is_clear[16] = {
+	true,	// UNDEF
+	true,	// AIR
+	false,	// BEDROCK
+	true,	// WATER
+	false,	// GRAS
+	false,	// DIRT
+	false,	// COARSE DIRT
+	false,	// STONE
+	false,	// COBBLESTONE
+	false,	// SAND
+	false,	// GRAVEL
+	true	// LEAVES
+};
+
 
 // define "side" struct, for the different faces of the blocks
 // prototype!

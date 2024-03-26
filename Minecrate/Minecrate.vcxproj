@@ -148,6 +148,7 @@
     <ClInclude Include="include\vec3.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="assets\block_textures\BLOCK_AIR.png" />
     <Image Include="assets\block_textures\BLOCK_BEDROCK.png" />
     <Image Include="assets\block_textures\BLOCK_COBBLESTONE.png" />
     <Image Include="assets\block_textures\BLOCK_DIRT.png" />
@@ -157,6 +158,7 @@
     <Image Include="assets\block_textures\BLOCK_GRAVEL.png" />
     <Image Include="assets\block_textures\BLOCK_LEAVES.png" />
     <Image Include="assets\block_textures\BLOCK_SAND.png" />
+    <Image Include="assets\block_textures\BLOCK_WATER.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\base.fs" />
