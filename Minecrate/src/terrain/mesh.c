@@ -42,7 +42,7 @@ int init_mesh_gen() {
     //mesh_gen_buffer_size -= chunk_size.y; // remove last bit we dont need
 
     mesh_gen_buffer = malloc(mesh_gen_buffer_size * sizeof(struct mesh_sides));
-    chunk_mem_usage += mesh_gen_buffer_size * sizeof(struct mesh_sides);
+    chunk_memory_usage += mesh_gen_buffer_size * sizeof(struct mesh_sides);
 
     printf("\nInitiated mesh gen buffer.");
     return 0;
@@ -103,12 +103,15 @@ int unload_chunk_model_and_mesh(vec2i16_t chunk_pos) {
     if (index == -1) // Make sure the mesh and model we're trying to unload exists
         return -1;
 
+    // Remove counted memory
+    //mesh_memory_usage -= chunk_meshes[index].vertexCount * (3 + 3 + 2) * sizeof(float);
+
     // Empty model
     //UnloadModel(chunk_models[index]);
     chunk_models[index] = (Model) { 0 };
 
     // TODO: fix lol
-    // Free the data from mesh and empty mesh
+    // Free the data from mesh and empty mesh trash
     chunk_meshes[index] = (Mesh) { 0 };
 
     // Set status
@@ -217,6 +220,9 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
     mesh.vertices = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float));
     mesh.texcoords = (float *)MemAlloc(mesh.vertexCount * 2 * sizeof(float));
     mesh.normals = (float *)MemAlloc(mesh.vertexCount * 3 * sizeof(float));
+
+    // Keep track of memory
+    mesh_memory_usage += mesh.vertexCount * (3 + 3 + 2) * sizeof(float);
 
     // Giddy up
     verts_p = mesh.vertices;

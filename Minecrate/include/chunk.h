@@ -20,12 +20,12 @@ Mesh* chunk_meshes;		// The mesh in each model, this data in written in another 
 // CHUNK SETTINGS (cannot change at runtime! (yet))
 uint16_t num_chunks;			// Total number of chunks avaliable in chunk_data, chunk_locs and chunk_status
 uint32_t chunk_data_size;		// Total amount of sizeof(block_t)'s each chunk occupies in the "chunk_data" array.
-uint32_t chunk_mem_usage;
+uint64_t chunk_memory_usage;
 
 // Current position of player relative to chunks
 static vec2i16_t current_chunk_pos = { 0, 0 };
 static uint8_t sea_level = 63; // SEA LEVEL NOT RENDER DISTANCE STOP IT POLE
-static uint8_t render_distance = 8;	// Chunks in each direction. (rd + 1 + rd) MIN 1 MAX 64 (so u dont kill comper)
+static uint8_t render_distance = 12;	// Chunks in each direction. (rd + 1 + rd) MIN 1 MAX 64 (so u dont kill comper)
 
 static const vec3u16_t chunk_size = {	// Size of each chunk, in blocks.
 	16,		// X

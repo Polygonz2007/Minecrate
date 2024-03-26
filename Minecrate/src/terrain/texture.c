@@ -21,13 +21,16 @@ int init_texture_atlas() {
 
 // Fill in with blocks
 int generate_texture_atlas() {
+	// get texture pack and generate directory
+	char tex_dir[64];
+	snprintf(tex_dir, 63, "%s/%s", texture_packs_dir, texture_pack);
+
 	// Fill in image with blocks
-	printf("Block types: %d", num_block_types);
 	for (uint8_t block = 0; block < num_block_types; ++block) {
 		for (uint8_t side = 0; side < 6; ++side) {
 			// Find texture for this side on this block and paste to atlas
-			char dir[48];
-			snprintf(dir, 47, "%s/BLOCK_%s_%s.png", block_textures_dir, block_names[block], side_names[side + 1]);
+			char dir[64];
+			snprintf(dir, 63, "%s/BLOCK_%s_%s.png", tex_dir, block_names[block], side_names[side + 1]);
 
 			// Get
 			Image img;
@@ -37,7 +40,7 @@ int generate_texture_atlas() {
 				img = LoadImage(dir);
 				found = true;
 			} else {
-				snprintf(dir, 47, "%s/BLOCK_%s.png", block_textures_dir, block_names[block]);
+				snprintf(dir, 63, "%s/BLOCK_%s.png", tex_dir, block_names[block]);
 			}
 
 			// If we cant load the one with side, try one for all sides
@@ -70,7 +73,7 @@ int generate_texture_atlas() {
 
 	texture_atlas = LoadTextureFromImage(texture_atlas_img);
 
-	GenTextureMipmaps(&texture_atlas);
+	//GenTextureMipmaps(&texture_atlas);
 	SetTextureFilter(texture_atlas, TEXTURE_FILTER_POINT);
 	SetTextureWrap(texture_atlas, TEXTURE_WRAP_CLAMP);
 
@@ -81,10 +84,10 @@ int generate_texture_atlas() {
 
 // Get texcords in atlas
 Vector2 get_texcoords_atlas(block_t block, side_t side) {
-	uint16_t id = block.type;
+	uint8_t id = block.type;
 
 	Vector2 vec = { 
-		(side.i - 1) / 6.0f, // 6 sides total
+		(side.i - 1) * 0.166666f, // 6 sides total
 		id / (double)num_block_types 
 	};
 

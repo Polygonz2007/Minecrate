@@ -17,14 +17,14 @@ uint16_t num_block_types;
 
 
 // DEFINE BLOCK NAMES FOR EACH TYPE
-static const char block_names[16][16] = {
+static const char block_names[16][32] = {
 	"UNDEFINED",
 	"AIR",
 	"BEDROCK",
 	"WATER",
 	"GRASS",
 	"DIRT",
-	"COARSE_DIRT"
+	"COARSE_DIRT",
 	"STONE",
 	"COBBLESTONE",
 	"SAND",

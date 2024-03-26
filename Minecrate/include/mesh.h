@@ -6,6 +6,9 @@
 #include "block.h"
 #include <raylib.h>
 
+// Memory
+uint64_t mesh_memory_usage;
+
 // Generate base plane meshes
 // Struct used to store data for a single mesh plane
 struct mesh_base_plane {

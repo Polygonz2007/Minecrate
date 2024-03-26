@@ -4,8 +4,14 @@
 #include <raylib.h>
 #include "block.h"
 
+// Resolution of each block texture
 static uint16_t texture_resolution = 16;
-static const char block_textures_dir[32] = "assets/block_textures";
+
+// Chosen texture pack
+static char texture_pack[32] = "default";
+
+// Directory to texture packs
+static const char texture_packs_dir[32] = "assets/texture_packs";
 
 
 Image texture_atlas_img;

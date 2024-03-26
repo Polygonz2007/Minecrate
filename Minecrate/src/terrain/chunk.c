@@ -42,16 +42,16 @@ int init_chunks() {
 	chunk_models = malloc(num_chunks * sizeof(Model));
 
 	// Track memory
-	chunk_mem_usage = 0;
-	chunk_mem_usage += chunk_data_size * num_chunks * sizeof(block_t);
-	chunk_mem_usage += num_chunks * sizeof(vec2i16_t);
-	chunk_mem_usage += num_chunks * sizeof(uint8_t);
-	chunk_mem_usage += chunk_size.x * chunk_size.z * sizeof(uint16_t);
+	chunk_memory_usage = 0;
+	chunk_memory_usage += chunk_data_size * num_chunks * sizeof(block_t);
+	chunk_memory_usage += num_chunks * sizeof(vec2i16_t);
+	chunk_memory_usage += num_chunks * sizeof(uint8_t);
+	chunk_memory_usage += chunk_size.x * chunk_size.z * sizeof(uint16_t);
 
-	chunk_mem_usage += num_chunks * sizeof(Mesh);
-	chunk_mem_usage += num_chunks * sizeof(Model);
+	chunk_memory_usage += num_chunks * sizeof(Mesh);
+	chunk_memory_usage += num_chunks * sizeof(Model);
 
-	printf("Memory allocated.\nChunk data size: %d\nTotal memory usage: %d\n", chunk_data_size, chunk_mem_usage);
+	printf("Memory allocated.\nChunk data size: %d\nTotal memory usage: %d\n", chunk_data_size, chunk_memory_usage);
 }
 
 int free_chunks() { // WARNING: any chunk functions including load_mesh or load_chunk should NOT be caled after this is called.
@@ -141,9 +141,13 @@ int load_chunk(vec2i16_t chunk_pos) {
 					cb = BLOCK_GRASS;
 				}
 
+				// Rocky mountains
+				if (h > 100 && (cb == BLOCK_GRASS || cb == BLOCK_DIRT))
+					cb = rand() % 2 == 0 ? BLOCK_COBBLESTONE : BLOCK_STONE;
+
 				// OCEAN
 				if (h < sea_level + 2 && (cb == BLOCK_GRASS || cb == BLOCK_DIRT))
-					cb = BLOCK_COBBLESTONE; // Sand at shore
+					cb = BLOCK_SAND; // Sand at shore
 
 				if (y < sea_level && cb == BLOCK_AIR)
 					cb = BLOCK_WATER;

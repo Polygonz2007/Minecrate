@@ -150,6 +150,7 @@
   <ItemGroup>
     <Image Include="assets\block_textures\BLOCK_AIR.png" />
     <Image Include="assets\block_textures\BLOCK_BEDROCK.png" />
+    <Image Include="assets\block_textures\BLOCK_COARSE_DIRT.png" />
     <Image Include="assets\block_textures\BLOCK_COBBLESTONE.png" />
     <Image Include="assets\block_textures\BLOCK_DIRT.png" />
     <Image Include="assets\block_textures\BLOCK_GRASS.png" />
@@ -158,7 +159,30 @@
     <Image Include="assets\block_textures\BLOCK_GRAVEL.png" />
     <Image Include="assets\block_textures\BLOCK_LEAVES.png" />
     <Image Include="assets\block_textures\BLOCK_SAND.png" />
+    <Image Include="assets\block_textures\BLOCK_STONE.png" />
     <Image Include="assets\block_textures\BLOCK_WATER.png" />
+    <Image Include="assets\texture_packs\default\BLOCK_BEDROCK.png" />
+    <Image Include="assets\texture_packs\default\BLOCK_COBBLESTONE.png" />
+    <Image Include="assets\texture_packs\default\BLOCK_DIRT.png" />
+    <Image Include="assets\texture_packs\default\BLOCK_GRASS.png" />
+    <Image Include="assets\texture_packs\default\BLOCK_GRASS_BOTTOM.png" />
+    <Image Include="assets\texture_packs\default\BLOCK_GRASS_TOP.png" />
+    <Image Include="assets\texture_packs\default\BLOCK_GRAVEL.png" />
+    <Image Include="assets\texture_packs\default\BLOCK_SAND.png" />
+    <Image Include="assets\texture_packs\default\BLOCK_STONE.png" />
+    <Image Include="assets\texture_packs\old\BLOCK_AIR.png" />
+    <Image Include="assets\texture_packs\old\BLOCK_BEDROCK.png" />
+    <Image Include="assets\texture_packs\old\BLOCK_COARSE_DIRT.png" />
+    <Image Include="assets\texture_packs\old\BLOCK_COBBLESTONE.png" />
+    <Image Include="assets\texture_packs\old\BLOCK_DIRT.png" />
+    <Image Include="assets\texture_packs\old\BLOCK_GRASS.png" />
+    <Image Include="assets\texture_packs\old\BLOCK_GRASS_BOTTOM.png" />
+    <Image Include="assets\texture_packs\old\BLOCK_GRASS_TOP.png" />
+    <Image Include="assets\texture_packs\old\BLOCK_GRAVEL.png" />
+    <Image Include="assets\texture_packs\old\BLOCK_LEAVES.png" />
+    <Image Include="assets\texture_packs\old\BLOCK_SAND.png" />
+    <Image Include="assets\texture_packs\old\BLOCK_STONE.png" />
+    <Image Include="assets\texture_packs\old\BLOCK_WATER.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\base.fs" />

@@ -228,6 +228,7 @@ int main() {
 
             char s[64];
             uint16_t tot_loaded_chunks = get_total_loaded_chunks();
+
             float loaded = ((float)tot_loaded_chunks / (float)num_chunks);
             snprintf(s, 63, "Loading world... [%.01f%%]", loaded * 100.0f);
 
@@ -451,7 +452,7 @@ int main() {
             char current_block_string[32];
 
             snprintf(chunk_num_s, 63, "Loaded Chunks: %d / %d avaliable (%.01f%%)", tot_loaded_chunks, num_chunks, ((float)tot_loaded_chunks / (float)num_chunks) * 100.0f);
-            snprintf(memory_s, 63, "Total memory usage: %.01f MB  (%d bytes)", chunk_mem_usage / 1000000.0f, chunk_mem_usage);
+            snprintf(memory_s, 63, "Total memory usage: %.01f MB  (%lu bytes)", (chunk_memory_usage + mesh_memory_usage) * 0.000001f, chunk_memory_usage + mesh_memory_usage);
             snprintf(render_dist_s, 31, "Render distance: %d", render_distance);
             snprintf(position_string, 63, "Position: %d, %d, %d", int_pos.x, int_pos.y, int_pos.z);
             snprintf(c_position_string, 63, "Chunk Position: %d, %d", new_chunk_pos.x, new_chunk_pos.y);

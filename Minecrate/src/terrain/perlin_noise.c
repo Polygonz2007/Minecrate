@@ -6,11 +6,11 @@
 
 #include <stdio.h>
 
-static float lerpn(float a, float b, float t) {
+static inline float lerpn(float a, float b, float t) {
 	return a + (b - a) * t;
 }
 
-static float dot(Vector2 a, Vector2 b) {
+static inline float dot(Vector2 a, Vector2 b) {
 	return a.x * b.x + a.y * b.y;
 }
 
