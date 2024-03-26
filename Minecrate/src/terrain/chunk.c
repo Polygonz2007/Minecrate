@@ -94,8 +94,8 @@ int load_chunk(vec2i16_t chunk_pos) {
 
 	for (uint16_t x = 0; x < chunk_size.x; ++x) {
 		for (uint16_t y = 0; y < chunk_size.z; ++y) {
-			int32_t cx = 1000 + global_cx + (int32_t)x;
-			int32_t cy = 1000 + global_cy + (int32_t)y;
+			int32_t cx = global_cx + (int32_t)x;
+			int32_t cy = global_cy + (int32_t)y;
 			// + 1000 to avoid problems temporariy
 
 			// TERRAIN
@@ -152,6 +152,7 @@ int load_chunk(vec2i16_t chunk_pos) {
 				if (y < sea_level && cb == BLOCK_AIR)
 					cb = BLOCK_WATER;
 
+				
 				// CAVES
 				// 3d noise, abs(noise - 1.0f) > 0.05f
 
