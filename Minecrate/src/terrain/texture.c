@@ -30,7 +30,7 @@ int generate_texture_atlas() {
 		for (uint8_t side = 0; side < 6; ++side) {
 			// Find texture for this side on this block and paste to atlas
 			char dir[64];
-			snprintf(dir, 63, "%s/BLOCK_%s_%s.png", tex_dir, block_names[block], side_names[side + 1]);
+			snprintf(dir, 63, "%s/%s_%s.png", tex_dir, block_names[block], side_names[side + 1]);
 
 			// Get
 			Image img;
@@ -40,7 +40,7 @@ int generate_texture_atlas() {
 				img = LoadImage(dir);
 				found = true;
 			} else {
-				snprintf(dir, 63, "%s/BLOCK_%s.png", tex_dir, block_names[block]);
+				snprintf(dir, 63, "%s/%s.png", tex_dir, block_names[block]);
 			}
 
 			// If we cant load the one with side, try one for all sides

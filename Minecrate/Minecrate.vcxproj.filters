@@ -130,43 +130,82 @@
     <Image Include="assets\texture_packs\default\BLOCK_STONE.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\texture_packs\old\BLOCK_AIR.png">
+    <Image Include="assets\texture_packs\default\BEDROCK.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\texture_packs\old\BLOCK_BEDROCK.png">
+    <Image Include="assets\texture_packs\default\COBBLESTONE.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\texture_packs\old\BLOCK_COARSE_DIRT.png">
+    <Image Include="assets\texture_packs\default\DIRT.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\texture_packs\old\BLOCK_COBBLESTONE.png">
+    <Image Include="assets\texture_packs\default\GRASS.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\texture_packs\old\BLOCK_DIRT.png">
+    <Image Include="assets\texture_packs\default\GRASS_BOTTOM.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\texture_packs\old\BLOCK_GRASS.png">
+    <Image Include="assets\texture_packs\default\GRASS_TOP.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\texture_packs\old\BLOCK_GRASS_BOTTOM.png">
+    <Image Include="assets\texture_packs\default\GRAVEL.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\texture_packs\old\BLOCK_GRASS_TOP.png">
+    <Image Include="assets\texture_packs\default\OAK_LOG.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\texture_packs\old\BLOCK_GRAVEL.png">
+    <Image Include="assets\texture_packs\default\OAK_LOG_BOTTOM.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\texture_packs\old\BLOCK_LEAVES.png">
+    <Image Include="assets\texture_packs\default\OAK_LOG_TOP.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\texture_packs\old\BLOCK_SAND.png">
+    <Image Include="assets\texture_packs\default\SAND.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\texture_packs\old\BLOCK_STONE.png">
+    <Image Include="assets\texture_packs\default\STONE.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\texture_packs\old\BLOCK_WATER.png">
+    <Image Include="assets\texture_packs\old\AIR.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\texture_packs\old\BEDROCK.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\texture_packs\old\COARSE_DIRT.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\texture_packs\old\COBBLESTONE.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\texture_packs\old\DIRT.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\texture_packs\old\GRASS.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\texture_packs\old\GRASS_BOTTOM.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\texture_packs\old\GRASS_TOP.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\texture_packs\old\GRAVEL.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\texture_packs\old\LEAVES.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\texture_packs\old\SAND.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\texture_packs\old\STONE.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\texture_packs\old\WATER.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\texture_packs\default\OAK_LEAVES.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

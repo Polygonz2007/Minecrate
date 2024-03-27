@@ -29,7 +29,8 @@ static const char block_names[16][32] = {
 	"COBBLESTONE",
 	"SAND",
 	"GRAVEL",
-	"LEAVES"
+	"OAK_LOG",
+	"OAK_LEAVES"
 };
 
 static enum block_type {
@@ -44,7 +45,8 @@ static enum block_type {
 	BLOCK_COBBLESTONE,
 	BLOCK_SAND,
 	BLOCK_GRAVEL,
-	BLOCK_LEAVES
+	BLOCK_OAK_LOG,
+	BLOCK_OAK_LEAVES
 };
 
 // DEFINE BLOCK HARDNESS(ES)
@@ -60,7 +62,8 @@ static const uint8_t block_hardness[16] = { // max block hardness can be 255, an
 	6,	// COBBLESTONE
 	3,	// SAND
 	3,	// GRAVEL
-	1	// LEAVES
+	5,	// OAK LOG
+	1	// OAK LEAVES
 };
 
 static const _Bool block_is_clear[16] = {
@@ -75,7 +78,8 @@ static const _Bool block_is_clear[16] = {
 	false,	// COBBLESTONE
 	false,	// SAND
 	false,	// GRAVEL
-	true	// LEAVES
+	false,	// OAK LOG
+	true	// OAK LEAVES
 };
 
 
