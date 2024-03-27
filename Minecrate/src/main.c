@@ -334,7 +334,7 @@ int main() {
             
             if (standing_block && player_position.y < int_pos.y) {
                 player_velocity.y = 0;
-                player_position.y = int_pos.y;
+                player_position.y = (float)int_pos.y;
             }
 
             if (in_block)
@@ -449,7 +449,6 @@ int main() {
             char render_dist_s[32];
             char position_string[64];
             char c_position_string[64];
-            char current_block_string[32];
 
             snprintf(chunk_num_s, 63, "Loaded Chunks: %d / %d avaliable (%.01f%%)", tot_loaded_chunks, num_chunks, ((float)tot_loaded_chunks / (float)num_chunks) * 100.0f);
             snprintf(memory_s, 63, "Total memory usage: %.01f MB  (%lu bytes)", (chunk_memory_usage + mesh_memory_usage) * 0.000001f, chunk_memory_usage + mesh_memory_usage);

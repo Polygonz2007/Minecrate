@@ -51,7 +51,8 @@ int init_chunks() {
 	chunk_memory_usage += num_chunks * sizeof(Mesh);
 	chunk_memory_usage += num_chunks * sizeof(Model);
 
-	printf("Memory allocated.\nChunk data size: %d\nTotal memory usage: %d\n", chunk_data_size, chunk_memory_usage);
+	printf("Memory allocated.\nChunk data size: %d\nTotal memory usage: %lu\n", chunk_data_size, chunk_memory_usage);
+	return 0;
 }
 
 int free_chunks() { // WARNING: any chunk functions including load_mesh or load_chunk should NOT be caled after this is called.
@@ -66,6 +67,7 @@ int free_chunks() { // WARNING: any chunk functions including load_mesh or load_
 	free(chunk_models);
 
 	printf("Finished freeing chunks.\n");
+	return 0;
 }
 
 
@@ -142,7 +144,7 @@ int load_chunk(vec2i16_t chunk_pos) {
 				}
 
 				// Rocky mountains
-				if (h > 100 && (cb == BLOCK_GRASS || cb == BLOCK_DIRT))
+				if (h > 95 && (cb == BLOCK_GRASS || cb == BLOCK_DIRT))
 					cb = rand() % 2 == 0 ? BLOCK_COBBLESTONE : BLOCK_STONE;
 
 				// OCEAN
@@ -155,6 +157,7 @@ int load_chunk(vec2i16_t chunk_pos) {
 				
 				// CAVES
 				// 3d noise, abs(noise - 1.0f) > 0.05f
+
 
 				chunk_data[i] = block_t_new(cb);
 			}

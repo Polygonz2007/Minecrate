@@ -304,7 +304,7 @@ Mesh GenChunkMesh(vec2i16_t chunk_pos) {
 
 
 
-static int add_vert(Vector3 pos, Vector2 uv, Vector3 normal, uint32_t* index) {
+int add_vert(Vector3 pos, Vector2 uv, Vector3 normal, uint32_t* index) {
     // Calculate indexes
     uint32_t ind3 = *index * 3;
     uint32_t ind2 = *index * 2;

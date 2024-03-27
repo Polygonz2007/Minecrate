@@ -37,11 +37,14 @@ struct mesh_sides {
     _Bool z_normals;
 };
 
+int init_mesh_gen();
+int free_mesh_gen();
 
 int load_chunk_mesh(vec2i16_t chunk_pos);
 int load_chunk_model(vec2i16_t chunk_pos);
 int unload_chunk_model_and_mesh(vec2i16_t chunk_pos);
 
+int add_vert(Vector3 pos, Vector2 uv, Vector3 normal, uint32_t* index);
 struct mesh_base_plane gen_plane_blueprint(vec3i16_t offset, side_t dir, uint8_t block);
 Mesh GenChunkMesh(vec2i16_t chunk_pos);
 
