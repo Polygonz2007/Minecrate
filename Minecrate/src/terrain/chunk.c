@@ -168,19 +168,19 @@ int load_chunk(vec2i16_t chunk_pos) {
 	}
 
 	// Trees + decorations
-	vec2u8_t tree_pos = { rand() % chunk_size.x, rand() % chunk_size.z };
-	uint16_t tree_height = chunk_buffer[tree_pos.x + (tree_pos.y * chunk_size.x)];
+	//vec2u8_t tree_pos = { rand() % chunk_size.x, rand() % chunk_size.z };
+	//uint16_t tree_height = chunk_buffer[tree_pos.x + (tree_pos.y * chunk_size.x)];
 
-	for (uint16_t x = tree_pos.x - 2; x < tree_pos.x + 2; ++x) {
-		for (uint16_t z = tree_pos.y - 2; z < tree_pos.y + 2; ++z) {
-			uint32_t i = chunk_index * chunk_data_size + get_block_index((vec3u16_t) { x, tree_height, z });
-			uint8_t cb = BLOCK_OAK_LEAVES;
-			if (x == tree_pos.x && z == tree_pos.y)
-				cb = BLOCK_OAK_LOG;
-
-			chunk_data[i] = block_t_new(cb);
-		}
-	}
+	//for (uint16_t x = tree_pos.x - 2; x < tree_pos.x + 2; ++x) {
+	//	for (uint16_t z = tree_pos.y - 2; z < tree_pos.y + 2; ++z) {
+	//		uint32_t i = chunk_index * chunk_data_size + get_block_index((vec3u16_t) { x, tree_height, z });
+	//		uint8_t cb = BLOCK_OAK_LEAVES;
+	//		if (x == tree_pos.x && z == tree_pos.y)
+	//			cb = BLOCK_OAK_LOG;
+	//
+	//		chunk_data[i] = block_t_new(cb);
+	//	}
+	//}
 
 	// Update status
 	chunk_status[chunk_index] = CHUNK_LOADED; /// Finished, and ready to be used. 

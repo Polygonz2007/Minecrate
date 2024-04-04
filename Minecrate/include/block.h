@@ -79,7 +79,7 @@ static const _Bool block_is_clear[16] = {
 	false,	// SAND
 	false,	// GRAVEL
 	false,	// OAK LOG
-	false	// OAK LEAVES
+	true	// OAK LEAVES
 };
 
 
