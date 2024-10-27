@@ -160,7 +160,8 @@ int load_chunk(vec2i16_t chunk_pos) {
 				
 				// CAVES
 				// 3d noise, abs(noise - 1.0f) > 0.05f
-
+				//if (fabs(sample_perlin_octaves_3d(block_pos.x / 40.0f, block_pos.y / 30.0f, block_pos.z / 40.0f, 4, 1.8f, 0.5f)) < 0.2f)
+					//cb = BLOCK_AIR;
 
 				chunk_data[i] = block_t_new(cb);
 			}

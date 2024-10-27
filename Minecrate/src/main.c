@@ -135,7 +135,7 @@ int main() {
     Vector2 look = { 0.0f, 0.0f }; // camera rotation in radians
 
     float player_height = 1.77f; // y offset of camera relative to player pos
-    float player_speed = 40.0f;//3.8f; // unit / second
+    float player_speed = 8.0f;//3.8f; // unit / second
     float player_jump_power = 8.0f;
     float player_sprint_multiplier = 2.0f;
 
